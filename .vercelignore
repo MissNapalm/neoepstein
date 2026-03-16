@@ -1,0 +1,9 @@
+requirements.txt
+import_list.py
+docker-compose.yml
+queries.cypher
+neo4j_data/
+venv/
+__pycache__/
+incomplete.txt
+list.txt
