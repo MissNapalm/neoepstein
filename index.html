@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Epstein Network Graph</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;overflow:hidden;color:#e2e8f0;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ── CONTROLS ── */
+#controls{
+  position:fixed;top:16px;left:16px;background:#1e293b;
+  border:1px solid #334155;border-radius:12px;padding:20px;z-index:10;
+  width:280px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,0.3),0 2px 4px -2px rgba(0,0,0,0.2);
+}
+#controls h1{font-size:16px;color:#f1f5f9;margin-bottom:4px;font-weight:700}
+#controls .subtitle{font-size:11px;color:#64748b;margin-bottom:16px;font-weight:400}
+#controls h2{font-size:10px;color:#94a3b8;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+#controls label{display:block;font-size:12px;padding:3px 0;cursor:pointer;color:#94a3b8}
+#controls label:hover{color:#f1f5f9}
+#search{
+  width:100%;padding:8px 12px;background:#0f172a;border:1px solid #334155;
+  border-radius:8px;color:#f1f5f9;font-size:13px;margin-bottom:12px;
+  font-family:inherit;outline:none;transition:border-color 0.2s;
+}
+#search:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+#search::placeholder{color:#475569}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
+#controls input[type="range"]{width:100%;accent-color:#6366f1}
+#controls input[type="checkbox"]{accent-color:#6366f1}
+#stats{font-size:11px;color:#475569;margin-top:12px;border-top:1px solid #334155;padding-top:10px;line-height:1.6}
+
+/* ── CATEGORY BUTTONS ── */
+.cat-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cat-btn{
+  padding:5px 10px;border-radius:6px;font-size:10px;font-weight:600;
+  border:1px solid #334155;background:#0f172a;color:#64748b;cursor:pointer;
+  transition:all 0.15s;text-transform:uppercase;letter-spacing:0.3px;
+}
+.cat-btn:hover{background:#1e293b;color:#cbd5e1}
+.cat-btn.active{background:#6366f1;color:#fff;border-color:#6366f1}
+
+/* ── TOOLTIP ── */
+#tooltip{
+  position:fixed;background:#1e293b;border:1px solid #334155;
+  border-radius:10px;padding:14px;font-size:12px;max-width:380px;
+  pointer-events:none;display:none;z-index:20;line-height:1.6;color:#cbd5e1;
+  box-shadow:0 10px 15px -3px rgba(0,0,0,0.4),0 4px 6px -4px rgba(0,0,0,0.3);
+}
+#tooltip .name{font-size:15px;font-weight:700;margin-bottom:4px;color:#f1f5f9}
+#tooltip .lbl{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;font-weight:600}
+#tooltip .hint{margin-top:8px;color:#475569;font-size:10px;font-style:italic}
+
+/* ── NODE LABELS ── */
+.node-label{font-size:9px;fill:#94a3b8;pointer-events:none;text-anchor:middle;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:500}
+
+/* ── PULSE ANIMATION ── */
+@keyframes subtlePulse {
+  0%   { stroke-opacity: 0.2; }
+  50%  { stroke-opacity: 0.05; }
+  100% { stroke-opacity: 0.2; }
+}
+.pulse-ring {
+  animation: subtlePulse 3s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+/* ── DOSSIER PANEL ── */
+#dossier{
+  position:fixed;top:0;right:-540px;width:520px;height:100vh;
+  background:#1e293b;border-left:1px solid #334155;
+  z-index:30;padding:0;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);
+  overflow-y:auto;font-size:13px;color:#cbd5e1;
+  box-shadow:-20px 0 60px rgba(0,0,0,0.4);
+}
+#dossier.open{right:0}
+#dossier-header{
+  background:#1e293b;
+  padding:24px 28px 20px;border-bottom:1px solid #334155;
+  position:sticky;top:0;z-index:2;
+}
+#dossier-close{
+  position:absolute;top:16px;right:20px;background:#0f172a;border:none;
+  color:#64748b;font-size:16px;width:36px;height:36px;border-radius:8px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+#dossier-close:hover{background:#334155;color:#f1f5f9}
+#dossier-name{font-size:24px;font-weight:800;margin-bottom:2px;color:#f1f5f9}
+#dossier-agency{font-size:11px;color:#64748b;letter-spacing:0.5px;margin-bottom:4px}
+#dossier-role{font-size:13px;color:#94a3b8;margin-bottom:8px}
+#dossier-status{
+  display:inline-block;margin-right:6px;padding:4px 12px;border-radius:6px;
+  font-size:10px;font-weight:700;letter-spacing:0.5px;
+}
+#dossier-networth{
+  display:inline-block;padding:4px 12px;border-radius:6px;
+  font-size:10px;font-weight:600;letter-spacing:0.3px;
+  background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2);
+}
+#dossier-body{padding:24px 28px 48px}
+#dossier-stamp{
+  position:absolute;top:50px;right:24px;
+  font-size:24px;font-weight:900;color:rgba(99,102,241,0.08);
+  transform:rotate(-12deg);letter-spacing:3px;pointer-events:none;
+  text-transform:uppercase;
+}
+.classified-banner{
+  text-align:center;padding:8px;font-size:9px;letter-spacing:2px;font-weight:700;
+  background:#0f172a;color:#475569;border-bottom:1px solid #334155;
+}
+
+/* Dossier sections */
+.dossier-section{margin-bottom:24px}
+.dossier-section h3{
+  font-size:11px;text-transform:uppercase;letter-spacing:1px;
+  color:#818cf8;margin-bottom:10px;padding-bottom:6px;
+  border-bottom:2px solid #1e293b;font-weight:700;
+  display:flex;align-items:center;gap:6px;
+}
+.dossier-section p{color:#94a3b8;line-height:1.8;font-size:13px}
+.dossier-field{margin-bottom:8px}
+.dossier-field .fl{color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+.dossier-field .fv{color:#e2e8f0;margin-top:2px;font-weight:500}
+
+/* Key quote callout */
+.dossier-callout{
+  background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;padding:12px 16px;
+  border-radius:0 8px 8px 0;margin:12px 0;font-size:12px;color:#fbbf24;
+  line-height:1.7;
+}
+.dossier-callout.red{background:rgba(239,68,68,0.08);border-left-color:#ef4444;color:#fca5a5}
+.dossier-callout.blue{background:rgba(59,130,246,0.08);border-left-color:#3b82f6;color:#93c5fd}
+
+/* Connection list */
+.conn-list{list-style:none;padding:0}
+.conn-list li{
+  padding:10px 12px;margin-bottom:4px;background:#0f172a;
+  border-radius:8px;border-left:3px solid #334155;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  transition:all 0.15s;
+}
+.conn-list li:hover{background:#1e293b;border-left-color:#818cf8;transform:translateX(2px)}
+.conn-name{color:#e2e8f0;font-size:12px;font-weight:500}
+.conn-strength{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700}
+.str-high{background:rgba(239,68,68,0.12);color:#f87171}
+.str-med{background:rgba(251,146,60,0.12);color:#fb923c}
+.str-low{background:rgba(100,116,139,0.12);color:#64748b}
+
+.core-badge{
+  display:inline-block;padding:3px 10px;border-radius:4px;
+  font-size:9px;font-weight:700;letter-spacing:1px;
+  background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);
+}
+.threat-badge{
+  display:inline-block;padding:6px 16px;border-radius:8px;
+  font-size:14px;font-weight:800;letter-spacing:1.5px;
+}
+.cat-tag{
+  display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;
+  font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;
+  margin:2px;
+}
+</style>
+</head>
+<body>
+<div id="controls">
+<h1>Epstein Network</h1>
+<div class="subtitle">Interactive intelligence graph</div>
+<input type="text" id="search" placeholder="Search by name...">
+
+<h2>View</h2>
+<div class="cat-buttons">
+  <button class="cat-btn active" data-cat="all">All</button>
+  <button class="cat-btn" data-cat="core">Core Ring</button>
+  <button class="cat-btn" data-cat="finance">Finance</button>
+  <button class="cat-btn" data-cat="politics">Politics</button>
+  <button class="cat-btn" data-cat="intel">Intelligence</button>
+  <button class="cat-btn" data-cat="tech">Tech</button>
+  <button class="cat-btn" data-cat="media">Media</button>
+</div>
+
+<h2>Filter by Classification</h2>
+<label><input type="checkbox" class="tf" value="center" checked><span class="dot" style="background:#dc2626"></span>Principal Targets</label>
+<label><input type="checkbox" class="tf" value="convicted" checked><span class="dot" style="background:#0f766e"></span>Convicted</label>
+<label><input type="checkbox" class="tf" value="suspicious" checked><span class="dot" style="background:#60a5fa"></span>Suspicious</label>
+<label><input type="checkbox" class="tf" value="possibly" checked><span class="dot" style="background:#9333ea"></span>Possibly Involved</label>
+
+<h2>Min Link Strength: <span id="sv">0</span></h2>
+<input type="range" id="str" min="0" max="1" step="0.1" value="0">
+
+<h2>Display</h2>
+<label><input type="checkbox" id="labels" checked> Show labels</label>
+<label><input type="checkbox" id="orphans" checked> Show unlinked nodes</label>
+<div id="stats"></div>
+</div>
+
+<div id="tooltip"></div>
+
+<div id="dossier">
+  <div class="classified-banner">NETWORK INTELLIGENCE DOSSIER — RESTRICTED</div>
+  <div id="dossier-header">
+    <button id="dossier-close">✕</button>
+    <div id="dossier-name"></div>
+    <div id="dossier-agency"></div>
+    <div id="dossier-role"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      <span id="dossier-status"></span>
+      <span id="dossier-networth"></span>
+    </div>
+    <div id="dossier-stamp"></div>
+  </div>
+  <div id="dossier-body"></div>
+</div>
+
+<svg id="graph"></svg>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="list.js?v=5"></script>
+<script src="list2.js?v=1"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// MERGE LIST2 INTO MAIN GRAPH
+// ═══════════════════════════════════════════════════════
+if (typeof supplementalData !== 'undefined') {
+  const existingIds = new Set(graphData.nodes.map(n => n.id));
+  supplementalData.nodes.forEach(n => {
+    if (!existingIds.has(n.id)) {
+      graphData.nodes.push(n);
+      existingIds.add(n.id);
+    }
+  });
+  const existingLinks = new Set(graphData.links.map(l => l.source + '→' + l.target));
+  supplementalData.links.forEach(l => {
+    const key = l.source + '→' + l.target;
+    if (!existingLinks.has(key)) {
+      graphData.links.push(l);
+      existingLinks.add(key);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// CATEGORY DEFINITIONS
+// ═══════════════════════════════════════════════════════
+const categories = {
+  core: [
+    "epstein","maxwell_g","kellen","marcinkova","groff","brunel","casablancas",
+    "wexner","black","staley","dimon","hoffenberg","dershowitz","acosta",
+    "starr","boies","barr_d","barr_w","robert_maxwell","eva_dubin","dubin","nader",
+    "barak","ben_menashe","alessi","rodriguez","weinstein",
+    "indyke","kahn_r","bronfman_clare"
+  ],
+  finance: [
+    "epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle",
+    "gates","brin","zuckerberg","thiel","ellison","musk","hoffman","pritzker","branson",
+    "lutnick","bloomberg","perlmutter","diller","mort_z","barrack",
+    "bronfman_sr","steinhardt","perelman","rothschild_lynn","nat_rothschild",
+    "cohen_steve","icahn","bob_kraft"
+  ],
+  politics: [
+    "epstein","clinton","trump","andrew","barak","netanyahu","mitchell",
+    "richardson","blair","mandelson","bannon","barrack","nader","mbs",
+    "sultan_brunei","sultan_ahmed","kissinger","lajcak","starr","acosta",
+    "barr_w","king_charles","ferguson","mette_marit","lutnick","putin",
+    "schumer","kerry","gore","powell","gingrich","bloomberg","perlmutter",
+    "sarkozy","albert_monaco","olmert","peres","comey","mueller","freeh",
+    "berman","strauss","rosenstein",
+    "berger","chertoff","quayle","shalala","frederik_denmark"
+  ],
+  intel: [
+    "epstein","robert_maxwell","maxwell_g","ben_menashe","khashoggi","dougan",
+    "brennan","petraeus","comey","barr_d","barr_w","nader","barak","netanyahu",
+    "putin","mbs","kissinger","thiel","ostrovsky","lebedev","deripaska",
+    "black_cube","kroll","freeh","mueller","berman","strauss","rosenstein",
+    "junkermann","savile","borgerson"
+  ],
+  tech: [
+    "epstein","joi_ito","nicholas_neg","minsky","pinker","chomsky","krauss",
+    "summers","deepak","gates","musk","brin","zuckerberg","thiel","ellison","hoffman",
+    "nowak","seth_lloyd","church","lessig",
+    "hawking","rees","wilczek"
+  ],
+  media: [
+    "epstein","copperfield","woody","spacey","tucker","naomi","branson","tisch",
+    "wasserman","mort_z","briatore","ari_emanuel","murdoch","casablancas","brunel",
+    "stroll","blanchett","christy_turlington","itzhak_perlman",
+    "diller","weinstein","lauer","charlie_rose","jagger","willis","fiennes",
+    "baldwin","wyclef","gerald_marie","zampolli",
+    "oprah","jackson_m","de_niro","diana_jenkins","bob_kraft"
+  ]
+};
+
+// ═══════════════════════════════════════════════════════
+// COLORS
+// ═══════════════════════════════════════════════════════
+const C = {
+  center:     "#f87171",
+  convicted:  "#2dd4bf",
+  suspicious: "#60a5fa",
+  possibly:   "#a78bfa"
+};
+const Clight = {
+  center:     "rgba(248,113,113,0.1)",
+  convicted:  "rgba(45,212,191,0.1)",
+  suspicious: "rgba(96,165,250,0.1)",
+  possibly:   "rgba(167,139,250,0.1)"
+};
+const Cborder = {
+  center:     "rgba(248,113,113,0.25)",
+  convicted:  "rgba(45,212,191,0.25)",
+  suspicious: "rgba(96,165,250,0.25)",
+  possibly:   "rgba(167,139,250,0.25)"
+};
+const typeLabel={center:"PRINCIPAL TARGET",convicted:"CONVICTED",suspicious:"SUSPICIOUS — UNDER REVIEW",possibly:"POSSIBLY INVOLVED"};
+
+const coreSet = new Set(categories.core);
+
+// ═══════════════════════════════════════════════════════
+// D3 SETUP
+// ═══════════════════════════════════════════════════════
+const W=window.innerWidth,H=window.innerHeight;
+const svg=d3.select("#graph").attr("width",W).attr("height",H);
+const g=svg.append("g");
+svg.call(d3.zoom().scaleExtent([0.1,8]).on("zoom",e=>g.attr("transform",e.transform)));
+
+const defs=svg.append("defs");
+defs.append("marker").attr("id","arr").attr("viewBox","0 -5 10 10")
+  .attr("refX",20).attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto")
+  .append("path").attr("d","M0,-5L10,0L0,5").attr("fill","#334155");
+
+const nodes=graphData.nodes.map(d=>({...d}));
+const links=graphData.links.map(d=>({...d}));
+
+const S = 0.55;
+
+const sim=d3.forceSimulation(nodes)
+  .force("link",d3.forceLink(links).id(d=>d.id).distance(d=>100/(d.strength||0.5)).strength(d=>d.strength||0.5))
+  .force("charge",d3.forceManyBody().strength(d=>-(d.radius*S)*18))
+  .force("center",d3.forceCenter(W/2,H/2))
+  .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+4))
+  .force("x",d3.forceX(W/2).strength(0.02))
+  .force("y",d3.forceY(H/2).strength(0.02))
+  .stop();
+
+// Stop simulation completely after initial layout
+for(let i=0;i<300;i++) sim.tick();
+sim.stop();
+
+// ═══════════════════════════════════════════════════════
+// LABEL COLLISION AVOIDANCE
+// ═══════════════════════════════════════════════════════
+function resolveLabels() {
+  const len = nodes.length;
+  const offY = new Float32Array(len);
+  const lblW = new Float32Array(len);
+  const lblH = 12;
+
+  for (let i = 0; i < len; i++) {
+    offY[i] = (nodes[i].radius * S) + 14;
+    lblW[i] = nodes[i].label.length * 6;
+  }
+
+  for (let pass = 0; pass < 12; pass++) {
+    let moved = false;
+    for (let i = 0; i < len; i++) {
+      const ax = nodes[i].x - lblW[i] / 2;
+      const ay = nodes[i].y + offY[i] - lblH / 2;
+      const ar = ax + lblW[i];
+      const ab = ay + lblH;
+      let blocked = false;
+
+      for (let j = 0; j < len; j++) {
+        if (i === j) continue;
+        // Check circle overlap
+        const r = nodes[j].radius * S + 3;
+        const cx = nodes[j].x, cy = nodes[j].y;
+        const closestX = ax > cx ? ax : ar < cx ? ar : cx;
+        const closestY = ay > cy ? ay : ab < cy ? ab : cy;
+        const dx = cx - closestX, dy = cy - closestY;
+        if (dx * dx + dy * dy < r * r) { blocked = true; break; }
+
+        // Check label overlap
+        const bx = nodes[j].x - lblW[j] / 2;
+        const by = nodes[j].y + offY[j] - lblH / 2;
+        if (!(ar < bx || bx + lblW[j] < ax || ab < by || by + lblH < ay)) { blocked = true; break; }
+      }
+
+      if (blocked) { offY[i] += 10; moved = true; }
+    }
+    if (!moved) break;
+  }
+
+  for (let i = 0; i < len; i++) nodes[i]._labelOffY = offY[i];
+}
+resolveLabels();
+
+// Use Canvas-backed links for better performance
+let linkEl=g.append("g").attr("class","links").selectAll("line").data(links).join("line")
+  .attr("stroke",d=>{const s=d.strength||0.5;return s>=0.8?"rgba(248,113,113,0.5)":s>=0.6?"rgba(251,146,60,0.4)":s>=0.4?"rgba(100,116,139,0.25)":"rgba(100,116,139,0.12)";})
+  .attr("stroke-width",d=>Math.max(0.5,(d.strength||0.5)*2.5))
+  .attr("stroke-opacity",0.6);
+
+const nodeEl=g.append("g").selectAll("g").data(nodes).join("g");
+
+// Subtle pulse ring for center nodes
+nodeEl.filter(d=>d.type==="center").append("circle")
+  .attr("class","pulse-ring")
+  .attr("r",d=>(d.radius*S)+6)
+  .attr("fill","none")
+  .attr("stroke",d=>C[d.type])
+  .attr("stroke-width",1.5);
+
+nodeEl.append("circle").attr("r",d=>d.radius*S)
+  .attr("fill",d=>C[d.type]||"#64748b")
+  .attr("stroke","rgba(255,255,255,0.15)")
+  .attr("stroke-width",1.5)
+  .attr("opacity",0.9).style("cursor","pointer")
+  .attr("filter","drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
+
+let lblEl=g.append("g").selectAll("text").data(nodes).join("text")
+  .attr("class","node-label").attr("dy",d=>(d.radius*S)+12).text(d=>d.label);
+
+// ═══════════════════════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════════════════════
+const tip=d3.select("#tooltip");
+nodeEl.on("mouseover",function(ev,d){
+  const conn=new Set([d.id]);
+  links.forEach(l=>{const s=l.source.id||l.source,t=l.target.id||l.target;if(s===d.id)conn.add(t);if(t===d.id)conn.add(s);});
+  nodeEl.select("circle:last-of-type").attr("opacity",n=>conn.has(n.id)?0.9:0.12);
+  lblEl.attr("opacity",n=>conn.has(n.id)?1:0.08);
+  linkEl.attr("stroke-opacity",l=>{const s=l.source.id||l.source,t=l.target.id||l.target;return(s===d.id||t===d.id)?0.9:0.03;});
+  let h=`<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
+  if(d.agency)h+=`<div style="font-size:10px;color:#64748b;margin-bottom:4px">${d.agency}</div>`;
+  if(d.role)h+=`<div><span class="lbl">Role: </span>${d.role}</div>`;
+  if(d.status)h+=`<div><span class="lbl">Status: </span>${d.status}</div>`;
+  if(coreSet.has(d.id))h+=`<div style="margin-top:4px;color:#f87171;font-size:10px;font-weight:700">⬤ CORE OPERATIONS RING</div>`;
+  h+=`<div class="hint">Click to open dossier →</div>`;
+  tip.html(h).style("display","block").style("left",(ev.pageX+15)+"px").style("top",(ev.pageY-10)+"px");
+}).on("mousemove",function(ev){
+  tip.style("left",(ev.pageX+15)+"px").style("top",(ev.pageY-10)+"px");
+}).on("mouseout",function(){
+  nodeEl.select("circle:last-of-type").attr("opacity",0.9);
+  lblEl.attr("opacity",1);linkEl.attr("stroke-opacity",0.6);tip.style("display","none");
+});
+
+// ═══════════════════════════════════════════════════════
+// DOSSIER
+// ═══════════════════════════════════════════════════════
+function openDossier(d) {
+  tip.style("display","none");
+  const panel = document.getElementById("dossier");
+  const color = C[d.type] || "#64748b";
+  const light = Clight[d.type] || "rgba(100,116,139,0.1)";
+  const border = Cborder[d.type] || "rgba(100,116,139,0.25)";
+  const isCore = coreSet.has(d.id);
+
+  document.getElementById("dossier-name").textContent = d.label;
+  document.getElementById("dossier-agency").textContent = d.agency || "";
+  document.getElementById("dossier-agency").style.display = d.agency ? "block" : "none";
+  document.getElementById("dossier-role").textContent = d.role || "";
+  document.getElementById("dossier-role").style.display = d.role ? "block" : "none";
+
+  const statusEl = document.getElementById("dossier-status");
+  if (d.status) {
+    statusEl.textContent = d.status;
+    statusEl.style.display = "inline-block";
+    const isDead = (d.status||"").includes("DECEASED") || (d.status||"").includes("DIED");
+    const isConv = (d.status||"").includes("CONVICTED");
+    const isFled = (d.status||"").includes("FLED");
+    const isImm = (d.status||"").includes("IMMUNITY");
+    statusEl.style.background = isDead?"rgba(100,116,139,0.1)":isConv?"rgba(248,113,113,0.1)":isFled?"rgba(251,146,60,0.1)":isImm?"rgba(250,204,21,0.1)":light;
+    statusEl.style.color = isDead?"#64748b":isConv?"#f87171":isFled?"#fb923c":isImm?"#facc15":color;
+    statusEl.style.border = "1px solid "+(isDead?"rgba(100,116,139,0.2)":isConv?"rgba(248,113,113,0.2)":isFled?"rgba(251,146,60,0.2)":isImm?"rgba(250,204,21,0.2)":border);
+  } else {
+    statusEl.style.display = "none";
+  }
+
+  const nwEl = document.getElementById("dossier-networth");
+  if (d.networth) {
+    nwEl.textContent = d.networth;
+    nwEl.style.display = "inline-block";
+  } else {
+    nwEl.style.display = "none";
+  }
+
+  const stamps = {center:"TARGET",convicted:"CONVICTED",suspicious:"SUSPECT",possibly:"MONITOR"};
+  document.getElementById("dossier-stamp").textContent = stamps[d.type] || "FILE";
+
+  const body = document.getElementById("dossier-body");
+  let html = "";
+
+  if (isCore) {
+    html += `<div style="margin-bottom:16px"><span class="core-badge">⬤ CORE OPERATIONS RING</span></div>`;
+  }
+
+  if (d.intelRole) {
+    html += `<div class="dossier-section"><h3>Intelligence Assessment</h3>`;
+    html += `<div class="dossier-callout red">${d.intelRole}</div></div>`;
+  }
+
+  if (d.epsteinLink) {
+    html += `<div class="dossier-section"><h3>Epstein Connection</h3>`;
+    html += `<div class="dossier-callout">${d.epsteinLink}</div></div>`;
+  }
+
+  if (d.significance) {
+    html += `<div class="dossier-section"><h3>Why This Matters</h3>`;
+    html += `<div class="dossier-callout blue">${d.significance}</div></div>`;
+  }
+
+  if (d.desc) {
+    html += `<div class="dossier-section"><h3>Summary</h3><p>${d.desc}</p></div>`;
+  }
+
+  if (d.evidence) {
+    html += `<div class="dossier-section"><h3>Evidence</h3><p>${d.evidence}</p></div>`;
+  }
+
+  if (d.link) {
+    html += `<div class="dossier-section"><h3>Analyst Note</h3>`;
+    html += `<p style="color:#64748b;font-style:italic">${d.link}</p></div>`;
+  }
+
+  const catNames = {core:"Core Ring",finance:"Finance",politics:"Politics",intel:"Intelligence",tech:"Tech",media:"Media & Celebrity"};
+  const nodeCats = Object.entries(categories).filter(([k,v])=>v.includes(d.id)).map(([k])=>k);
+  if (nodeCats.length) {
+    html += `<div class="dossier-section"><h3>Network Categories</h3><div style="display:flex;gap:4px;flex-wrap:wrap">`;
+    nodeCats.forEach(c => {
+      const isCoreTag = c === "core";
+      html += `<span class="cat-tag" style="${isCoreTag?'background:rgba(248,113,113,0.1);color:#f87171;border-color:rgba(248,113,113,0.2)':''}">${catNames[c]||c}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  html += `<div class="dossier-section"><h3>Profile</h3>`;
+  html += `<div class="dossier-field"><div class="fl">Subject ID</div><div class="fv" style="font-family:ui-monospace,monospace;color:${color}">${d.id.toUpperCase()}</div></div>`;
+  html += `<div class="dossier-field"><div class="fl">Classification</div><div class="fv">${typeLabel[d.type] || d.type}</div></div>`;
+  if(d.networth) html += `<div class="dossier-field"><div class="fl">Net Worth</div><div class="fv">${d.networth}</div></div>`;
+  if(d.birthday_book) html += `<div class="dossier-field"><div class="fl">Birthday Book</div><div class="fv" style="color:#f87171">✓ Signed Epstein's birthday book</div></div>`;
+  html += `</div>`;
+
+  const conns = [];
+  links.forEach(l => {
+    const sid = l.source.id || l.source;
+    const tid = l.target.id || l.target;
+    if (sid === d.id) {
+      const target = nodes.find(n => n.id === tid);
+      if (target) conns.push({node: target, strength: l.strength || 0.5, direction: "→"});
+    }
+    if (tid === d.id) {
+      const source = nodes.find(n => n.id === sid);
+      if (source) conns.push({node: source, strength: l.strength || 0.5, direction: "←"});
+    }
+  });
+  conns.sort((a, b) => b.strength - a.strength);
+
+  html += `<div class="dossier-section"><h3>Connections (${conns.length})</h3>`;
+  html += `<ul class="conn-list">`;
+  conns.forEach(c => {
+    const sc = c.strength >= 0.7 ? "str-high" : c.strength >= 0.4 ? "str-med" : "str-low";
+    const pct = Math.round(c.strength * 100);
+    const coreTag = coreSet.has(c.node.id) ? ' <span style="color:#f87171;font-size:8px">●</span>' : '';
+    html += `<li data-id="${c.node.id}">`;
+    html += `<span class="conn-name"><span style="color:${C[c.node.type]||'#64748b'}">●</span> ${c.direction} ${c.node.label}${coreTag}</span>`;
+    html += `<span class="conn-strength ${sc}">${pct}%</span>`;
+    html += `</li>`;
+  });
+  html += `</ul></div>`;
+
+  const threatLevel = d.type==="center"?"CRITICAL":d.type==="convicted"?"HIGH":isCore?"HIGH":conns.length>10?"ELEVATED":conns.length>5?"MODERATE":"LOW";
+  const threatColors = {CRITICAL:"#f87171",HIGH:"#fb923c",ELEVATED:"#fbbf24",MODERATE:"#818cf8",LOW:"#475569"};
+  const threatBg = {CRITICAL:"rgba(248,113,113,0.1)",HIGH:"rgba(251,146,60,0.1)",ELEVATED:"rgba(251,191,36,0.1)",MODERATE:"rgba(129,140,248,0.1)",LOW:"rgba(71,85,105,0.1)"};
+  html += `<div class="dossier-section"><h3>Assessment</h3>`;
+  html += `<span class="threat-badge" style="background:${threatBg[threatLevel]};color:${threatColors[threatLevel]};border:1px solid ${threatColors[threatLevel]}30">${threatLevel}</span>`;
+  html += `<div style="margin-top:8px;color:#475569;font-size:11px">${conns.length} direct connections · Network weight: ${d.radius}</div>`;
+  html += `</div>`;
+
+  html += `<div style="margin-top:24px;padding-top:12px;border-top:1px solid #334155;color:#334155;font-size:9px;text-align:center;letter-spacing:0.5px">`;
+  html += `FILE REF: EP-NET-${d.id.toUpperCase()} · CLASSIFICATION: RESTRICTED`;
+  html += `</div>`;
+
+  body.innerHTML = html;
+
+  body.querySelectorAll(".conn-list li").forEach(li => {
+    li.addEventListener("click", () => {
+      const targetNode = nodes.find(n => n.id === li.dataset.id);
+      if (targetNode) { body.scrollTop = 0; openDossier(targetNode); }
+    });
+  });
+
+  panel.classList.add("open");
+  panel.scrollTop = 0;
+}
+
+nodeEl.on("click", function(ev, d) {
+  ev.stopPropagation();
+  openDossier(d);
+});
+
+document.getElementById("dossier-close").addEventListener("click", () => {
+  document.getElementById("dossier").classList.remove("open");
+});
+
+svg.on("click", () => {
+  document.getElementById("dossier").classList.remove("open");
+});
+
+// ═══════════════════════════════════════════════════════
+// SIMULATION TICK
+// ═══════════════════════════════════════════════════════
+linkEl.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y).attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+nodeEl.attr("transform",d=>`translate(${d.x},${d.y})`);
+lblEl.attr("x",d=>d.x).attr("y",d=>d.y);
+
+// Drag handler restarts sim only during drag, then stops again
+nodeEl.call(d3.drag()
+  .on("start",(e,d)=>{sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+  .on("drag",(e,d)=>{d.fx=e.x;d.fy=e.y;
+    linkEl.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y).attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+    nodeEl.attr("transform",d=>`translate(${d.x},${d.y})`);
+    lblEl.attr("x",d=>d.x).attr("y",d=>d.y);
+  })
+  .on("end",(e,d)=>{sim.alphaTarget(0).stop();d.fx=null;d.fy=null;}));
+
+// ═══════════════════════════════════════════════════════
+// CATEGORY BUTTONS
+// ═══════════════════════════════════════════════════════
+let activeCat = "all";
+document.querySelectorAll(".cat-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeCat = btn.dataset.cat;
+    applyFilters();
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════
+d3.select("#search").on("input",function(){applyFilters();});
+
+// ═══════════════════════════════════════════════════════
+// UNIFIED FILTER
+// ═══════════════════════════════════════════════════════
+let filterTimer;
+function applyFilters(){
+  clearTimeout(filterTimer);
+  filterTimer = setTimeout(applyFiltersNow, 16);
+}
+function applyFiltersNow(){
+  const q = document.getElementById("search").value.toLowerCase();
+  const at=new Set();d3.selectAll(".tf").each(function(){if(this.checked)at.add(this.value);});
+  const ms=+d3.select("#str").property("value");
+  const so=d3.select("#orphans").property("checked");
+  const showLabels=d3.select("#labels").property("checked");
+  const catSet = activeCat === "all" ? null : new Set(categories[activeCat] || []);
+  const ln=new Set();
+  links.forEach(l=>{if((l.strength||0.5)>=ms){ln.add(l.source.id||l.source);ln.add(l.target.id||l.target);}});
+
+  function nodeVisible(d) {
+    if (!at.has(d.type)) return false;
+    if (catSet && !catSet.has(d.id)) return false;
+    if (!so && !ln.has(d.id)) return false;
+    return true;
+  }
+  function nodeSearchMatch(d) {
+    if (!q) return true;
+    return d.label.toLowerCase().includes(q);
+  }
+
+  nodeEl.attr("display", d => nodeVisible(d) ? null : "none");
+  nodeEl.select("circle:last-of-type").attr("opacity", d => nodeVisible(d) && nodeSearchMatch(d) ? 0.9 : 0.12);
+  lblEl.attr("display", d => (nodeVisible(d) && showLabels) ? null : "none");
+  lblEl.attr("opacity", d => nodeSearchMatch(d) ? 1 : 0.08);
+
+  linkEl.attr("display", d => {
+    if ((d.strength||0.5) < ms) return "none";
+    const sid=d.source.id||d.source, tid=d.target.id||d.target;
+    const sn=nodes.find(n=>n.id===sid), tn=nodes.find(n=>n.id===tid);
+    if(!sn||!tn||!nodeVisible(sn)||!nodeVisible(tn)) return "none";
+    return null;
+  });
+
+  let visN=0, visL=0;
+  nodes.forEach(n=>{if(nodeVisible(n))visN++});
+  links.forEach(l=>{
+    const sid=l.source.id||l.source, tid=l.target.id||d.target;
+    const sn=nodes.find(n=>n.id===sid), tn=nodes.find(n=>n.id===tid);
+    if(sn&&tn&&nodeVisible(sn)&&nodeVisible(tn)&&(l.strength||0.5)>=ms) visL++;
+  });
+  d3.select("#stats").html(`${visN} of ${nodes.length} nodes · ${visL} of ${links.length} links<br>Scroll to zoom · Drag to move<br>Hover to highlight · Click for dossier`);
+}
+
+d3.selectAll(".tf").on("change",applyFilters);
+d3.select("#str").on("input",function(){d3.select("#sv").text(this.value);applyFilters();});
+d3.select("#labels").on("change",applyFilters);
+d3.select("#orphans").on("change",applyFilters);
+applyFilters();
+</script>
+</body>
+</html>
