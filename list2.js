@@ -4,8 +4,7 @@
 // ═══════════════════════════════════════════════════════
 const supplementalData = {
   nodes: [
-
-    // ── EVGENY LEBEDEV (distinct from Alexander Lebedev in list.js) ──
+// ── EVGENY LEBEDEV (distinct from Alexander Lebedev in list.js) ──
     {id:"evgeny_lebedev", label:"Evgeny Lebedev", type:"possibly", radius:13,
       agency:"EVENING STANDARD / INDEPENDENT / HOUSE OF LORDS",
       role:"Media Baron · Baron Lebedev of Hampton & Castle",
@@ -142,10 +141,151 @@ const supplementalData = {
       link:"The person responsible for federal child welfare policy is in the contact book of the man trafficking children during the same administration."
     },
 
+    // ══════════════════════════════════════════
+    // BATCH 2 — GOVERNMENT / ESTABLISHMENT
+    // ══════════════════════════════════════════
+
+    {id:"dennis_hastert", label:"Dennis Hastert", type:"suspicious", radius:20,
+      agency:"US HOUSE OF REPRESENTATIVES",
+      role:"Speaker of the House · Convicted Child Predator · Paid Hush Money",
+      status:"CONVICTED — 15 months",
+      intelRole:"The most senior US official ever convicted of a sex crime. Speaker of the House — third in line to the presidency — paid $3.5M in hush money to cover up decades of child sexual abuse as a wrestling coach. Simultaneously, as Speaker, he controlled the congressional agenda during Epstein's peak operational years and the Palm Beach investigation. No congressional investigation of Epstein was ever opened under his speakership.",
+      epsteinLink:"As Speaker of the House (1999–2007), Hastert controlled the congressional agenda during Epstein's peak operational years. No congressional investigation of Epstein was ever opened. He was simultaneously paying hush money to cover his own child abuse. The man who could have called Epstein's network to account was himself a convicted child predator paying for silence.",
+      significance:"The Speaker of the House — third in line to the presidency — was a convicted serial child predator paying hush money while simultaneously having authority to investigate Epstein and choosing not to. Protected predators protect each other. This is the system.",
+      desc:"Dennis Hastert served as Speaker of the House from 1999 to 2007, one of the most powerful positions in American government. He was simultaneously paying $3.5 million in hush money to cover up decades of child sexual abuse he committed as a high school wrestling coach. Convicted in 2015 of bank structuring to hide the payments — the underlying abuse was past the statute of limitations. The judge called him a 'serial child molester.' He served 13 months. He died in 2023.",
+      evidence:"Convicted 2015. $3.5M hush money payments confirmed. Judge's 'serial child molester' statement. Speaker of the House 1999–2007 — entire Epstein peak operation. No congressional Epstein investigation opened. Died 2023.",
+      link:"The Speaker of the House was a convicted child predator. He had the power to investigate Epstein. He didn't. That is not a coincidence."
+    },
+
+    {id:"leon_brittan", label:"Leon Brittan", type:"possibly", radius:16,
+      agency:"UK HOME OFFICE / CABINET",
+      role:"Home Secretary · Abuse Allegations · Lost Dossier",
+      status:"DECEASED (2015) — died before investigation",
+      intelRole:"Home Secretary under Thatcher (1983–1985) with direct oversight of MI5 and the Metropolitan Police. A 114-page dossier of child abuse allegations was handed to him personally in 1984 — he claimed to pass it on. It was never found. Files relating to VIP abuse from the 1970s–80s were systematically lost by the Home Office. Multiple witnesses alleged direct abuse by Brittan. He died in January 2015, days after being told he would be interviewed under caution.",
+      epsteinLink:"Operated in the same British establishment circles as Maxwell. The systematic destruction of VIP abuse files during his Home Office tenure is the UK institutional analog of the Epstein NPA — state protection of powerful abusers at the highest government level.",
+      significance:"As Home Secretary he controlled MI5. The dossier was lost. The files were gone. He died before the interview. The pattern — powerful man, missing evidence, death before accountability — is identical to Epstein. The British state invented this playbook.",
+      desc:"Leon Brittan served as Home Secretary and later as a European Commissioner. Multiple witnesses alleged child sexual abuse. A 114-page police dossier compiled in 1984 was handed to him and disappeared. He died January 2015, days after being informed he would be interviewed under caution by police.",
+      evidence:"Home Secretary 1983–1985. 1984 dossier received and lost — confirmed. Multiple abuse witnesses. Operation Fairbank investigation. IICSA examination. Died before police interview.",
+      link:"He got the dossier. He lost it. He died before the interview. The files were gone. The Home Secretary was the institution that was supposed to protect children."
+    },
+
+    {id:"cyril_smith", label:"Cyril Smith", type:"suspicious", radius:14,
+      agency:"UK PARLIAMENT",
+      role:"Liberal MP · Posthumously Confirmed Serial Abuser · MI5 Protected",
+      status:"DECEASED (2010) — posthumously exposed",
+      intelRole:"Liberal MP for Rochdale (1972–1992). A 144-page abuse dossier was compiled by Lancashire Police in 1970 and passed to the DPP — who declined to prosecute. MI5 is confirmed to have held files on Smith. Those files were used not to prosecute but to manage him as a controlled asset. He was knighted in 1988. He abused children for twenty more years after the dossier was filed.",
+      epsteinLink:"Cyril Smith is the earliest documented UK case of intelligence using knowledge of establishment abuse as a control mechanism rather than for prosecution — the precise methodology the Epstein operation used at scale. MI5 had the evidence. They chose leverage over accountability.",
+      significance:"MI5 knew. The DPP knew. He got a knighthood. He abused children for twenty more years. This is not the Epstein model importing American dysfunction into Britain. This is Britain inventing the model.",
+      desc:"Cyril Smith was Liberal MP for Rochdale and one of British politics' most recognisable figures. A 1970 police file documenting his abuse was suppressed. MI5 held confirming files. He was knighted in 1988. After his death in 2010, full exposure confirmed he was a serial abuser of boys across multiple institutions over decades.",
+      evidence:"144-page Lancashire Police dossier (1970). DPP decision not to prosecute. MI5 files confirmed by Intelligence and Security Committee. Knighted 1988. Posthumous exposure confirmed serial abuse.",
+      link:"MI5 had the file. He got a knighthood. The file was leverage. That is Epstein's model, invented in Rochdale, twenty years earlier."
+    },
+
+    {id:"edward_heath", label:"Edward Heath", type:"possibly", radius:22,
+      agency:"UK GOVERNMENT",
+      role:"Prime Minister · Operation Conifer · Yacht Allegations",
+      status:"DECEASED (2005) — Operation Conifer found sufficient evidence",
+      intelRole:"Prime Minister 1970–1974. Subject of Operation Conifer (Wiltshire Police, 2015–2017), which concluded there was sufficient evidence to interview Heath under caution had he been alive. Multiple witnesses alleged abuse on his yacht Morning Cloud and at other locations. Special Branch protection officers reportedly received complaints that were not formally recorded.",
+      epsteinLink:"Heath's yacht Morning Cloud was alleged as an abuse location — a private vessel beyond shore jurisdiction, directly parallel to Epstein's private island. Both used maritime isolation and jurisdictional complexity to protect abuse. Operation Conifer found the evidence. Heath was dead. The files are with the NCA.",
+      significance:"A formal police investigation concluded a British Prime Minister would have been interviewed under caution for child abuse had he been alive. The yacht, the isolation, the dead witness, the sealed files — it is the Epstein pattern with a British accent.",
+      desc:"Edward Heath served as Prime Minister 1970–1974. Operation Conifer concluded in 2017 with a finding that sufficient evidence existed to warrant interviewing Heath under caution. Allegations included abuse on his yacht Morning Cloud, connections to Jersey care homes, and suppressed Special Branch complaints. Files are held by the National Crime Agency.",
+      evidence:"Operation Conifer (2015–2017). Conclusion: sufficient evidence to interview under caution. Multiple witnesses. Morning Cloud yacht allegations. Jersey care home connections. NCA file custody.",
+      link:"A formal police investigation said there was enough to charge a Prime Minister. He was dead. The files are sealed. The yacht was his island."
+    },
+
+    {id:"john_podesta", label:"John Podesta", type:"possibly", radius:18,
+      agency:"WHITE HOUSE / CLINTON FOUNDATION",
+      role:"Clinton Chief of Staff · Obama Counsellor · 2016 Campaign Chair",
+      status:"NAMED IN FILES",
+      epsteinLink:"Named in Epstein contact files. Served as Clinton's Chief of Staff (1998–2001) — the period of peak Clinton-Epstein contact, including 26+ documented flights. The Chief of Staff controls the President's schedule and access. His presence in the files during this period is not incidental. His 2016 email archive referenced figures across the Epstein network.",
+      desc:"John Podesta served as Chief of Staff to President Clinton from 1998 to 2001, then as Counsellor to President Obama, then as Chair of Hillary Clinton's 2016 presidential campaign. Named in Epstein contact files. His tenure as Chief of Staff coincides exactly with Clinton's documented Epstein flight period.",
+      evidence:"Named in Epstein contact files. Clinton Chief of Staff 1998–2001. Clinton Epstein flight period overlap. 2016 WikiLeaks email archive.",
+      link:"Clinton's gatekeeper is in Epstein's contact files during the years Clinton was on Epstein's plane."
+    },
+
+    {id:"lindsey_graham", label:"Lindsey Graham", type:"possibly", radius:18,
+      agency:"US SENATE",
+      role:"Senator · Senate Judiciary Committee",
+      status:"NAMED IN FILES",
+      epsteinLink:"Named in Epstein contact files. Senior member of the Senate Judiciary Committee — the committee with direct oversight over the DOJ and FBI. The committee that could have investigated Acosta's NPA, the FBI's decade of inaction, and Epstein's death in federal custody. It never did. Graham was there throughout.",
+      desc:"Lindsey Graham has been a US Senator and senior Judiciary Committee member since 2003. Named in Epstein contact files. The Judiciary Committee — his committee — has jurisdiction over the DOJ and FBI and has never opened a formal investigation into the Epstein prosecution failures.",
+      evidence:"Named in Epstein contact files. Senate Judiciary Committee membership. DOJ/FBI oversight jurisdiction. No Epstein investigation opened.",
+      link:"On the committee that oversees the prosecutors who gave Epstein the deal. In the files. No investigation."
+    },
+
+    {id:"robert_hanssen", label:"Robert Hanssen", type:"suspicious", radius:16,
+      agency:"FEDERAL BUREAU OF INVESTIGATION",
+      role:"FBI Agent · Russian Spy · 22 Years Inside Counterintelligence",
+      status:"CONVICTED — died in prison 2023",
+      intelRole:"FBI counterintelligence agent who spied for Soviet and Russian intelligence from 1979 to 2001 — 22 years, the longest-running Russian penetration of US federal law enforcement in history. He worked inside the FBI's counterintelligence division while passing intelligence to Moscow. His operation ran simultaneously with Robert Maxwell's confirmed KGB work and the establishment of Epstein's network. The FBI that failed to detect Hanssen for 22 years is the same FBI that failed to act on Epstein evidence for a decade.",
+      epsteinLink:"Hanssen's penetration of FBI counterintelligence means Russian intelligence had visibility into FBI surveillance operations during the period Maxwell was running as a KGB asset and Epstein was establishing his network. If Moscow knew what the FBI knew about Maxwell's operations, they knew the FBI was not a threat. Hanssen is the mechanism.",
+      significance:"The FBI had a Russian spy inside counterintelligence for 22 years. Maxwell was a confirmed KGB asset. The FBI took no action on Epstein for a decade. All three facts are true simultaneously. The institutional failure is not random.",
+      desc:"Robert Hanssen joined the FBI in 1976 and began spying for Soviet intelligence in 1979. He worked in counterintelligence — the division specifically responsible for detecting foreign spies — for 22 years while passing intelligence to Moscow. He revealed the identities of multiple US assets, most of whom were executed. Caught in 2001. Life sentence. Died in prison June 2023.",
+      evidence:"Convicted 2001. Life sentence. 22-year FBI counterintelligence penetration confirmed. Multiple executed US assets. Operation ran 1979–2001. Died in prison June 2023.",
+      link:"Russia had a spy inside FBI counterintelligence for 22 years. Maxwell worked for the KGB during the same period. The FBI never investigated Epstein. The overlap is not comfortable."
+    },
+
+    {id:"jonathan_pollard", label:"Jonathan Pollard", type:"suspicious", radius:14,
+      agency:"US NAVY INTELLIGENCE",
+      role:"Naval Intelligence Analyst · Mossad Asset · Largest US Intel Breach",
+      status:"CONVICTED — released to Israel 2020",
+      intelRole:"US Navy intelligence analyst who passed an estimated 800,000 classified documents to Israel 1984–1985 — one of the largest intelligence breaches in US history. Confirmed Mossad asset. His handler was Rafi Eitan. His operation ran simultaneously with Robert Maxwell's confirmed Mossad activities. Two parallel Mossad operations running against the United States simultaneously under the same intelligence service.",
+      epsteinLink:"Pollard confirms the Mossad was running active deep-penetration espionage against the United States at the exact same time Maxwell was a confirmed Mossad asset allegedly recruiting Epstein. One operation collected documents. One collected people. Same service. Same period.",
+      significance:"Mossad ran a spy inside US Navy intelligence. Mossad ran Maxwell. Maxwell ran Epstein. Three operations, one service, overlapping timelines. Israel's intelligence appetite for penetrating US institutions during this period is not theoretical. It is convicted.",
+      desc:"Jonathan Pollard was a civilian US Navy intelligence analyst recruited by Israeli intelligence in 1984. He passed approximately 800,000 pages of classified documents to Israel. Convicted 1985. Sentenced to life. Released 2015 after 30 years. Emigrated to Israel 2020. His handler Rafi Eitan later became an Israeli government minister.",
+      evidence:"Convicted 1985. 800,000 classified pages confirmed. Mossad handler Rafi Eitan confirmed. Released 2015. Emigrated to Israel 2020 — welcomed as hero.",
+      link:"Mossad ran a spy inside the US Navy. Mossad ran Maxwell. The same service, the same period, the same target country."
+    },
+
+    {id:"rafi_eitan", label:"Rafi Eitan", type:"suspicious", radius:16,
+      agency:"MOSSAD / LAKAM / ISRAELI GOVERNMENT",
+      role:"Mossad Operations · Pollard Handler · Israeli Minister",
+      status:"DECEASED (2019)",
+      intelRole:"One of the most consequential operational figures in Mossad history. Captured Adolf Eichmann in Argentina. Headed LAKAM — Israeli scientific intelligence unit. Ran Jonathan Pollard inside US Navy intelligence. Later became an Israeli government minister. His career spans the entire intelligence infrastructure that produced Maxwell and the Epstein operation.",
+      epsteinLink:"As handler of Pollard and head of LAKAM, Eitan ran Israeli intelligence operations that directly penetrated US institutions during the Maxwell-Epstein period. LAKAM's methodology — identifying and running assets inside US institutions — is structurally identical to what Ben-Menashe describes as the Maxwell-Epstein operation.",
+      desc:"Rafi Eitan led the Mossad team that captured Eichmann in 1960. Headed LAKAM, Israel's scientific espionage unit. Ran Jonathan Pollard as a US Navy intelligence asset. Later served as minister in Ariel Sharon's government. Died March 2019, four months before Epstein's re-arrest.",
+      evidence:"Eichmann capture confirmed. LAKAM directorship confirmed. Pollard handler confirmed. Israeli government minister confirmed. Died March 2019.",
+      link:"He captured Eichmann. He ran a spy inside the US Navy. He served in the Israeli cabinet. He is the operational face of the intelligence infrastructure the network inhabited."
+    },
+
+    {id:"nahum_admoni", label:"Nahum Admoni", type:"possibly", radius:12,
+      agency:"MOSSAD",
+      role:"Mossad Director · Attended Maxwell's Funeral",
+      status:"RETIRED",
+      intelRole:"Director of Mossad from 1982 to 1989. Attended Robert Maxwell's state funeral in Israel in November 1991. The head of Mossad attending a private businessman's funeral is only explicable if that businessman was a valued Mossad asset. Admoni's attendance is the single most documented institutional confirmation of the Maxwell-Mossad relationship.",
+      epsteinLink:"His presence at Maxwell's funeral is the primary institutional confirmation that Maxwell was a Mossad asset — the foundational connection of the entire Epstein intelligence thread.",
+      desc:"Nahum Admoni served as Director of Mossad 1982–1989. He attended Robert Maxwell's Israeli state funeral in November 1991 alongside other senior Israeli intelligence figures, providing the clearest single confirmation that Maxwell's intelligence relationship with Israel was at the directorate level.",
+      evidence:"Mossad Director 1982–1989. Maxwell funeral attendance documented. Funeral attended by heads of Mossad, Aman, and Shin Bet.",
+      link:"The Director of Mossad came to the funeral. That is the confirmation. Everything else flows from it."
+    },
+
+    
+    {id:"juan_carlos", label:"King Juan Carlos", type:"possibly", radius:24,
+      agency:"KINGDOM OF SPAIN",
+      role:"King of Spain · Fled to Abu Dhabi · Maxwell Circle",
+      status:"EXILED — abdicated 2014, fled Spain 2020",
+      intelRole:"King of Spain 1975–2014. Fled to Abu Dhabi in 2020 under investigation for receiving €100M in hidden commissions from Saudi Arabia for infrastructure contracts. Documented member of Ghislaine Maxwell's social circle. His self-exile to a Gulf monarchy — the same Gulf world that runs through Nader, Barrack, and MBS — is a convergence of the European royal thread and the Gulf intelligence thread in a single person.",
+      epsteinLink:"Documented in Maxwell's social circle. Named in Epstein contact files. Fled to Abu Dhabi — a Gulf monarchy with documented Epstein network connections — during active corruption investigation. His Saudi commission payments connect European royalty to Gulf intelligence money.",
+      significance:"A reigning monarch in Maxwell's social circle and Epstein's files who subsequently fled to a Gulf monarchy to avoid prosecution. The European royal thread and the Gulf money thread converge in one exiled king.",
+      desc:"Juan Carlos I reigned as King of Spain from 1975 to 2014. Documented Maxwell social circle member. Named in Epstein contact files. In 2020, under investigation for €100M in hidden Saudi commissions, he fled Spain for Abu Dhabi. Spanish prosecutors subsequently closed the investigation citing royal immunity during his reign.",
+      evidence:"Named in Epstein contact files. Maxwell social circle documented photographically. Abdicated 2014. Fled to Abu Dhabi 2020. €100M Saudi commission investigation. Prosecution closed on immunity grounds.",
+      link:"In Maxwell's circle. In the files. Fled to a Gulf monarchy. The same Gulf money runs through his Saudi commissions and through Nader and Barrack. A king who ran away."
+    },
+
+    {id:"king_carl_xvi", label:"King Carl XVI Gustaf", type:"possibly", radius:16,
+      agency:"KINGDOM OF SWEDEN",
+      role:"King of Sweden · Named in Elite Sex Party Allegations",
+      status:"NAMED IN FILES",
+      epsteinLink:"Named in Epstein contact files. Allegations in a 2010 Swedish book described his presence at private sex parties organised through European elite circuits. His social world overlaps with Maxwell's European royal network. Eva Andersson-Dubin — the Swedish former model who dated Epstein and later allowed him access to her children — connects the Swedish royal world to the Epstein network directly.",
+      desc:"Carl XVI Gustaf has been King of Sweden since 1973. Named in Epstein contact files. A 2010 Swedish book alleged his attendance at private sex parties through elite social circuits — allegations he denied. His social world overlaps with Maxwell's European royal network.",
+      evidence:"Named in Epstein contact files. 2010 Swedish allegations (denied). Maxwell European royal circuit overlap. Eva Andersson-Dubin Swedish connection.",
+      link:"Another European monarch in the contact files. The Maxwell European royal penetration was systematic — UK, Norway, Denmark, Spain, Monaco, Sweden."
+    },
+
   ],
 
   links: [
-    // ── EVGENY LEBEDEV ──
+// ── EVGENY LEBEDEV ──
     {source:"evgeny_lebedev", target:"andrew", strength:0.7},
     {source:"evgeny_lebedev", target:"maxwell_g", strength:0.4},
     {source:"evgeny_lebedev", target:"murdoch", strength:0.5},
@@ -225,5 +365,70 @@ const supplementalData = {
 
     // ── GIUFFRE connections to judge ──
     {source:"giuffre", target:"judge_marra", strength:0.6},
+
+    // ── BATCH 2 LINKS ──
+
+    // Hastert
+    {source:"dennis_hastert", target:"epstein", strength:0.4},
+    {source:"dennis_hastert", target:"acosta", strength:0.4},
+    {source:"dennis_hastert", target:"mueller", strength:0.4},
+    {source:"dennis_hastert", target:"dershowitz", strength:0.3},
+
+    // UK establishment
+    {source:"leon_brittan", target:"epstein", strength:0.3},
+    {source:"leon_brittan", target:"maxwell_g", strength:0.4},
+    {source:"leon_brittan", target:"king_charles", strength:0.5},
+    {source:"leon_brittan", target:"edward_heath", strength:0.6},
+    {source:"leon_brittan", target:"cyril_smith", strength:0.5},
+    {source:"cyril_smith", target:"leon_brittan", strength:0.5},
+    {source:"cyril_smith", target:"edward_heath", strength:0.4},
+    {source:"cyril_smith", target:"epstein", strength:0.2},
+    {source:"edward_heath", target:"epstein", strength:0.3},
+    {source:"edward_heath", target:"maxwell_g", strength:0.4},
+    {source:"edward_heath", target:"leon_brittan", strength:0.6},
+    {source:"edward_heath", target:"king_charles", strength:0.5},
+
+    // US political
+    {source:"john_podesta", target:"clinton", strength:0.8},
+    {source:"john_podesta", target:"epstein", strength:0.4},
+    {source:"john_podesta", target:"sandy_berger", strength:0.7},
+    {source:"lindsey_graham", target:"epstein", strength:0.3},
+    {source:"lindsey_graham", target:"acosta", strength:0.4},
+    {source:"lindsey_graham", target:"mueller", strength:0.4},
+
+    // Intelligence
+    {source:"robert_hanssen", target:"epstein", strength:0.3},
+    {source:"robert_hanssen", target:"robert_maxwell", strength:0.4},
+    {source:"robert_hanssen", target:"putin", strength:0.5},
+    {source:"robert_hanssen", target:"mueller", strength:0.5},
+    {source:"robert_hanssen", target:"freeh", strength:0.5},
+    {source:"jonathan_pollard", target:"epstein", strength:0.3},
+    {source:"jonathan_pollard", target:"robert_maxwell", strength:0.5},
+    {source:"jonathan_pollard", target:"netanyahu", strength:0.5},
+    {source:"jonathan_pollard", target:"rafi_eitan", strength:0.9},
+    {source:"jonathan_pollard", target:"barak", strength:0.4},
+    {source:"rafi_eitan", target:"jonathan_pollard", strength:0.9},
+    {source:"rafi_eitan", target:"netanyahu", strength:0.6},
+    {source:"rafi_eitan", target:"barak", strength:0.6},
+    {source:"rafi_eitan", target:"robert_maxwell", strength:0.5},
+    {source:"rafi_eitan", target:"epstein", strength:0.3},
+    {source:"rafi_eitan", target:"ben_menashe", strength:0.5},
+    {source:"nahum_admoni", target:"robert_maxwell", strength:0.9},
+    {source:"nahum_admoni", target:"maxwell_g", strength:0.5},
+    {source:"nahum_admoni", target:"epstein", strength:0.3},
+    {source:"nahum_admoni", target:"netanyahu", strength:0.5},
+    {source:"nahum_admoni", target:"rafi_eitan", strength:0.6},
+
+    // Royals
+    {source:"juan_carlos", target:"epstein", strength:0.4},
+    {source:"juan_carlos", target:"maxwell_g", strength:0.6},
+    {source:"juan_carlos", target:"albert_monaco", strength:0.6},
+    {source:"juan_carlos", target:"mbs", strength:0.5},
+    {source:"juan_carlos", target:"king_charles", strength:0.5},
+    {source:"juan_carlos", target:"andrew", strength:0.5},
+    {source:"king_carl_xvi", target:"epstein", strength:0.3},
+    {source:"king_carl_xvi", target:"maxwell_g", strength:0.4},
+    {source:"king_carl_xvi", target:"mette_marit", strength:0.4},
+    {source:"king_carl_xvi", target:"eva_dubin", strength:0.3},
   ]
 };
