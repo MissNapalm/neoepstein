@@ -205,37 +205,129 @@ const categories = {
   ],
 
   intel: [
-    "epstein","robert_maxwell","maxwell_g","ben_menashe","ostrovsky",
-    "barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard",
-    "barr_d","brennan","petraeus","freeh","mueller","sandy_berger","robert_hanssen",
-    "andrew","blair","boris_johnson","evgeny_lebedev","leon_brittan","edward_heath",
-    "lebedev","deripaska","manafort",
-    "khashoggi","nader"
-  ],
-
-  intel_il: [
+    // Israeli
     "epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky",
-    "barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard"
+    "barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard",
+    "wexner","milchan","dershowitz","thiel","junkermann","kroll","olmert","peres",
+    // US
+    "barr_d","barr_w","brennan","petraeus","freeh","mueller","comey",
+    "acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan",
+    // UK
+    "andrew","king_charles","ferguson","blair","boris_johnson",
+    "evgeny_lebedev","lebedev","osborne","leon_brittan","cyril_smith","edward_heath",
+    "murdoch","mandelson",
+    // Russian
+    "putin","deripaska","manafort","rybolovlev","nat_rothschild",
+    // UAE/Gulf
+    "khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"
   ],
 
+  // 🇮🇱 Israeli intelligence — confirmed assets, documented Mossad operations,
+  // intelligence-adjacent funding/surveillance infrastructure
+  intel_il: [
+    // Confirmed Mossad/Aman officers and assets
+    "epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky",
+    "barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard",
+    // Financial infrastructure with confirmed Israeli intelligence ties
+    "wexner",       // Mega Group co-founder; paid Barak $2.3M; sole Epstein patron
+    "milchan",      // Self-confirmed Mossad asset on Israeli TV; Netanyahu corruption trial
+    // Legal infrastructure protecting a Mossad operation
+    "dershowitz",   // Built the NPA that protected the operation; named by Ben-Menashe
+    // Surveillance tech with confirmed Mossad/Barak overlap
+    "thiel",        // Palantir (CIA/In-Q-Tel seed); Carbyne911 investment overlap with Barak
+    "junkermann",   // Carbyne911 board alongside Barak; introduced to Epstein by Maxwell
+    // Private intelligence with Maxwell connection
+    "kroll",        // Maxwell used Kroll; private intel infrastructure
+    "olmert","peres" // Israeli PMs during operational period; Maxwell funeral/files
+  ],
+
+  // 🇺🇸 US intelligence — confirmed CIA/FBI directors, OSS lineage,
+  // congressional gatekeepers who controlled accountability
   intel_us: [
-    "epstein","barr_d","brennan","petraeus","freeh","mueller",
-    "sandy_berger","robert_hanssen","dennis_hastert"
+    // OSS/CIA lineage
+    "epstein",      // Acosta: "belonged to intelligence"
+    "barr_d",       // OSS officer who hired Epstein
+    "barr_w",       // AG who oversaw Epstein's death; CIA in college
+    // CIA Directors
+    "brennan","petraeus",
+    // FBI Directors
+    "freeh","mueller","comey",
+    // DOJ — NPA architects and enforcers
+    "acosta",       // Signed NPA; told transition team Epstein "belonged to intelligence"
+    "rosenstein",   // DAG during re-arrest; Kirkland & Ellis network
+    "berman",       // The one prosecutor who acted; fired by Barr
+    // Document suppression
+    "sandy_berger", // Clinton NSA; destroyed classified documents
+    // Russian penetration of FBI
+    "robert_hanssen",
+    // Congressional gatekeeper — convicted predator who blocked oversight
+    "dennis_hastert",
+    // Intelligence-adjacent tech
+    "thiel",        // Palantir seeded by CIA's In-Q-Tel
+    // Fled to Russia with alleged FBI investigation files
+    "dougan"
   ],
 
+  // 🇬🇧 UK intelligence — MI5/MI6 assets, oversight failures,
+  // establishment figures whose abuse was used as leverage
   intel_uk: [
-    "robert_maxwell","maxwell_g","andrew","blair",
-    "evgeny_lebedev","lebedev","boris_johnson","osborne",
-    "leon_brittan","cyril_smith","edward_heath"
+    // Confirmed MI6/MI5 assets
+    "robert_maxwell","maxwell_g",
+    // Royal family — MI5 flagged, managed institutionally
+    "andrew","king_charles","ferguson",
+    // Prime Ministers and senior politicians — direct MI5/MI6 oversight
+    "blair","boris_johnson",
+    // Russian-adjacent media penetration — MI5 formally objected
+    "evgeny_lebedev","lebedev","osborne",
+    // Home Secretary who lost the dossier — controlled MI5
+    "leon_brittan",
+    // MP whose abuse MI5 used as leverage not prosecution
+    "cyril_smith",
+    // PM with Operation Conifer finding
+    "edward_heath",
+    // Media with story-suppression capability and Maxwell rivalry
+    "murdoch",
+    // Political figures with Russian oligarch and Maxwell connections
+    "mandelson"
   ],
 
+  // 🇷🇺 Russian intelligence — confirmed KGB/FSB officers, assets,
+  // oligarchs with documented FSB ties, penetration agents
   intel_ru: [
-    "robert_maxwell","lebedev","evgeny_lebedev","deripaska",
-    "manafort","rybolovlev","putin","robert_hanssen"
+    // Confirmed KGB/FSB
+    "robert_maxwell",  // Confirmed KGB asset (Mitrokhin Archive)
+    "lebedev",         // Confirmed KGB officer stationed London 1988-92
+    "evgeny_lebedev",  // Son of KGB officer; MI5 peerage objection
+    "deripaska",       // FSB ties documented; US-sanctioned
+    "putin",           // Former KGB; FSB director; kompromat methodology
+    // Russian penetration of US institutions
+    "robert_hanssen",  // FBI counterintelligence spy for Russia 22 years
+    // Trump campaign/Russian money nexus
+    "manafort",        // $19M to Deripaska; "private briefings" offer
+    // Russian oligarch real estate Palm Beach/Trump nexus
+    "rybolovlev",
+    // Corfu gathering — British politics meets Russian oligarch money
+    "nat_rothschild",
+    // Fled to Russia claiming to have FBI Epstein investigation files
+    "dougan"
   ],
 
+  // 🇦🇪 UAE/Gulf intelligence — state intelligence operatives,
+  // Gulf backchannel figures, Saudi-adjacent influence operations
   intel_ae: [
-    "khashoggi","nader","mbs","barrack","juan_carlos"
+    // Documented Saudi/UAE intelligence intermediaries
+    "khashoggi",       // Saudi GID intermediary; Iran-Contra arms broker
+    "nader",           // Convicted pedophile; UAE intelligence backchannel; Mueller witness
+    // Gulf heads of state with documented US influence operations
+    "mbs",             // CIA-assessed Khashoggi murder order; Nader backchannel
+    "sultan_ahmed",    // UAE royal in files; UAE influence operation context
+    "sultan_brunei",   // Independent trafficking allegations; files
+    // US political figures operating as Gulf agents/conduits
+    "barrack",         // Charged as unregistered UAE/Saudi agent; Nader parallel
+    "kushner",         // $2B from Saudi PIF post-WH; MBS primary backchannel
+    "trump",           // Nader/Barrack UAE backchannel ran through his administration
+    // European royalty who fled to Gulf to avoid prosecution
+    "juan_carlos"      // Fled to Abu Dhabi; €100M Saudi commissions
   ],
 
   named: [
