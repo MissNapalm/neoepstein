@@ -11,8 +11,6 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     linear-gradient(90deg, rgba(148,163,184,0.04) 1px, transparent 1px);
   background-size:40px 40px;
 }
-
-/* ── CONTROLS ── */
 #controls{
   position:fixed;top:16px;left:16px;background:#1e293b;
   border:1px solid #334155;border-radius:12px;padding:20px;z-index:10;
@@ -38,8 +36,6 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 #controls input[type="range"]{width:100%;accent-color:#6366f1}
 #controls input[type="checkbox"]{accent-color:#6366f1}
 #stats{font-size:11px;color:#475569;margin-top:12px;border-top:1px solid #334155;padding-top:10px;line-height:1.6}
-
-/* ── CATEGORY BUTTONS ── */
 .cat-buttons{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .cat-btn{
   padding:5px 9px;border-radius:6px;font-size:9px;font-weight:600;
@@ -48,8 +44,6 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 }
 .cat-btn:hover{background:#1e293b;color:#cbd5e1}
 .cat-btn.active{background:#6366f1;color:#fff;border-color:#6366f1}
-
-/* ── TOOLTIP ── */
 #tooltip{
   position:fixed;background:#1e293b;border:1px solid #334155;
   border-radius:10px;padding:14px;font-size:12px;max-width:380px;
@@ -59,15 +53,9 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 #tooltip .name{font-size:15px;font-weight:700;margin-bottom:4px;color:#f1f5f9}
 #tooltip .lbl{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;font-weight:600}
 #tooltip .hint{margin-top:8px;color:#475569;font-size:10px;font-style:italic}
-
-/* ── NODE LABELS ── */
 .node-label{font-size:9px;fill:#94a3b8;pointer-events:none;text-anchor:middle;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:500}
-
-/* ── PULSE ── */
 @keyframes subtlePulse{0%{stroke-opacity:0.2}50%{stroke-opacity:0.05}100%{stroke-opacity:0.2}}
 .pulse-ring{animation:subtlePulse 3s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
-
-/* ── DOSSIER ── */
 #dossier{
   position:fixed;top:0;right:-540px;width:520px;height:100vh;
   background:#1e293b;border-left:1px solid #334155;z-index:30;
@@ -131,6 +119,11 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     <button class="cat-btn" data-cat="financial">Financial</button>
     <button class="cat-btn" data-cat="legal">Legal shield</button>
     <button class="cat-btn" data-cat="intel">Intelligence</button>
+    <button class="cat-btn" data-cat="intel_il">🇮🇱 Mossad / IL</button>
+    <button class="cat-btn" data-cat="intel_us">🇺🇸 CIA / FBI</button>
+    <button class="cat-btn" data-cat="intel_uk">🇬🇧 MI5 / MI6</button>
+    <button class="cat-btn" data-cat="intel_ru">🇷🇺 KGB / FSB</button>
+    <button class="cat-btn" data-cat="intel_ae">🇦🇪 UAE / Gulf</button>
     <button class="cat-btn" data-cat="named">Named by victims</button>
     <button class="cat-btn" data-cat="cover">Social cover</button>
     <button class="cat-btn" data-cat="uncertain">Uncertain</button>
@@ -172,7 +165,7 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 <svg id="graph"></svg>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="list.js?v=5"></script>
-<script src="list2.js?v=1"></script>
+<script src="list2.js?v=2"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MERGE LIST2
@@ -190,45 +183,63 @@ if (typeof supplementalData !== 'undefined') {
 }
 
 // ═══════════════════════════════════════════════════════
-// RELATIONSHIP CATEGORIES — nodes can appear in multiple
+// RELATIONSHIP CATEGORIES
 // ═══════════════════════════════════════════════════════
 const categories = {
 
-  // Ran the machinery day to day
   operational: [
     "epstein","maxwell_g","kellen","marcinkova","groff","brunel",
     "alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"
   ],
 
-  // Moved or held money; paid Epstein; bankrolled the operation
   financial: [
     "epstein","wexner","black","staley","dimon","hoffenberg","kravis",
     "david_koch","burkle","pritzker","lutnick","bloomberg","mort_z",
-    "diller","barrack","dubin","eva_dubin"
+    "diller","barrack","dubin","eva_dubin",
+    "nat_rothschild","lynn_rothschild"
   ],
 
-  // Built or benefited from the legal protection architecture
   legal: [
     "dershowitz","acosta","starr","boies","barr_d","barr_w",
-    "rosenstein","berman","strauss","freeh","mueller","comey"
+    "rosenstein","berman","strauss","freeh","mueller","comey","judge_marra"
   ],
 
-  // Confirmed or suspected state intelligence connections
   intel: [
     "epstein","robert_maxwell","maxwell_g","ben_menashe","ostrovsky",
-    "barak","netanyahu","olmert","peres","khashoggi","dougan",
-    "brennan","petraeus","thiel","black_cube","kroll",
-    "lebedev","deripaska","putin","nader","barr_d","barr_w",
-    "freeh","mueller"
+    "barak","netanyahu","black_cube",
+    "barr_d","brennan","petraeus","freeh","mueller","sandy_berger",
+    "andrew","blair","boris_johnson","evgeny_lebedev",
+    "lebedev","deripaska","manafort",
+    "khashoggi","nader"
   ],
 
-  // Named by victims under oath in sworn depositions
+  intel_il: [
+    "epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky",
+    "barak","netanyahu","black_cube"
+  ],
+
+  intel_us: [
+    "epstein","barr_d","brennan","petraeus","freeh","mueller","sandy_berger"
+  ],
+
+  intel_uk: [
+    "robert_maxwell","maxwell_g","andrew","blair",
+    "evgeny_lebedev","lebedev","boris_johnson","osborne"
+  ],
+
+  intel_ru: [
+    "robert_maxwell","lebedev","evgeny_lebedev","deripaska","manafort","rybolovlev","putin"
+  ],
+
+  intel_ae: [
+    "khashoggi","nader","mbs","barrack"
+  ],
+
   named: [
     "andrew","mitchell","richardson","dubin","minsky","dershowitz",
-    "barak","clinton","trump","nader"
+    "barak","clinton","trump","nader","giuffre"
   ],
 
-  // Academics, celebrities, royals whose social presence laundered legitimacy
   cover: [
     "king_charles","ferguson","mette_marit","albert_monaco","lajcak",
     "sultan_brunei","sultan_ahmed","blair","mandelson","sarkozy",
@@ -239,11 +250,9 @@ const categories = {
     "christy_turlington","itzhak_perlman","jagger","willis","fiennes",
     "baldwin","wyclef","murdoch","lauer","charlie_rose","weinstein",
     "branson","kissinger","gore","powell","schumer","kerry","gingrich",
-    "bloomberg","perlmutter"
+    "bloomberg","perlmutter","boris_johnson","osborne","shalala"
   ],
 
-  // Documented connections but role genuinely unclear —
-  // not named under oath, may be clients, leverage targets, or social contacts
   uncertain: [
     "gates","musk","brin","zuckerberg","ellison","hoffman","thiel",
     "branson","kravis","david_koch","lutnick","bloomberg","perlmutter",
@@ -253,10 +262,13 @@ const categories = {
     "stroll","blanchett","jagger","willis","fiennes","baldwin","wyclef",
     "christy_turlington","itzhak_perlman","deepak","naomi",
     "king_charles","ferguson","mette_marit","albert_monaco",
-    "blair","mandelson","sarkozy","lajcak","sultan_brunei","sultan_ahmed",
+    "mandelson","sarkozy","lajcak","sultan_brunei","sultan_ahmed",
     "kissinger","gore","powell","schumer","kerry","gingrich",
     "olmert","peres","murdoch","lauer","charlie_rose",
-    "petraeus","brennan","rosenstein","comey"
+    "barr_w","acosta","rosenstein","berman","strauss",
+    "comey","kroll","thiel","dougan","putin","rybolovlev",
+    "evgeny_lebedev","boris_johnson","osborne","manafort",
+    "nat_rothschild","lynn_rothschild","sandy_berger","shalala","judge_marra"
   ]
 };
 
@@ -265,6 +277,11 @@ const catNames = {
   financial:  "Financial",
   legal:      "Legal Shield",
   intel:      "Intelligence",
+  intel_il:   "🇮🇱 Mossad / IL",
+  intel_us:   "🇺🇸 CIA / FBI",
+  intel_uk:   "🇬🇧 MI5 / MI6",
+  intel_ru:   "🇷🇺 KGB / FSB",
+  intel_ae:   "🇦🇪 UAE / Gulf",
   named:      "Named by Victims",
   cover:      "Social Cover",
   uncertain:  "Uncertain"
@@ -275,17 +292,18 @@ const catColors = {
   financial:  "rgba(34,197,94,0.1);color:#4ade80;border-color:rgba(34,197,94,0.2)",
   legal:      "rgba(251,146,60,0.1);color:#fb923c;border-color:rgba(251,146,60,0.2)",
   intel:      "rgba(99,102,241,0.1);color:#818cf8;border-color:rgba(99,102,241,0.2)",
+  intel_il:   "rgba(59,130,246,0.12);color:#60a5fa;border-color:rgba(59,130,246,0.25)",
+  intel_us:   "rgba(239,68,68,0.1);color:#f87171;border-color:rgba(239,68,68,0.2)",
+  intel_uk:   "rgba(168,85,247,0.1);color:#c084fc;border-color:rgba(168,85,247,0.2)",
+  intel_ru:   "rgba(239,68,68,0.12);color:#fb7185;border-color:rgba(239,68,68,0.25)",
+  intel_ae:   "rgba(234,179,8,0.1);color:#facc15;border-color:rgba(234,179,8,0.2)",
   named:      "rgba(239,68,68,0.15);color:#fca5a5;border-color:rgba(239,68,68,0.3)",
   cover:      "rgba(100,116,139,0.1);color:#94a3b8;border-color:rgba(100,116,139,0.2)",
   uncertain:  "rgba(250,204,21,0.1);color:#facc15;border-color:rgba(250,204,21,0.2)"
 };
 
-// operational nodes get the legacy "core" badge
 const coreSet = new Set(categories.operational);
 
-// ═══════════════════════════════════════════════════════
-// COLORS
-// ═══════════════════════════════════════════════════════
 const C = {
   center:     "#f87171",
   convicted:  "#2dd4bf",
@@ -307,13 +325,10 @@ const Cborder = {
 const typeLabel = {
   center:    "PRINCIPAL TARGET",
   convicted: "CONVICTED",
-  suspicious:"SUSPICIOUS — UNDER REVIEW",
+  suspicious:"SUSPICIOUS - UNDER REVIEW",
   possibly:  "POSSIBLY INVOLVED"
 };
 
-// ═══════════════════════════════════════════════════════
-// D3 SETUP
-// ═══════════════════════════════════════════════════════
 const W = window.innerWidth, H = window.innerHeight;
 const svg = d3.select("#graph").attr("width",W).attr("height",H);
 const g = svg.append("g");
@@ -336,9 +351,6 @@ const sim = d3.forceSimulation(nodes)
 for (let i=0;i<300;i++) sim.tick();
 sim.stop();
 
-// ═══════════════════════════════════════════════════════
-// LABEL COLLISION AVOIDANCE
-// ═══════════════════════════════════════════════════════
 function resolveLabels() {
   const len=nodes.length;
   const offY=new Float32Array(len), lblW=new Float32Array(len);
@@ -367,9 +379,6 @@ function resolveLabels() {
 }
 resolveLabels();
 
-// ═══════════════════════════════════════════════════════
-// DRAW
-// ═══════════════════════════════════════════════════════
 let linkEl = g.append("g").attr("class","links").selectAll("line").data(links).join("line")
   .attr("stroke", d=>{
     const s=d.strength||0.5;
@@ -408,17 +417,11 @@ function updatePositions(){
 }
 updatePositions();
 
-// ═══════════════════════════════════════════════════════
-// DRAG
-// ═══════════════════════════════════════════════════════
 nodeEl.call(d3.drag()
   .on("start",(e,d)=>{ sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
   .on("drag",(e,d)=>{ d.fx=e.x; d.fy=e.y; updatePositions(); })
   .on("end",(e,d)=>{ sim.alphaTarget(0).stop(); d.fx=null; d.fy=null; }));
 
-// ═══════════════════════════════════════════════════════
-// TOOLTIP
-// ═══════════════════════════════════════════════════════
 const tip = d3.select("#tooltip");
 
 nodeEl.on("mouseover",function(ev,d){
@@ -453,9 +456,6 @@ nodeEl.on("mouseover",function(ev,d){
   tip.style("display","none");
 });
 
-// ═══════════════════════════════════════════════════════
-// DOSSIER
-// ═══════════════════════════════════════════════════════
 function openDossier(d) {
   tip.style("display","none");
   const color  = C[d.type]||"#64748b";
@@ -493,7 +493,6 @@ function openDossier(d) {
 
   if(isCore) html+=`<div style="margin-bottom:16px"><span class="core-badge">⬤ OPERATIONAL RING</span></div>`;
 
-  // Uncertain caveat
   const isUncertain = categories.uncertain.includes(d.id) && !categories.named.includes(d.id);
   if(isUncertain){
     html+=`<div class="dossier-callout gray" style="margin-bottom:16px">
@@ -508,7 +507,6 @@ function openDossier(d) {
   if(d.evidence)     html+=`<div class="dossier-section"><h3>Evidence</h3><p>${d.evidence}</p></div>`;
   if(d.link)         html+=`<div class="dossier-section"><h3>Analyst Note</h3><p style="color:#64748b;font-style:italic">${d.link}</p></div>`;
 
-  // Role tags
   const nodeCats=Object.entries(categories).filter(([k,v])=>v.includes(d.id)).map(([k])=>k);
   if(nodeCats.length){
     html+=`<div class="dossier-section"><h3>Network Role</h3><div style="display:flex;gap:4px;flex-wrap:wrap">`;
@@ -573,33 +571,22 @@ nodeEl.on("click",function(ev,d){ ev.stopPropagation(); openDossier(d); });
 document.getElementById("dossier-close").addEventListener("click",()=>document.getElementById("dossier").classList.remove("open"));
 svg.on("click",()=>document.getElementById("dossier").classList.remove("open"));
 
-// ═══════════════════════════════════════════════════════
-// FILTER STATE
-// ═══════════════════════════════════════════════════════
 let activeCat = "all";
 
-// ═══════════════════════════════════════════════════════
-// REFIT — animate visible nodes into viewport on filter change
-// ═══════════════════════════════════════════════════════
 function refitVisibleNodes(){
   const visibleIds = new Set(nodes.filter(n => isNodeVisible(n)).map(n => n.id));
   if(visibleIds.size === 0) return;
-
-  // Centre offset: account for controls panel on left, dossier potentially open on right
   const panelW = 284 + 32;
   const cx = panelW + (W - panelW) / 2;
   const cy = H / 2;
-
   sim
     .force("center", d3.forceCenter(cx, cy).strength(1))
     .force("x", d3.forceX().x(d => visibleIds.has(d.id) ? cx : d.x).strength(d => visibleIds.has(d.id) ? 0.15 : 0))
     .force("y", d3.forceY().y(d => visibleIds.has(d.id) ? cy : d.y).strength(d => visibleIds.has(d.id) ? 0.15 : 0))
     .force("charge", d3.forceManyBody().strength(d => visibleIds.has(d.id) ? -(d.radius*S)*22 : 0))
     .force("collision", d3.forceCollide().radius(d => visibleIds.has(d.id) ? (d.radius*S)+6 : 0));
-
   sim.on("tick", updatePositions);
   sim.on("end", () => {
-    // Restore normal forces
     sim
       .force("center", d3.forceCenter(W/2, H/2))
       .force("x", d3.forceX(W/2).strength(0.02))
@@ -608,13 +595,9 @@ function refitVisibleNodes(){
       .force("collision", d3.forceCollide().radius(d => (d.radius*S)+4));
     sim.on("tick", null).on("end", null);
   });
-
   sim.alpha(0.6).alphaDecay(0.028).alphaTarget(0).restart();
 }
 
-// ═══════════════════════════════════════════════════════
-// CATEGORY BUTTONS
-// ═══════════════════════════════════════════════════════
 document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
@@ -625,27 +608,16 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>{
   });
 });
 
-// ═══════════════════════════════════════════════════════
-// SEARCH
-// ═══════════════════════════════════════════════════════
 d3.select("#search").on("input", function(){ applyFilters(); });
 
-// ═══════════════════════════════════════════════════════
-// VISIBILITY CHECK (shared between filter and refit)
-// ═══════════════════════════════════════════════════════
 function isNodeVisible(d){
-  // Classification checkboxes
   const at = new Set();
   d3.selectAll(".tf").each(function(){ if(this.checked) at.add(this.value); });
   if(!at.has(d.type)) return false;
-
-  // Relationship category
   if(activeCat !== "all"){
     const catSet = new Set(categories[activeCat]||[]);
     if(!catSet.has(d.id)) return false;
   }
-
-  // Orphan filter
   const so = d3.select("#orphans").property("checked");
   if(!so){
     const ms = +d3.select("#str").property("value");
@@ -658,9 +630,6 @@ function isNodeVisible(d){
   return true;
 }
 
-// ═══════════════════════════════════════════════════════
-// UNIFIED FILTER
-// ═══════════════════════════════════════════════════════
 let filterTimer;
 function applyFilters(){
   clearTimeout(filterTimer);
@@ -671,7 +640,6 @@ function applyFiltersNow(){
   const q = document.getElementById("search").value.toLowerCase();
   const showLabels = d3.select("#labels").property("checked");
   const ms = +d3.select("#str").property("value");
-
   nodeEl.attr("display", d => isNodeVisible(d) ? null : "none");
   nodeEl.select("circle:last-of-type").attr("opacity", d => {
     if(!isNodeVisible(d)) return 0.12;
@@ -680,7 +648,6 @@ function applyFiltersNow(){
   });
   lblEl.attr("display", d => (isNodeVisible(d) && showLabels) ? null : "none");
   lblEl.attr("opacity", d => (!q || d.label.toLowerCase().includes(q)) ? 1 : 0.08);
-
   linkEl.attr("display", d=>{
     if((d.strength||0.5)<ms) return "none";
     const sid=d.source.id||d.source, tid=d.target.id||d.target;
@@ -688,7 +655,6 @@ function applyFiltersNow(){
     if(!sn||!tn||!isNodeVisible(sn)||!isNodeVisible(tn)) return "none";
     return null;
   });
-
   let visN=0, visL=0;
   nodes.forEach(n=>{ if(isNodeVisible(n)) visN++; });
   links.forEach(l=>{
