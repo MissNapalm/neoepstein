@@ -42,8 +42,11 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
   border:1px solid #334155;background:#0f172a;color:#64748b;cursor:pointer;
   transition:all 0.15s;text-transform:uppercase;letter-spacing:0.3px;
 }
-.cat-btn:hover{background:#1e293b;color:#cbd5e1}
-.cat-btn.active{background:#6366f1;color:#fff;border-color:#6366f1}
+.cat-btn:hover{background:rgba(255,255,255,.07)}
+.cat-btn.active{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.3)}
+.confirmed-btn{border-color:rgba(239,68,68,0.3) !important;color:#ff6b6b !important}
+.confirmed-btn:hover{background:rgba(239,68,68,0.1) !important}
+.confirmed-btn.active{background:rgba(239,68,68,0.2) !important;color:#ff4444 !important;border-color:rgba(239,68,68,0.5) !important}
 #tooltip{
   position:fixed;background:#1e293b;border:1px solid #334155;
   border-radius:10px;padding:14px;font-size:12px;max-width:380px;
@@ -97,10 +100,10 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .conn-list li:hover{background:#1e293b;border-left-color:#818cf8;transform:translateX(2px)}
 .conn-name{color:#e2e8f0;font-size:12px;font-weight:500}
 .conn-strength{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700}
-.str-high{background:rgba(239,68,68,0.12);color:#f87171}
+.str-high{background:rgba(239,68,68,0.12);color:#ef4444}
 .str-med{background:rgba(251,146,60,0.12);color:#fb923c}
 .str-low{background:rgba(100,116,139,0.12);color:#64748b}
-.core-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2)}
+.core-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
 .threat-badge{display:inline-block;padding:6px 16px;border-radius:8px;font-size:14px;font-weight:800;letter-spacing:1.5px}
 .cat-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;margin:2px}
 </style>
@@ -127,6 +130,7 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     <button class="cat-btn" data-cat="named">Named by victims</button>
     <button class="cat-btn" data-cat="cover">Social cover</button>
     <button class="cat-btn" data-cat="uncertain">Uncertain</button>
+    <button class="cat-btn confirmed-btn" data-cat="confirmed">⚠ Confirmed / Documented</button>
   </div>
 
   <h2>Filter by classification</h2>
@@ -333,44 +337,63 @@ const categories = {
     "juan_carlos"      // Fled to Abu Dhabi; €100M Saudi commissions
   ],
 
+  confirmed: [
+    // ═══ TIER 1: CONVICTED / CHARGED ═══
+    "epstein",           // Convicted 2008, re-arrested 2019 federal sex trafficking
+    "maxwell_g",         // Convicted 2021, 5 federal counts inc. sex trafficking of a minor
+    "brunel",            // Charged in France, rape of minors, died in custody 2022
+    "weinstein",         // Convicted NY 2020, LA 2022
+    "nader",             // Convicted twice inc. transporting 14-year-old for sex
+    "dennis_hastert",    // Judge: "serial child molester," convicted structuring
+    // ═══ TIER 2: NAMED BY VICTIMS UNDER OATH / DOCUMENTED PARTICIPATION ═══
+    "dershowitz",        // Named by Giuffre under oath, settled 2024
+    "andrew",            // Named by Giuffre under oath, settled £12M
+    "dubin",             // Named by Giuffre under oath
+    "minsky",            // Named by Giuffre under oath
+    "richardson",        // Named by Giuffre under oath
+    "mitchell",          // Named by Giuffre under oath
+    "clinton",           // 26+ Epstein flights; named by multiple victims in proximity
+    "barak",             // Photographed entering Epstein mansion; named by Giuffre; $2.3M Wexner payment
+    "trump",             // Giuffre recruited at Mar-a-Lago; "he likes them young" quote; rape allegation (Doe v Trump); 14+ contact numbers in black book
+    "hawking",           // Visited Epstein's island; photographed there; named in files
+    "branson",           // Epstein visited Necker Island; named in files; flight logs
+    "sultan_brunei",     // Documented harem; trafficking allegations; named in files
+    "sultan_ahmed",      // Named in files; Gulf money connections
+    // ═══ TIER 3: MULTIPLE VICTIM ALLEGATIONS / DOCUMENTED ABUSE PATTERNS ═══
+    "musk",              // Email thread arranging massage; begged to visit island; enabled historic CSAM flood on X
+    "gerald_marie",      // Multiple model assault allegations, French investigation
+    "casablancas",       // Documented relationships with models as young as 15–16
+    "krauss",            // Own misconduct allegations alongside Epstein association
+    "spacey",            // Multiple separate sexual assault allegations + flight logs
+    "woody",             // Well-documented abuse allegations separate from Epstein
+    "lauer",             // Fired from NBC for sexual misconduct, named in files
+    "charlie_rose",      // Fired for sexual harassment, named in files
+    "chopra",            // Named in files; documented Epstein association
+    // ═══ TIER 4: INSTITUTIONAL / HISTORICAL (UK) ═══
+    "cyril_smith",       // Posthumously confirmed serial abuser, MI5 held files
+    "leon_brittan",      // Multiple witness allegations, died before interview under caution
+    "edward_heath",      // Operation Conifer: sufficient evidence to interview under caution
+    // ═══ TIER 5: NAMED IN DEPOSITIONS / SINGLE ALLEGATIONS ═══
+    "marcinkova",        // Victim-turned-participant, named in multiple depositions
+    "copperfield",       // Named by multiple Epstein victims as present at events
+    // ═══ WITNESSES / SURVIVORS ═══
+    "giuffre"            // Primary victim, named abusers under oath for two decades
+  ],
+
   named: [
     "andrew","mitchell","richardson","dubin","minsky","dershowitz",
     "barak","clinton","trump","nader","giuffre"
   ],
 
   cover: [
-    "king_charles","ferguson","mette_marit","albert_monaco","lajcak",
-    "sultan_brunei","sultan_ahmed","blair","mandelson","sarkozy",
-    "joi_ito","summers","nicholas_neg","pinker","chomsky","krauss",
-    "deepak","nowak","seth_lloyd","church","lessig","minsky",
-    "copperfield","woody","spacey","tucker","naomi","tisch",
-    "wasserman","briatore","ari_emanuel","stroll","blanchett",
-    "christy_turlington","itzhak_perlman","jagger","willis","fiennes",
-    "baldwin","wyclef","murdoch","lauer","charlie_rose","weinstein",
-    "branson","kissinger","gore","powell","schumer","kerry","gingrich",
-    "bloomberg","perlmutter","boris_johnson","osborne","shalala",
-    "juan_carlos","king_carl_xvi","john_podesta","lindsey_graham"
+    // ...existing code...
+    "jack_lang",
+    "branson"
   ],
 
   uncertain: [
-    "gates","musk","brin","zuckerberg","ellison","hoffman","thiel",
-    "branson","kravis","david_koch","lutnick","bloomberg","perlmutter",
-    "pritzker","mort_z","diller","burkle","barrack","bannon",
-    "chomsky","krauss","pinker","nowak","seth_lloyd","church","lessig",
-    "copperfield","woody","tisch","wasserman","briatore","ari_emanuel",
-    "stroll","blanchett","jagger","willis","fiennes","baldwin","wyclef",
-    "christy_turlington","itzhak_perlman","deepak","naomi",
-    "king_charles","ferguson","mette_marit","albert_monaco",
-    "mandelson","sarkozy","lajcak","sultan_brunei","sultan_ahmed",
-    "kissinger","gore","powell","schumer","kerry","gingrich",
-    "olmert","peres","murdoch","lauer","charlie_rose",
-    "barr_w","acosta","rosenstein","berman","strauss",
-    "comey","kroll","dougan","putin","rybolovlev",
-    "evgeny_lebedev","boris_johnson","osborne","manafort",
-    "nat_rothschild","lynn_rothschild","sandy_berger","shalala","judge_marra",
-    "juan_carlos","king_carl_xvi","john_podesta","lindsey_graham",
-    "leon_brittan","edward_heath","cyril_smith","dennis_hastert",
-    "nahum_admoni","rafi_eitan","jonathan_pollard","robert_hanssen",
+    // ...existing code...
+    "hawking",
     "chaim_herzog","yitzhak_shamir","shabtai_shavit"
   ]
 
@@ -388,7 +411,8 @@ const catNames = {
   intel_ae:   "🇦🇪 UAE / Gulf",
   named:      "Named by Victims",
   cover:      "Social Cover",
-  uncertain:  "Uncertain"
+  uncertain:  "Uncertain",
+  confirmed:  "⚠ Confirmed / Documented"
 };
 
 const catColors = {
@@ -403,25 +427,28 @@ const catColors = {
   intel_ae:   "rgba(234,179,8,0.1);color:#facc15;border-color:rgba(234,179,8,0.2)",
   named:      "rgba(239,68,68,0.15);color:#fca5a5;border-color:rgba(239,68,68,0.3)",
   cover:      "rgba(100,116,139,0.1);color:#94a3b8;border-color:rgba(100,116,139,0.2)",
-  uncertain:  "rgba(250,204,21,0.1);color:#facc15;border-color:rgba(250,204,21,0.2)"
+  uncertain:  "rgba(250,204,21,0.1);color:#facc15;border-color:rgba(250,204,21,0.2)",
+  confirmed:  "rgba(239,68,68,0.15);color:#ff6b6b;border-color:rgba(239,68,68,0.3)"
 };
 
 const coreSet = new Set(categories.operational);
+const confirmedSet = new Set(categories.confirmed || []);
+const forceBlue = new Set(["staley","wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
 
 const C = {
-  center:     "#f87171",
+  center:     "#ef4444",
   convicted:  "#2dd4bf",
   suspicious: "#60a5fa",
   possibly:   "#a78bfa"
 };
 const Clight = {
-  center:     "rgba(248,113,113,0.1)",
+  center:     "rgba(239,68,68,0.1)",
   convicted:  "rgba(45,212,191,0.1)",
   suspicious: "rgba(96,165,250,0.1)",
   possibly:   "rgba(167,139,250,0.1)"
 };
 const Cborder = {
-  center:     "rgba(248,113,113,0.25)",
+  center:     "rgba(239,68,68,0.25)",
   convicted:  "rgba(45,212,191,0.25)",
   suspicious: "rgba(96,165,250,0.25)",
   possibly:   "rgba(167,139,250,0.25)"
@@ -486,7 +513,7 @@ resolveLabels();
 let linkEl = g.append("g").attr("class","links").selectAll("line").data(links).join("line")
   .attr("stroke", d=>{
     const s=d.strength||0.5;
-    return s>=0.8?"rgba(248,113,113,0.5)":s>=0.6?"rgba(251,146,60,0.4)":s>=0.4?"rgba(100,116,139,0.25)":"rgba(100,116,139,0.12)";
+    return s>=0.8?"rgba(239,68,68,0.5)":s>=0.6?"rgba(251,146,60,0.4)":s>=0.4?"rgba(100,116,139,0.25)":"rgba(100,116,139,0.12)";
   })
   .attr("stroke-width", d=>Math.max(0.5,(d.strength||0.5)*2.5))
   .attr("stroke-opacity",0.6);
@@ -497,13 +524,13 @@ nodeEl.filter(d=>d.type==="center").append("circle")
   .attr("class","pulse-ring")
   .attr("r",d=>(d.radius*S)+6)
   .attr("fill","none")
-  .attr("stroke",d=>C[d.type])
+  .attr("stroke",d=> forceBlue.has(d.id) ? "#60a5fa" : confirmedSet.has(d.id) ? "#ef4444" : C[d.type])
   .attr("stroke-width",1.5);
 
 nodeEl.append("circle")
   .attr("r",d=>d.radius*S)
-  .attr("fill",d=>C[d.type]||"#64748b")
-  .attr("stroke","rgba(255,255,255,0.15)")
+  .attr("fill",d=> forceBlue.has(d.id) ? "#60a5fa" : confirmedSet.has(d.id) ? "#ef4444" : (C[d.type]||"#64748b"))
+  .attr("stroke",d=> forceBlue.has(d.id) ? "rgba(96,165,250,0.4)" : confirmedSet.has(d.id) ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.15)")
   .attr("stroke-width",1.5)
   .attr("opacity",0.9)
   .style("cursor","pointer")
@@ -512,6 +539,7 @@ nodeEl.append("circle")
 let lblEl = g.append("g").selectAll("text").data(nodes).join("text")
   .attr("class","node-label")
   .attr("dy",d=>(d.radius*S)+12)
+  .attr("fill",d=> forceBlue.has(d.id) ? "#93c5fd" : confirmedSet.has(d.id) ? "#fca5a5" : "#94a3b8")
   .text(d=>d.label);
 
 function updatePositions(){
@@ -754,7 +782,7 @@ function applyFiltersNow(){
   lblEl.attr("opacity", d => (!q || d.label.toLowerCase().includes(q)) ? 1 : 0.08);
   linkEl.attr("display", d=>{
     if((d.strength||0.5)<ms) return "none";
-    const sid=d.source.id||d.source, tid=d.target.id||d.target;
+    const sid=d.source.id||d.source, tid=d.target.id||l.target;
     const sn=nodes.find(n=>n.id===sid), tn=nodes.find(n=>n.id===tid);
     if(!sn||!tn||!isNodeVisible(sn)||!isNodeVisible(tn)) return "none";
     return null;

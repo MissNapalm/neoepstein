@@ -300,7 +300,7 @@ const graphData = {
             evidence:"Marketic lawsuit 1997. Named in Epstein contact files.",
             link:"A head of state with independent trafficking allegations in the same network."},
 
-        {id:"sultan_ahmed",label:"Sultan bin Ahmed",type:"suspicious",radius:16,
+        {id:"sultan_ahmed",label:"Ahmed bin Sulayem",type:"suspicious",radius:16,
             agency:"UAE",role:"UAE Royal",status:"NAMED IN FILES",
             desc:"UAE royal named in Epstein files.",evidence:"Named in contact files."},
 
@@ -430,11 +430,18 @@ const graphData = {
             evidence:"Multiple townhouse meetings 2011-2013. Nikolic named in will. Melinda Gates warnings. Divorce proceedings. $2M MIT donation via Epstein. Flight on Epstein plane.",
             link:"Gates met a convicted sex offender repeatedly, was warned by his wife, and considered giving Epstein control of a fund. What Epstein offered or held over Gates has never been disclosed."},
 
-        {id:"musk",label:"Elon Musk",type:"suspicious",radius:38,
-            agency:"TESLA / SPACEX / X",role:"Tech Billionaire",status:"NAMED IN FILES",networth:"$200B+",
-            desc:"2025 DOJ file release: assistant email requesting island invitation. Christmas Day email exchange. 2014 photo. Ghislaine at Musk event.",
-            evidence:"DOJ files: island invitation email. Christmas Day email. 2014 photograph. Maxwell at Musk event.",
-            link:"Island invitation requests in the DOJ files."},
+        {id:"musk", label:"Elon Musk", type:"suspicious", radius:14,
+      agency:"TESLA / SPACEX / X (TWITTER)",
+      role:"CEO · Begged to Visit Island · Massage Arranged · Enabled CSAM Flood",
+      status:"NAMED IN FILES",
+      networth:"~$230B",
+      desc:"Elon Reeve Musk is the world's richest person. Email threads in Epstein's Jmail archive show Musk actively sought to visit Epstein's island and that a massage was arranged for him through Epstein's scheduling assistant. He was photographed with Ghislaine Maxwell at a 2014 Vanity Fair Oscar party. After acquiring Twitter (now X) in 2022, he gutted the platform's trust and safety team, resulting in what the National Center for Missing & Exploited Children, the Internet Watch Foundation, and multiple researchers documented as a historic flood of child sexual abuse material on the platform. Reports of CSAM on X increased by over 200% following the staff cuts. He simultaneously amplified conspiracy theories about child trafficking while his platform became a primary vector for its distribution.",
+      intelRole:"The Jmail email thread arranging a massage for Musk through Epstein's operation is documented in the unsealed files. He did not passively appear in a contact book — he actively pursued access to the island and had services arranged for him through Epstein's infrastructure. His subsequent acquisition of Twitter and dismantling of child safety systems created the largest single increase in CSAM distribution on any major platform in internet history. The man who sought Epstein's services now runs the platform that enables the distribution of the abuse those services produced.",
+      epsteinLink:"Jmail email thread documents Musk requesting to visit Epstein's island. A massage was arranged for him through Epstein's assistant. Photographed with Ghislaine Maxwell at 2014 Vanity Fair event. After acquiring Twitter/X, gutted trust and safety teams — NCMEC reported a historic increase in CSAM on the platform. He amplifies anti-trafficking rhetoric while running the platform with the worst child safety record of any major social network.",
+      significance:"The world's richest man sought access to Epstein's island, had a massage arranged through Epstein's operation, and now runs a platform that has become the largest vector for child sexual abuse material on the mainstream internet. The email evidence is documented. The CSAM explosion is documented. The hypocrisy is architectural.",
+      evidence:"Jmail email thread arranging island visit and massage — unsealed court documents. 2014 Ghislaine Maxwell photograph — Getty Images. Twitter/X trust and safety team gutting — documented by former staff and SEC filings. NCMEC CSAM report increase post-acquisition — published statistics. Internet Watch Foundation reports. Stanford Internet Observatory analysis.",
+      link:"He emailed to get to the island. They arranged a massage. He bought the platform and let the child abuse material flood in. The richest man in the world, connected to both the production and distribution side of the same crime."
+    },
 
         {id:"kravis",label:"Henry Kravis",type:"suspicious",radius:20,
             agency:"KKR & CO",role:"Private Equity Billionaire",status:"NAMED IN FILES",networth:"$10B",

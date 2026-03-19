@@ -303,7 +303,7 @@ const supplementalData = {
       agency: "ISRAELI MILITARY INTELLIGENCE / PRESIDENCY",
       role: "President of Israel · Former Aman Director · Robert Maxwell's Handler Chain",
       status: "DECEASED (1997)",
-      intelRole: "Head of Aman (Israeli military intelligence) 1959–1962. President of Israel 1983–1993. Born in Belfast, educated in London and Cambridge, served in British Army intelligence during WWII before emigrating to Palestine. His dual British-Israeli intelligence career made him a natural bridge between MI6 and Mossad — the exact operational corridor the Maxwell family occupied. As President during the 1980s, he presided over the state during the peak of Robert Maxwell's usefulness to Israeli intelligence, the Pollard spy scandal, and the early period of Epstein's emergence as a financial figure in New York. He delivered Robert Maxwell's eulogy at the state funeral on the Mount of Olives in November 1991 — a funeral attended by heads of Mossad, Aman, and Shin Bet. A sitting President of Israel eulogising a newspaper publisher is only explicable if that publisher was a strategic intelligence asset.",
+      intelRole: "Head of Aman (Israeli military intelligence) 1959–1962. President of Israel 1983–1993. Born in Belfast, educated in London and Cambridge, served in British Army intelligence during WWII before emigrating to Palestine. His dual British-Israeli intelligence career made him a natural bridge between MI6 and Mossad — the exact operational corridor the Maxwell family occupied. As President during the 1980s, he presided over the state during the peak of Robert Maxwell's usefulness to Israeli intelligence, the Pollard spy scandal, and the early period of Epstein's emergence as a financial figure in New York. He delivered Robert Maxwell's eulogy at his state funeral on the Mount of Olives in November 1991 — a funeral attended by heads of Mossad, Aman, and Shin Bet. A sitting President of Israel eulogising a newspaper publisher is only explicable if that publisher was a strategic intelligence asset.",
       epsteinLink:"Herzog's eulogy at Robert Maxwell's funeral is one of the most significant single pieces of evidence confirming Maxwell's intelligence status. The President of Israel does not eulogise private businessmen. He eulogises assets of the state. Herzog's presence and words at the funeral — alongside Nahum Admoni (Mossad director), heads of Aman and Shin Bet, and senior government officials — constitutes an institutional state acknowledgment of Maxwell's intelligence role. Maxwell's intelligence role is the foundation of the Epstein operation: Maxwell recruited Epstein, Maxwell's daughter Ghislaine ran the trafficking, and the entire operation functioned as an intelligence collection mechanism. Herzog's eulogy is the state seal on that chain.",
       significance: "A former military intelligence chief who became President eulogised Robert Maxwell with full state honours. That eulogy is the single clearest institutional confirmation that Maxwell was a state intelligence asset — not a businessman who happened to know people in government, but an asset whose loss warranted presidential mourning. Everything downstream — Ghislaine's role, Epstein's immunity, the surveillance infrastructure, the kompromat architecture — flows from the fact that the operation was state-sponsored. Herzog's eulogy is the proof.",
       desc: "Chaim Herzog (1918–1997) was born in Belfast, son of the Chief Rabbi of Ireland. Educated at Cambridge and Lincoln's Inn. Served in British Army intelligence during WWII, participating in the liberation of Bergen-Belsen. Emigrated to Palestine. Became head of Aman (military intelligence) 1959–1962. Served as Israel's Ambassador to the UN 1975–1978, where he famously tore up the 'Zionism is Racism' resolution. Elected President of Israel 1983, served until 1993. Delivered Robert Maxwell's eulogy at his state funeral on the Mount of Olives, November 1991. His son Isaac Herzog is the current President of Israel (2021–present).",
@@ -324,7 +324,7 @@ const supplementalData = {
       epsteinLink: "Shamir's premiership overlaps precisely with the period when Robert Maxwell's intelligence utility was at its peak and when Epstein was transitioning from Hoffenberg's Towers Financial fraud into his own operation. As a former Mossad operations chief, Shamir understood agent-running at the operational level — he was not a politician who inherited an intelligence relationship, he was a spymaster who became a politician. His government authorised or permitted the intelligence activities that Maxwell conducted, including the alleged recruitment and deployment of Epstein. The Pollard affair (1985) — which exposed Israeli intelligence's willingness to run aggressive espionage operations against the United States — occurred under Shamir's watch. Maxwell's role in attempting to negotiate Pollard's release further confirms the Maxwell-Israeli intelligence nexus that Shamir's government managed.",
       significance: "Shamir is the missing link between Israel's founding-era intelligence culture and the modern operation that produced Epstein. Like other Israeli leadership figures, he attended Robert Maxwell's funeral. He personally transitioned from underground paramilitary assassination to Mossad operations to Prime Minister — carrying the operational mentality of covert action into the highest elected office. His premiership during the Maxwell peak period means the Israeli government's intelligence relationship with Maxwell — and by extension with the emerging Epstein operation — was managed by a man who had personally run agents, personally ordered operations, and personally understood the value of a kompromat network targeting Western elites. This was not a politician being briefed by intelligence. This was intelligence running the government.",
       desc: "Yitzhak Shamir (1915–2012) was born Yitzhak Yezernitsky in the Russian Empire (now Belarus). Emigrated to Palestine in 1935. Became a leader of Lehi (Stern Gang), the most radical of the pre-state paramilitary organisations. After independence, joined Mossad and headed European operations through the 1950s–60s. Entered politics. Served as Speaker of the Knesset, Foreign Minister, and twice as Prime Minister (1983–84 and 1986–92). His second premiership covered the period of maximum Robert Maxwell intelligence activity, the aftermath of the Pollard affair, and the establishment of Epstein's New York financial operation. He was known for extreme secrecy, minimal public statements, and absolute loyalty to the intelligence establishment that formed him.",
-      evidence: "Lehi leadership confirmed — including responsibility for Bernadotte assassination (1948). Mossad European operations chief confirmed by multiple Israeli intelligence historians. Prime Minister 1983–84, 1986–92 confirmed. Premiership overlaps with Maxwell peak intelligence period (1980s), Pollard affair (1985), and Epstein's emergence (late 1980s). Maxwell's attempted Pollard negotiation documented. Shamir's Mossad career documented by Ronen Bergman, Ian Black, and Benny Morris.",
+      evidence: "Lehi leadership confirmed — including responsibility for Bernadotte assassination (1948). Mossad European operations chief confirmed by multiple Israeli intelligence historians. Prime Minister 1983–1984, 1986–1992 confirmed. Premiership overlaps with Maxwell peak intelligence period (1980s), Pollard affair (1985), and Epstein's emergence (late 1980s). Maxwell's attempted Pollard negotiation documented. Shamir's Mossad career documented by Ronen Bergman, Ian Black, and Benny Morris.",
       link: "An assassin became a spy chief became a Prime Minister. He ran agents in Europe for Mossad. Then he ran the country while Maxwell ran agents in America. The operational culture that produced Epstein was not an aberration. It was the founding culture of the state, carried forward by a man who embodied it."
     },
 
@@ -386,6 +386,55 @@ const supplementalData = {
       link: "He admitted on television that he was an Israeli spy who stole nuclear technology from America for decades. The DOJ never charged him. The same DOJ gave Epstein the deal. The pattern is not subtle."
     },
 
+    // ─── STEPHEN HAWKING ─────────────────────────────────
+    {
+      id: "hawking",
+      label: "Stephen Hawking",
+      type: "suspicious",
+      radius: 18,
+      agency: "CAMBRIDGE UNIVERSITY / THEORETICAL PHYSICS",
+      role: "Physicist · Visited Epstein's Island · Named in Files",
+      status: "DECEASED (2018)",
+      networth: "~$20M",
+      desc: "Stephen William Hawking (1942–2018) was the most famous scientist in the world. He visited Jeffrey Epstein's private island in the US Virgin Islands in March 2006 — during a physics conference Epstein hosted there. He is photographed on the island. Epstein's emails reference Hawking's visit and discuss arranging entertainment. The visit occurred during a period when Epstein was under active FBI investigation.",
+      intelRole:"Hawking's presence on Epstein's island provides intellectual legitimacy. Epstein cultivated relationships with elite scientists — Hawking, Minsky, Krauss, Nowak, Pinker, Church, Seth Lloyd — to construct a persona as a science philanthropist. This cover story gave powerful men a socially acceptable reason to associate with Epstein. 'I went for the science' is the alibi the island visits were designed to produce.",
+      epsteinLink:"Visited Epstein's private island March 2006. Photographed there. Epstein emails discuss Hawking's visit and arranging activities during his stay. Visit occurred while Epstein was under active Palm Beach police investigation.",
+      significance:"The most recognisable scientist in history visited the island of a man under investigation for child sex trafficking. The emails discuss his visit. He is in the photographs. His presence gave Epstein something no amount of money could buy: the appearance of intellectual legitimacy.",
+      evidence:"Island visit March 2006 documented in unsealed court filings. Photographs on the island confirmed. Epstein emails referencing visit released in court documents. Deceased March 2018.",
+      link:"The most famous scientist in the world went to the island. The emails discuss what was arranged for his visit. He died before anyone had to ask him about it under oath."
+    },
+
+    // ── BRANSON ──
+    {id:"branson", label:"Richard Branson", type:"suspicious", radius:16,
+      agency:"VIRGIN GROUP",
+      role:"Billionaire · Necker Island · Flight Logs · Named in Files",
+      status:"NAMED IN FILES",
+      networth:"~$3B",
+      desc:"Sir Richard Charles Nicholas Branson is the founder of the Virgin Group. Epstein visited Branson's private Caribbean island, Necker Island, and Branson is named in Epstein's contact files. Flight logs document travel connections. Branson's ownership of a private Caribbean island — used for elite social gatherings — mirrors the operational model Epstein used with Little St. James. Multiple Epstein-connected figures visited Necker Island across the operational period.",
+      intelRole:"Branson's private island in the British Virgin Islands provided another node in the Caribbean private island infrastructure that the Epstein network used. The BVI's offshore financial architecture — minimal regulation, opaque corporate structures, British Crown jurisdiction — is the same legal environment that sheltered Epstein's financial operations. Branson's social network overlaps extensively with Epstein's at the billionaire philanthropist level.",
+      epsteinLink:"Epstein visited Necker Island. Branson is named in Epstein's contact files. Flight log connections documented. His Caribbean island is in the same island chain as Epstein's Little St. James — the British and US Virgin Islands share waters and social infrastructure. Multiple figures from the Epstein network visited Necker across the years of the operation.",
+      significance:"Another billionaire with a private Caribbean island in the contact files. The private island model — isolation, jurisdiction shopping, controlled access, no witnesses — was not unique to Epstein. It was a methodology shared across the network.",
+      evidence:"Named in Epstein contact files. Epstein Necker Island visit documented. Flight log connections. BVI private island ownership. Multiple Epstein network figures visited Necker.",
+      link:"Two billionaires. Two private islands. Same island chain. Same contact files. Same guests."
+    },
+
+    // ─── JACK LANG ───────────────────────────────────────
+    {
+      id: "jack_lang",
+      label: "Jack Lang",
+      type: "suspicious",
+      radius: 16,
+      agency: "FRENCH GOVERNMENT",
+      role: "Minister of Culture · Minister of Education · Named in Files",
+      status: "NAMED IN FILES",
+      desc: "Jack Lang served as France's Minister of Culture (1981–1986, 1988–1993) and Minister of Education (1992–1993, 2000–2002) under President Mitterrand and Prime Minister Jospin. He is named in Epstein's contact files. He was one of the most powerful cultural figures in France during the period when Jean-Luc Brunel was operating his modelling agencies as a trafficking pipeline from Paris to New York. Lang's Ministry of Culture had oversight of the fashion and modelling industry that Brunel exploited. He was photographed with Epstein in Paris. His social world overlapped extensively with the French cultural elite that provided Brunel's operation with social legitimacy.",
+      intelRole: "As Minister of Culture and later Minister of Education, Lang had institutional authority over two of the sectors most exploited by the Epstein-Brunel trafficking pipeline: the fashion/modelling industry and the education system. France's modelling industry — which Brunel used to recruit and traffic girls — operated under Lang's ministry. His appearance in Epstein's contact files during this period places the French government official responsible for cultural industry oversight in the contact book of the man whose operation exploited those industries.",
+      epsteinLink: "Named in Epstein's contact files. Photographed with Epstein in Paris. His ministry had oversight of the French fashion and modelling industry during the peak of Brunel's trafficking operation. Lang's social world in Paris overlapped with Brunel's — the same parties, the same cultural institutions, the same elite circles that gave the trafficking pipeline its cover of legitimacy.",
+      significance: "The French Minister of Culture — responsible for the fashion industry — is in the contact book of the man whose operation trafficked girls through the French fashion industry. Brunel operated under Lang's ministry. Lang is in Epstein's files. The institutional failure is not abstract — it has a name and a ministry.",
+      evidence: "Named in Epstein contact files. Photographed with Epstein in Paris. Minister of Culture during Brunel's peak operational period. Minister of Education during operational period. French fashion/modelling industry under his ministry's oversight.",
+      link: "The man responsible for France's fashion industry is in the files of the man who trafficked girls through France's fashion industry. The ministry that should have protected them was run by a man in the contact book."
+    },
+
   ],
 
   links: [
@@ -395,7 +444,7 @@ const supplementalData = {
     {source:"evgeny_lebedev", target:"murdoch", strength:0.5},
     {source:"evgeny_lebedev", target:"blair", strength:0.5},
     {source:"evgeny_lebedev", target:"mandelson", strength:0.6},
-    {source:"evgeny_lebedev", target:"lebedev", strength:0.9},
+       {source:"evgeny_lebedev", target:"lebedev", strength:0.9},
     {source:"evgeny_lebedev", target:"boris_johnson", strength:0.8},
     {source:"evgeny_lebedev", target:"deripaska", strength:0.4},
     {source:"evgeny_lebedev", target:"ferguson", strength:0.4},
