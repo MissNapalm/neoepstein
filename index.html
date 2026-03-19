@@ -165,7 +165,7 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 <svg id="graph"></svg>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="list.js?v=5"></script>
-<script src="list2.js?v=2"></script>
+<script src="list2.js?v=3"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 // MERGE LIST2
@@ -207,14 +207,15 @@ const categories = {
   intel: [
     // Israeli
     "epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky",
-    "barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard",
-    "wexner","milchan","dershowitz","thiel","junkermann","kroll","olmert","peres",
+    "barak","netanyahu","black_cube","nahum_admoni",
+    "wexner", "dershowitz","junkermann","kroll","peres",
+    "chaim_herzog","yitzhak_shamir","olmert","shabtai_shavit",
     // US
-    "barr_d","barr_w","brennan","petraeus","freeh","mueller","comey",
+    "barr_d","barr_w","brennan","petraeus","burns","freeh","mueller","comey",
     "acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan",
     // UK
     "andrew","king_charles","ferguson","blair","boris_johnson",
-    "evgeny_lebedev","lebedev","osborne","leon_brittan","cyril_smith","edward_heath",
+    "osborne","leon_brittan","cyril_smith","edward_heath",
     "murdoch","mandelson",
     // Russian
     "putin","deripaska","manafort","rybolovlev","nat_rothschild",
@@ -228,17 +229,23 @@ const categories = {
     // Confirmed Mossad/Aman officers and assets
     "epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky",
     "barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard",
+    // Israeli heads of state with confirmed intelligence careers
+    "chaim_herzog",      // Aman director; eulogised Maxwell at state funeral
+    "yitzhak_shamir",    // Mossad European ops chief; PM during Maxwell peak period
+    "olmert",            // PM during operational period
+    // Mossad Directors
+    "shabtai_shavit",    // Mossad Director 1989–1996; Maxwell funeral; managed Ghislaine transition
     // Financial infrastructure with confirmed Israeli intelligence ties
-    "wexner",       // Mega Group co-founder; paid Barak $2.3M; sole Epstein patron
-    "milchan",      // Self-confirmed Mossad asset on Israeli TV; Netanyahu corruption trial
+    "wexner",         // Mega Group co-founder; paid Barak $2.3M; sole Epstein patron
     // Legal infrastructure protecting a Mossad operation
-    "dershowitz",   // Built the NPA that protected the operation; named by Ben-Menashe
+    "dershowitz",     // Built the NPA that protected the operation; named by Ben-Menashe
     // Surveillance tech with confirmed Mossad/Barak overlap
-    "thiel",        // Palantir (CIA/In-Q-Tel seed); Carbyne911 investment overlap with Barak
-    "junkermann",   // Carbyne911 board alongside Barak; introduced to Epstein by Maxwell
-    // Private intelligence with Maxwell connection
-    "kroll",        // Maxwell used Kroll; private intel infrastructure
-    "olmert","peres" // Israeli PMs during operational period; Maxwell funeral/files
+    "thiel",          // Palantir (CIA/In-Q-Tel seed); Carbyne911 investment overlap with Barak
+    "junkermann",     // Carbyne911 board alongside Barak; introduced to Epstein by Maxwell
+    // Israeli PMs during operational period
+    "peres",
+    // Hollywood intelligence asset
+    "milchan"         // Self-confirmed LAKAM/Mossad asset; nuclear procurement
   ],
 
   // 🇺🇸 US intelligence — confirmed CIA/FBI directors, OSS lineage,
@@ -249,7 +256,7 @@ const categories = {
     "barr_d",       // OSS officer who hired Epstein
     "barr_w",       // AG who oversaw Epstein's death; CIA in college
     // CIA Directors
-    "brennan","petraeus",
+    "brennan","petraeus","burns",
     // FBI Directors
     "freeh","mueller","comey",
     // DOJ — NPA architects and enforcers
@@ -262,9 +269,7 @@ const categories = {
     "robert_hanssen",
     // Congressional gatekeeper — convicted predator who blocked oversight
     "dennis_hastert",
-    // Intelligence-adjacent tech
-    "thiel",        // Palantir seeded by CIA's In-Q-Tel
-    // Fled to Russia with alleged FBI investigation files
+   // Fled to Russia with alleged FBI investigation files
     "dougan"
   ],
 
@@ -296,8 +301,6 @@ const categories = {
   intel_ru: [
     // Confirmed KGB/FSB
     "robert_maxwell",  // Confirmed KGB asset (Mitrokhin Archive)
-    "lebedev",         // Confirmed KGB officer stationed London 1988-92
-    "evgeny_lebedev",  // Son of KGB officer; MI5 peerage objection
     "deripaska",       // FSB ties documented; US-sanctioned
     "putin",           // Former KGB; FSB director; kompromat methodology
     // Russian penetration of US institutions
@@ -367,8 +370,10 @@ const categories = {
     "nat_rothschild","lynn_rothschild","sandy_berger","shalala","judge_marra",
     "juan_carlos","king_carl_xvi","john_podesta","lindsey_graham",
     "leon_brittan","edward_heath","cyril_smith","dennis_hastert",
-    "nahum_admoni","rafi_eitan","jonathan_pollard","robert_hanssen"
+    "nahum_admoni","rafi_eitan","jonathan_pollard","robert_hanssen",
+    "chaim_herzog","yitzhak_shamir","shabtai_shavit"
   ]
+
 };
 
 const catNames = {

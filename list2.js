@@ -259,8 +259,93 @@ const supplementalData = {
       link:"The Director of Mossad came to the funeral. That is the confirmation. Everything else flows from it."
     },
 
-    
-    {id:"juan_carlos", label:"King Juan Carlos", type:"possibly", radius:24,
+    // ─── BILL BURNS ───────────────────────────────────────
+    {
+      id: "burns",
+      label: "Bill Burns",
+      type: "suspicious",
+      radius: 18,
+      agency: "CIA — Director (2021–2025)",
+      role: "CIA Director during Epstein file suppression period",
+      status: "RESIGNED 2025",
+      desc: "William Joseph Burns served as CIA Director from March 2021 to January 2025. Career diplomat and intelligence official who led the agency during the period when the most significant Epstein-related disclosures occurred — the Maxwell trial (2021), the Virgin Islands lawsuit (2022–2023), and the partial document unsealing (2024) — yet the CIA produced no declassified assessment of the Epstein operation's intelligence dimensions despite overwhelming public evidence of multi-national intelligence involvement.",
+      intelRole: "Burns inherited the CIA directorship at the exact moment the Epstein network's intelligence architecture was being exposed through civil litigation. As Director, he had access to whatever the CIA knew about Epstein's intelligence affiliations — including any files related to the Acosta statement ('belonged to intelligence'), the Mossad handler chain through the Maxwells, and the surveillance infrastructure at Epstein's properties. He produced no public disclosure. He initiated no known declassification review. He made no known referral to the DOJ based on CIA holdings. The agency's silence during the most active disclosure period in the case's history is itself an intelligence posture — it is the posture of an agency protecting its equities in the operation or protecting allied services whose equities are at stake.",
+      epsteinLink: "No direct personal connection documented. Burns' relevance is institutional: he ran the CIA during the window when judicial proceedings, civil lawsuits, and congressional pressure created the maximum opportunity for intelligence community disclosure — and no disclosure occurred. The CIA has never confirmed or denied any relationship with Epstein. It has never responded to the Acosta statement. It has never addressed the documented Mossad handler chain. It has never explained why a confirmed intelligence asset (Robert Maxwell) and his daughter (Ghislaine Maxwell, convicted sex trafficker) operated freely in the United States for decades without CIA counterintelligence intervention. Burns' directorship is the period during which these questions were most publicly asked and most conspicuously unanswered.",
+      significance: "Burns represents the institutional continuity of CIA silence across the Epstein case. Seven CIA directors span the operational period: Webster, Gates, Woolsey, Deutch, Tenet, Goss, Hayden, Panetta, Petraeus, Brennan, Pompeo, Haspel, Burns. Not one has ever made a public statement about the Epstein operation's intelligence dimensions. Burns — a diplomat by training, known for careful institutional management — maintained this silence during the period of maximum public scrutiny. His tenure demonstrates that CIA non-disclosure is not a failure of individual leadership but a consistent institutional policy sustained across administrations of both parties.",
+      evidence: "CIA FOIA responses to Epstein-related requests have been minimal and heavily redacted. No CIA officer has testified before Congress about agency knowledge of the Epstein operation. Burns made no public statement about the intelligence dimensions of the case during his four-year tenure. The agency's Office of Inspector General has not published any review of CIA interactions with or knowledge of the Epstein network.",
+      link: "The CIA Director who says nothing about a confirmed intelligence operation is making a statement. The statement is: this operation is still protected."
+    },
+
+    // ─── STEVE HOFFENBERG ─────────────────────────────────
+    {
+      id: "hoffenberg",
+      label: "Steven Hoffenberg",
+      type: "convicted",
+      radius: 20,
+      agency: "Towers Financial Corporation",
+      role: "Epstein's first known business partner; convicted Ponzi scheme operator",
+      status: "DECEASED — August 2022",
+      networth: "Negative (post-conviction)",
+      desc: "Steven Jude Hoffenberg was a New York financier who ran Towers Financial Corporation, a debt-collection firm that was in reality a $475 million Ponzi scheme — one of the largest in US history at the time of its collapse in 1993. Hoffenberg recruited Jeffrey Epstein as a consultant and partner in the late 1980s. The two worked together on a hostile takeover attempt of Pan American World Airways and on the New York Post acquisition bid. Hoffenberg was convicted in 1995 and sentenced to 20 years in federal prison. Epstein was never charged, never named as an unindicted co-conspirator, and was never called to testify — despite Hoffenberg's repeated, public, on-the-record statements that Epstein was his full partner in the fraud.",
+      intelRole: "Hoffenberg is the Rosetta Stone for understanding Epstein's legal immunity. The Towers Financial fraud was a $475 million crime. Hoffenberg stated publicly and repeatedly — in interviews with journalists, in documentary appearances, and in written statements — that Epstein was his equal partner in designing and executing the scheme. He named Epstein specifically. He described Epstein's role in detail. He said Epstein helped structure the fraudulent financial instruments. Despite this, the DOJ did not charge Epstein. Did not depose him. Did not name him. Did not investigate him. A $475 million Ponzi scheme had two architects, and only one went to prison. The other became a billionaire. This is the earliest documented instance of the legal immunity that would define Epstein's entire career — and it predates the sex trafficking operation, suggesting that the intelligence protection was already in place by the late 1980s, consistent with the timeline of Robert Maxwell's recruitment of Epstein into Israeli intelligence operations.",
+      epsteinLink: "Direct business partnership from approximately 1987 to 1993. Hoffenberg hired Epstein as a financial consultant at Towers Financial. Together they pursued the Pan Am takeover (which would have given them control of a major international airline with global route access — a significant intelligence asset) and the New York Post acquisition (which would have given them control of a major media outlet — another significant intelligence asset). When Towers collapsed, Hoffenberg took the full criminal liability. Epstein walked away with the financial knowledge, the contacts, and — critically — the demonstrated proof that he could commit a major federal crime and not be prosecuted. This proof of immunity is itself a recruitment tool: it signals to potential intelligence partners that Epstein is protected, which makes him a credible vehicle for operations that require legal cover.",
+      significance: "Hoffenberg's case establishes three critical facts about the Epstein operation: (1) Epstein's legal immunity predates the sex trafficking — he was protected from prosecution for a $475M fraud in the early 1990s, meaning the intelligence cover was operational before the kompromat infrastructure was built. (2) The DOJ's willingness to ignore a named co-conspirator in a major federal fraud case demonstrates that the 2008 NPA was not an anomaly — it was a continuation of a pattern of prosecutorial protection that spans decades. (3) Hoffenberg's death in August 2022 — found dead in his Connecticut apartment at age 77, shortly after giving extensive interviews about Epstein's role in Towers Financial — adds another node to the pattern of key witnesses dying before full depositions could be taken. His death was ruled natural. No autopsy results have been made public.",
+      evidence: "Towers Financial Corporation SEC filings and DOJ indictment (1993). Hoffenberg's federal conviction and 20-year sentence (1995). Multiple on-camera interviews in which Hoffenberg names Epstein as his partner (various, 2019–2022). Hoffenberg's written statement to the FBI detailing Epstein's role. Pan American Airways hostile takeover bid documentation. New York Post acquisition bid records. Hoffenberg found dead August 23, 2022, Derby, Connecticut.",
+      link: "Hoffenberg did 18 years in federal prison for a crime he said Epstein helped him commit. Epstein did 13 months in a county jail with work release for raping children. The American justice system's priorities are documented in the sentencing disparity."
+    },
+
+    // ─── CHAIM HERZOG ─────────────────────────────────────
+    {
+      id: "chaim_herzog",
+      label: "Chaim Herzog",
+      type: "suspicious",
+      radius: 18,
+      agency: "ISRAELI MILITARY INTELLIGENCE / PRESIDENCY",
+      role: "President of Israel · Former Aman Director · Robert Maxwell's Handler Chain",
+      status: "DECEASED (1997)",
+      intelRole: "Head of Aman (Israeli military intelligence) 1959–1962. President of Israel 1983–1993. Born in Belfast, educated in London and Cambridge, served in British Army intelligence during WWII before emigrating to Palestine. His dual British-Israeli intelligence career made him a natural bridge between MI6 and Mossad — the exact operational corridor the Maxwell family occupied. As President during the 1980s, he presided over the state during the peak of Robert Maxwell's usefulness to Israeli intelligence, the Pollard spy scandal, and the early period of Epstein's emergence as a financial figure in New York. He delivered Robert Maxwell's eulogy at the state funeral on the Mount of Olives in November 1991 — a funeral attended by heads of Mossad, Aman, and Shin Bet. A sitting President of Israel eulogising a newspaper publisher is only explicable if that publisher was a strategic intelligence asset.",
+      epsteinLink:"Herzog's eulogy at Robert Maxwell's funeral is one of the most significant single pieces of evidence confirming Maxwell's intelligence status. The President of Israel does not eulogise private businessmen. He eulogises assets of the state. Herzog's presence and words at the funeral — alongside Nahum Admoni (Mossad director), heads of Aman and Shin Bet, and senior government officials — constitutes an institutional state acknowledgment of Maxwell's intelligence role. Maxwell's intelligence role is the foundation of the Epstein operation: Maxwell recruited Epstein, Maxwell's daughter Ghislaine ran the trafficking, and the entire operation functioned as an intelligence collection mechanism. Herzog's eulogy is the state seal on that chain.",
+      significance: "A former military intelligence chief who became President eulogised Robert Maxwell with full state honours. That eulogy is the single clearest institutional confirmation that Maxwell was a state intelligence asset — not a businessman who happened to know people in government, but an asset whose loss warranted presidential mourning. Everything downstream — Ghislaine's role, Epstein's immunity, the surveillance infrastructure, the kompromat architecture — flows from the fact that the operation was state-sponsored. Herzog's eulogy is the proof.",
+      desc: "Chaim Herzog (1918–1997) was born in Belfast, son of the Chief Rabbi of Ireland. Educated at Cambridge and Lincoln's Inn. Served in British Army intelligence during WWII, participating in the liberation of Bergen-Belsen. Emigrated to Palestine. Became head of Aman (military intelligence) 1959–1962. Served as Israel's Ambassador to the UN 1975–1978, where he famously tore up the 'Zionism is Racism' resolution. Elected President of Israel 1983, served until 1993. Delivered Robert Maxwell's eulogy at his state funeral on the Mount of Olives, November 1991. His son Isaac Herzog is the current President of Israel (2021–present).",
+      evidence: "Aman directorship 1959–1962 confirmed. Israeli presidency 1983–1993 confirmed. British Army intelligence service WWII confirmed. Maxwell funeral eulogy November 1991 — documented, photographed, reported by multiple international outlets. Funeral attended by Nahum Admoni, heads of Aman and Shin Bet. Son Isaac Herzog currently President of Israel.",
+      link: "The President of Israel eulogised him. The heads of Mossad, Aman, and Shin Bet attended the funeral. If Robert Maxwell was just a newspaper publisher, none of them would have been there. They were there because he was theirs. Herzog's eulogy said so."
+    },
+
+    // ─── YITZHAK SHAMIR ───────────────────────────────────
+    {
+      id: "yitzhak_shamir",
+      label: "Yitzhak Shamir",
+      type: "suspicious",
+      radius: 20,
+      agency: "MOSSAD / LEHI / ISRAELI GOVERNMENT",
+      role: "Prime Minister of Israel · Former Mossad Operations Chief",
+      status: "DECEASED (2012)",
+      intelRole: "One of the most consequential intelligence figures in Israeli history before becoming Prime Minister. Leader of Lehi (the Stern Gang) during the British Mandate — an underground paramilitary organisation that carried out assassinations, including the 1944 murder of Lord Moyne (British Minister of State) and the 1948 assassination of UN mediator Count Folke Bernadotte. After Israeli independence, recruited directly into Mossad, where he served as head of the European operations department through the 1950s and early 1960s — running agents across Europe during the foundational period of Israeli intelligence. As Prime Minister (1983–1984, 1986–1992), he presided over the government during the peak of Robert Maxwell's intelligence activities, the Pollard affair fallout, and the critical period when Epstein was being established in New York. His government was in power when Maxwell was at maximum utility to Israeli intelligence and when the Epstein operation was being seeded.",
+      epsteinLink: "Shamir's premiership overlaps precisely with the period when Robert Maxwell's intelligence utility was at its peak and when Epstein was transitioning from Hoffenberg's Towers Financial fraud into his own operation. As a former Mossad operations chief, Shamir understood agent-running at the operational level — he was not a politician who inherited an intelligence relationship, he was a spymaster who became a politician. His government authorised or permitted the intelligence activities that Maxwell conducted, including the alleged recruitment and deployment of Epstein. The Pollard affair (1985) — which exposed Israeli intelligence's willingness to run aggressive espionage operations against the United States — occurred under Shamir's watch. Maxwell's role in attempting to negotiate Pollard's release further confirms the Maxwell-Israeli intelligence nexus that Shamir's government managed.",
+      significance: "Shamir is the missing link between Israel's founding-era intelligence culture and the modern operation that produced Epstein. Like other Israeli leadership figures, he attended Robert Maxwell's funeral. He personally transitioned from underground paramilitary assassination to Mossad operations to Prime Minister — carrying the operational mentality of covert action into the highest elected office. His premiership during the Maxwell peak period means the Israeli government's intelligence relationship with Maxwell — and by extension with the emerging Epstein operation — was managed by a man who had personally run agents, personally ordered operations, and personally understood the value of a kompromat network targeting Western elites. This was not a politician being briefed by intelligence. This was intelligence running the government.",
+      desc: "Yitzhak Shamir (1915–2012) was born Yitzhak Yezernitsky in the Russian Empire (now Belarus). Emigrated to Palestine in 1935. Became a leader of Lehi (Stern Gang), the most radical of the pre-state paramilitary organisations. After independence, joined Mossad and headed European operations through the 1950s–60s. Entered politics. Served as Speaker of the Knesset, Foreign Minister, and twice as Prime Minister (1983–84 and 1986–92). His second premiership covered the period of maximum Robert Maxwell intelligence activity, the aftermath of the Pollard affair, and the establishment of Epstein's New York financial operation. He was known for extreme secrecy, minimal public statements, and absolute loyalty to the intelligence establishment that formed him.",
+      evidence: "Lehi leadership confirmed — including responsibility for Bernadotte assassination (1948). Mossad European operations chief confirmed by multiple Israeli intelligence historians. Prime Minister 1983–84, 1986–92 confirmed. Premiership overlaps with Maxwell peak intelligence period (1980s), Pollard affair (1985), and Epstein's emergence (late 1980s). Maxwell's attempted Pollard negotiation documented. Shamir's Mossad career documented by Ronen Bergman, Ian Black, and Benny Morris.",
+      link: "An assassin became a spy chief became a Prime Minister. He ran agents in Europe for Mossad. Then he ran the country while Maxwell ran agents in America. The operational culture that produced Epstein was not an aberration. It was the founding culture of the state, carried forward by a man who embodied it."
+    },
+
+    {
+      id: "shabtai_shavit",
+      label: "Shabtai Shavit",
+      type: "suspicious",
+      radius: 16,
+      agency: "MOSSAD",
+      role: "Mossad Director 1989–1996 · Maxwell Funeral Attendee · Private Intelligence",
+      status: "RETIRED — active in private intelligence sector",
+      intelRole: "Director of Mossad from 1989 to 1996 — the most operationally critical period for the Maxwell-Epstein timeline. He took over from Nahum Admoni in 1989, assumed directorship during Robert Maxwell's peak intelligence utility, was serving as Director when Maxwell died in November 1991, attended Maxwell's state funeral on the Mount of Olives, and continued as Director through the mid-1990s as Epstein was establishing his independent financial and social operation in New York. Shavit's directorship covers the exact period when the Epstein operation transitioned from Maxwell's direct management to its own autonomous structure. If the Epstein operation was a Mossad asset — as Ben-Menashe, Ostrovsky, and the circumstantial evidence indicate — then Shavit was the Director who managed that transition after Maxwell's death. He inherited the operation. He decided what happened to it. Under his watch, Ghislaine Maxwell moved to New York and became Epstein's partner. That is not a coincidence managed by junior officers. That is a directorate-level decision.",
+      epsteinLink: "Shavit was Mossad Director during the most critical transition in the Epstein operation: the death of Robert Maxwell (November 1991) and the subsequent establishment of Ghislaine Maxwell as Epstein's operational partner in New York. Maxwell's death created an intelligence crisis — their primary asset was gone, and the network he managed was at risk of exposure. Someone at the directorate level made the decision to continue the operation through Ghislaine. That someone was the Mossad Director. Shavit's attendance at Maxwell's funeral — alongside Admoni, Herzog, Shamir, and the heads of Aman and Shin Bet — confirms his personal involvement in the Maxwell intelligence relationship. His subsequent career in private intelligence consulting, including work with firms connected to Israeli security exports, places him in the same post-service ecosystem as Ehud Barak's Carbyne911 and Black Cube's corporate intelligence operations.",
+      significance: "Shavit is the Mossad Director who bridged the Maxwell era and the Epstein era. He attended Maxwell's funeral. He ran Mossad during the years Ghislaine moved to New York and embedded herself as Epstein's partner. He was the institutional authority who would have authorised, permitted, or managed the continuation of any Mossad operation that Maxwell had been running — including the kompromat collection programme that Ben-Menashe describes. Every other Director is either before (Admoni) or after (Halevy, Dagan) the critical transition window. Shavit is the one who was sitting in the chair when Maxwell died and Ghislaine took over.",
+      desc: "Shabtai Shavit served as Director of Mossad from 1989 to 1996. Born in Israel in 1939. Rose through Mossad's operational ranks. Took over from Nahum Admoni. His directorship covered: Robert Maxwell's death (1991), the Maxwell state funeral, Ghislaine Maxwell's relocation to New York, Epstein's establishment of his independent financial operation, and the mid-1990s expansion of Epstein's social network. After leaving Mossad, he became active in private intelligence and security consulting, serving on boards of Israeli defence and intelligence firms. He has given public interviews defending Mossad's operational culture and has spoken about intelligence ethics — without ever addressing the Maxwell or Epstein matters.",
+      evidence: "Mossad Director 1989–1996 confirmed. Maxwell funeral attendance documented (November 1991). Directorship covers entire Maxwell death → Ghislaine transition period. Post-service private intelligence career documented. Public interviews and speeches on intelligence matters — no Maxwell/Epstein commentary.",
+      link: "He was Mossad Director when Maxwell died. He was Mossad Director when Ghislaine moved to New York. He was Mossad Director when Epstein's operation went independent. He attended the funeral. He has never said a word about any of it."
+    },
+
+    // ── JUAN CARLOS I ──
+    {id:"juan_carlos", label:"Juan Carlos I", type:"possibly", radius:24,
       agency:"KINGDOM OF SPAIN",
       role:"King of Spain · Fled to Abu Dhabi · Maxwell Circle",
       status:"EXILED — abdicated 2014, fled Spain 2020",
@@ -272,6 +357,7 @@ const supplementalData = {
       link:"In Maxwell's circle. In the files. Fled to a Gulf monarchy. The same Gulf money runs through his Saudi commissions and through Nader and Barrack. A king who ran away."
     },
 
+    // ── KING CARL XVI GUSTAF ──
     {id:"king_carl_xvi", label:"King Carl XVI Gustaf", type:"possibly", radius:16,
       agency:"KINGDOM OF SWEDEN",
       role:"King of Sweden · Named in Elite Sex Party Allegations",
@@ -280,6 +366,24 @@ const supplementalData = {
       desc:"Carl XVI Gustaf has been King of Sweden since 1973. Named in Epstein contact files. A 2010 Swedish book alleged his attendance at private sex parties through elite social circuits — allegations he denied. His social world overlaps with Maxwell's European royal network.",
       evidence:"Named in Epstein contact files. 2010 Swedish allegations (denied). Maxwell European royal circuit overlap. Eva Andersson-Dubin Swedish connection.",
       link:"Another European monarch in the contact files. The Maxwell European royal penetration was systematic — UK, Norway, Denmark, Spain, Monaco, Sweden."
+    },
+
+    // ─── ARNON MILCHAN ────────────────────────────────────
+    {
+      id: "milchan",
+      label: "Arnon Milchan",
+      type: "suspicious",
+      radius: 18,
+      agency: "MOSSAD / LAKAM / HOLLYWOOD",
+      role: "Hollywood Producer · Self-Confirmed Mossad Asset · Nuclear Procurement",
+      status: "ACTIVE — Israeli citizen",
+      networth: "~$4B",
+      intelRole: "Self-confirmed Israeli intelligence operative. In a 2013 Israeli TV interview, Milchan publicly admitted he was recruited by LAKAM (the same unit Rafi Eitan ran) and spent years procuring nuclear triggers, krytrons, and other restricted technologies for Israel's clandestine nuclear weapons programme — committing serial violations of US export law. He also confirmed running covert operations and acting as an agent of influence in Hollywood and Washington. His handler was Benjamin Blumberg, head of LAKAM's technology division. He worked alongside Rafi Eitan and in the same operational ecosystem as Jonathan Pollard. Despite publicly admitting to decades of espionage against the United States on Israeli television, he was never charged by the DOJ.",
+      epsteinLink: "Milchan operates in the same Israeli intelligence infrastructure as the Maxwell-Epstein operation. LAKAM — the unit that ran Pollard and recruited Milchan — is the same operational ecosystem that Ben-Menashe describes as the origin of the Epstein kompromat programme. Milchan's Hollywood position gave him access to the entertainment and media world that intersects with Epstein's social network. His close personal relationship with Netanyahu — which became central to Netanyahu's corruption trial (Case 1000: gifts of champagne and cigars) — connects the Milchan intelligence thread directly to the Israeli political leadership that managed the Maxwell relationship. Shimon Peres personally recruited Milchan. Netanyahu personally benefited from him. The same state that ran Maxwell ran Milchan.",
+      significance: "Milchan is the proof that Israel ran long-term intelligence assets inside the United States who committed serious federal crimes — nuclear proliferation, export violations, espionage — and were never prosecuted. He admitted it on television. The DOJ did nothing. This is the same DOJ that gave Epstein the NPA. The same DOJ that never charged Epstein for the Towers Financial fraud. The pattern of non-prosecution for Israeli intelligence assets operating on US soil is not speculation. It is Milchan's public confession plus the DOJ's public silence.",
+      desc: "Arnon Milchan is an Israeli billionaire and Hollywood producer (Pretty Woman, Fight Club, JFK, L.A. Confidential, 12 Years a Slave, The Revenant, Bohemian Rhapsody). Born in Israel in 1944. Recruited by LAKAM in the 1960s. Spent decades procuring restricted nuclear technology for Israel while building a Hollywood career. Publicly confirmed his intelligence role on Israeli TV in 2013. Central figure in Netanyahu's corruption trial (Case 1000) for providing gifts worth hundreds of thousands of dollars. Close to Shimon Peres, who recruited him, and Netanyahu, who benefited from him. Never charged by the United States despite public admission of espionage.",
+      evidence: "Self-confirmed Mossad/LAKAM asset on Israeli TV (2013 interview with Ilana Dayan). Nuclear procurement operations documented by Grant Smith (Institute for Research: Middle Eastern Policy). Krytron export violations documented. Netanyahu Case 1000 — gifts confirmed, trial ongoing. Peres recruitment confirmed in Milchan's own statements. Hollywood career and filmography confirmed. Never charged by US DOJ.",
+      link: "He admitted on television that he was an Israeli spy who stole nuclear technology from America for decades. The DOJ never charged him. The same DOJ gave Epstein the deal. The pattern is not subtle."
     },
 
   ],
@@ -430,5 +534,68 @@ const supplementalData = {
     {source:"king_carl_xvi", target:"maxwell_g", strength:0.4},
     {source:"king_carl_xvi", target:"mette_marit", strength:0.4},
     {source:"king_carl_xvi", target:"eva_dubin", strength:0.3},
+
+    // Burns
+    { source: "burns", target: "epstein", strength: 0.3 },
+    { source: "burns", target: "brennan", strength: 0.4 },
+    { source: "burns", target: "petraeus", strength: 0.4 },
+    { source: "burns", target: "barr_w", strength: 0.3 },
+    { source: "burns", target: "comey", strength: 0.3 },
+    { source: "burns", target: "mueller", strength: 0.3 },
+
+    // Hoffenberg
+    { source: "hoffenberg", target: "epstein", strength: 0.9 },
+    { source: "hoffenberg", target: "wexner", strength: 0.3 },
+    { source: "hoffenberg", target: "black", strength: 0.3 },
+
+    // Chaim Herzog
+    { source: "chaim_herzog", target: "robert_maxwell", strength: 0.9 },
+    { source: "chaim_herzog", target: "nahum_admoni", strength: 0.7 },
+    { source: "chaim_herzog", target: "rafi_eitan", strength: 0.5 },
+    { source: "chaim_herzog", target: "maxwell_g", strength: 0.4 },
+    { source: "chaim_herzog", target: "epstein", strength: 0.3 },
+    { source: "chaim_herzog", target: "netanyahu", strength: 0.5 },
+    { source: "chaim_herzog", target: "peres", strength: 0.6 },
+    { source: "chaim_herzog", target: "yitzhak_shamir", strength: 0.7 },
+    { source: "chaim_herzog", target: "barak", strength: 0.4 },
+
+    // Yitzhak Shamir
+    { source: "yitzhak_shamir", target: "robert_maxwell", strength: 0.8 },
+    { source: "yitzhak_shamir", target: "nahum_admoni", strength: 0.8 },
+    { source: "yitzhak_shamir", target: "rafi_eitan", strength: 0.7 },
+    { source: "yitzhak_shamir", target: "jonathan_pollard", strength: 0.5 },
+    { source: "yitzhak_shamir", target: "chaim_herzog", strength: 0.7 },
+    { source: "yitzhak_shamir", target: "peres", strength: 0.6 },
+    { source: "yitzhak_shamir", target: "netanyahu", strength: 0.6 },
+    { source: "yitzhak_shamir", target: "epstein", strength: 0.3 },
+    { source: "yitzhak_shamir", target: "ben_menashe", strength: 0.5 },
+    { source: "yitzhak_shamir", target: "milchan", strength: 0.4 },
+    { source: "yitzhak_shamir", target: "barak", strength: 0.5 },
+
+    // Milchan
+    { source: "milchan", target: "netanyahu", strength: 0.8 },
+    { source: "milchan", target: "peres", strength: 0.7 },
+    { source: "milchan", target: "rafi_eitan", strength: 0.7 },
+    { source: "milchan", target: "robert_maxwell", strength: 0.4 },
+    { source: "milchan", target: "epstein", strength: 0.3 },
+    { source: "milchan", target: "ben_menashe", strength: 0.4 },
+    { source: "milchan", target: "jonathan_pollard", strength: 0.4 },
+    { source: "milchan", target: "nahum_admoni", strength: 0.5 },
+
+    // Shabtai Shavit
+    { source: "shabtai_shavit", target: "robert_maxwell", strength: 0.8 },
+    { source: "shabtai_shavit", target: "nahum_admoni", strength: 0.8 },
+    { source: "shabtai_shavit", target: "maxwell_g", strength: 0.6 },
+    { source: "shabtai_shavit", target: "epstein", strength: 0.4 },
+    { source: "shabtai_shavit", target: "chaim_herzog", strength: 0.6 },
+    { source: "shabtai_shavit", target: "yitzhak_shamir", strength: 0.6 },
+    { source: "shabtai_shavit", target: "rafi_eitan", strength: 0.6 },
+    { source: "shabtai_shavit", target: "barak", strength: 0.5 },
+    { source: "shabtai_shavit", target: "netanyahu", strength: 0.5 },
+    { source: "shabtai_shavit", target: "peres", strength: 0.5 },
+    { source: "shabtai_shavit", target: "ben_menashe", strength: 0.4 },
+    { source: "shabtai_shavit", target: "black_cube", strength: 0.4 },
+    { source: "shabtai_shavit", target: "milchan", strength: 0.4 },
+
   ]
 };
