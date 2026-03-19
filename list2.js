@@ -404,6 +404,20 @@ const supplementalData = {
       link:"The most famous scientist in the world went to the island. The emails discuss what was arranged for his visit. He died before anyone had to ask him about it under oath."
     },
 
+    // ─── JIMMY SAVILE ────────────────────────────────────
+    {id:"savile", label:"Jimmy Savile", type:"suspicious", radius:20,
+      agency:"BBC / NHS / UK GOVERNMENT",
+      role:"Serial Predator · BBC Presenter · NHS Volunteer · Royal Access · MI5 Protected",
+      status:"DECEASED (2011) — POSTHUMOUSLY EXPOSED",
+      networth:"~$10M",
+      desc:"Sir James Wilson Vincent Savile OBE KCSG (1926–2011) was a BBC television presenter, DJ, and charity fundraiser who, after his death, was revealed to be one of Britain's most prolific sexual predators in recorded history. Operation Yewtree identified over 450 victims, ranging in age from 5 to 75, spanning five decades from the 1950s to 2009. He assaulted victims at BBC studios, NHS hospitals (including Broadmoor, Stoke Mandeville, and Leeds General Infirmary), children's homes, and his own residences. He was given keys to Broadmoor psychiatric hospital and Leeds General Infirmary — institutional access to the most vulnerable people in the country. He was knighted in 1990. He received a papal knighthood. He was a close friend of Prince Charles and a regular guest at royal residences. Multiple police forces received complaints about him during his lifetime — none resulted in prosecution. MI5 held files on him. The institutional cover was total.",
+      intelRole:"Savile represents the UK domestic parallel to the Epstein operation. Both men used philanthropy and celebrity as cover for industrial-scale sexual abuse. Both had institutional protection — Savile from the BBC, NHS, police, and MI5; Epstein from the DOJ, FBI, and intelligence services. Both had access to heads of state (Savile to Thatcher, Charles, and the Royal Family; Epstein to Clinton, Trump, and multiple world leaders). Both operated for decades in plain sight. The key difference: Savile was exposed only after death. Epstein was arrested, and the institutional cover operation became visible. MI5 held files on Savile's abuse and did not act — the same pattern as the FBI's handling of Epstein. The UK establishment's failure to stop Savile is the template for understanding how Epstein operated with impunity.",
+      epsteinLink:"No direct documented link to Epstein. The connection is structural and methodological: both men operated the same model — celebrity philanthropist cover, institutional access, elite social networks, intelligence agency awareness without intervention, decades of abuse in plain sight. Savile's operation within UK institutions (BBC, NHS, royal household) mirrors Epstein's operation within US institutions (finance, academia, government). Both networks overlapped with Prince Andrew. The UK institutional failures that protected Savile are the same institutional failures that protected the UK side of the Epstein network — Leon Brittan lost the Westminster dossier, Cyril Smith was protected by MI5, Edward Heath had Operation Conifer findings. It is the same system.",
+      significance:"450+ victims. Five decades. Every institution in Britain — the BBC, the NHS, the police, the intelligence services, the monarchy — knew or should have known, and none of them stopped him. Savile proves that the Epstein model is not an anomaly. It is a pattern. Powerful men who abuse children are protected by institutions that value their own reputation over the safety of children. Every time. In every country. The only variable is whether they die before the cover breaks.",
+      evidence:"Operation Yewtree: 450+ identified victims (2012–2013). Dame Janet Smith Review (BBC): institutional failures documented across decades. NHS investigations at Broadmoor, Stoke Mandeville, Leeds General Infirmary. Metropolitan Police: multiple complaints received during lifetime, none prosecuted. MI5 files confirmed. Knighted 1990. Papal knighthood KCSG. Regular guest at Chequers (Thatcher) and Highgrove/Clarence House (Prince Charles). BBC filmed at locations where abuse occurred. Died 29 October 2011 — exposure began within 12 months.",
+      link:"Four hundred and fifty victims. Every institution in Britain protected him. He died in his bed, with his knighthood, and his papal honour, and his keys to the hospital. They gave him keys to the hospital."
+    },
+
     // ── BRANSON ──
     {id:"branson", label:"Richard Branson", type:"suspicious", radius:16,
       agency:"VIRGIN GROUP",
@@ -433,6 +447,188 @@ const supplementalData = {
       significance: "The French Minister of Culture — responsible for the fashion industry — is in the contact book of the man whose operation trafficked girls through the French fashion industry. Brunel operated under Lang's ministry. Lang is in Epstein's files. The institutional failure is not abstract — it has a name and a ministry.",
       evidence: "Named in Epstein contact files. Photographed with Epstein in Paris. Minister of Culture during Brunel's peak operational period. Minister of Education during operational period. French fashion/modelling industry under his ministry's oversight.",
       link: "The man responsible for France's fashion industry is in the files of the man who trafficked girls through France's fashion industry. The ministry that should have protected them was run by a man in the contact book."
+    },
+
+    // ─── ROLF HARRIS ─────────────────────────────────────
+    {id:"rolf_harris", label:"Rolf Harris", type:"suspicious", radius:16,
+      agency:"BBC / ENTERTAINMENT",
+      role:"Entertainer · Convicted Yewtree · Indecent Assaults on Children",
+      status:"CONVICTED (2014) — DECEASED (2023)",
+      networth:"~$20M",
+      desc:"Rolf Harris CBE (1930–2023) was an Australian-British entertainer, musician, and television presenter. In 2014, he was convicted under Operation Yewtree of 12 counts of indecent assault against four girls, the youngest aged 7 or 8, spanning from 1968 to 1986. He was sentenced to five years and nine months. He painted the Queen's portrait. He performed at the Queen's Diamond Jubilee concert. He had unrestricted access to children's television for decades. He was stripped of his CBE, his BAFTA fellowship, and his honours in Australia following conviction.",
+      intelRole:"Harris operated within the same BBC institutional structure that protected Savile. His conviction under Operation Yewtree confirmed what the BBC's internal culture had enabled: predatory access to children through the machinery of children's entertainment. His case demonstrated that Savile was not an anomaly — the BBC's institutional failures were systemic.",
+      epsteinLink:"No direct Epstein connection. Harris is part of the UK institutional abuse network that operated in parallel — the same BBC, the same era, the same institutional protection. The overlap is systemic: the institutions that failed to stop Harris are the same institutions that failed to stop Savile, and the same establishment that protected the Westminster paedophile network.",
+      significance:"Convicted. Twelve counts. Children as young as 7. He painted the Queen. The institution that gave him access to children gave him access for decades after complaints were known.",
+      evidence:"Convicted June 2014, Southwark Crown Court. 12 counts indecent assault. Operation Yewtree. Victims aged 7/8 to 19. Offences 1968–1986. Sentenced 5 years 9 months. Died 10 May 2023.",
+      link:"He painted the Queen's portrait. He assaulted children for decades. The BBC gave him both platforms."
+    },
+
+    // ─── GARY GLITTER ────────────────────────────────────
+    {id:"gary_glitter", label:"Gary Glitter", type:"suspicious", radius:16,
+      agency:"ENTERTAINMENT / MUSIC INDUSTRY",
+      role:"Pop Star · Serial Child Sex Offender · Multiple Convictions",
+      status:"CONVICTED (1999, 2006, 2015)",
+      networth:"~$0",
+      desc:"Paul Francis Gadd (born 1944), known as Gary Glitter, is a convicted serial child sex offender. He was first convicted in 1999 for downloading thousands of images of child sexual abuse. In 2006, he was convicted in Vietnam of child sexual abuse against two girls aged 10 and 11, sentenced to three years. In 2015, under Operation Yewtree, he was convicted of one count of attempted rape of a girl under 10, four counts of indecent assault, and one count of sexual intercourse with a girl under 13 — offences committed between 1975 and 1980. He was sentenced to 16 years. Released February 2023 on licence, recalled to prison within weeks.",
+      intelRole:"Glitter's pattern — convicted, released, reoffended internationally, convicted again — demonstrates the systemic failure to permanently incapacitate serial predators. His Vietnam conviction shows the international dimension: when UK institutions finally acted, predators moved to jurisdictions with weaker protections. The same pattern Brunel and Epstein used.",
+      epsteinLink:"No direct Epstein connection. Part of the UK entertainment-industry abuse network exposed by Operation Yewtree. The same institutional culture that protected him protected Savile and Harris.",
+      significance:"Three separate convictions across three decades. Downloaded child abuse material. Convicted in Vietnam. Convicted under Yewtree. Released. Recalled. The system had every warning and every opportunity.",
+      evidence:"Convicted 1999: child abuse images. Convicted 2006 Vietnam: abuse of girls 10 and 11. Convicted 2015 Yewtree: attempted rape under 10, indecent assault, sex with child under 13. Sentenced 16 years. Released Feb 2023, recalled to prison.",
+      link:"Three convictions. Three decades. Two countries. They kept letting him out."
+    },
+
+    // ─── MAX CLIFFORD ────────────────────────────────────
+    {id:"max_clifford", label:"Max Clifford", type:"suspicious", radius:14,
+      agency:"PR / MEDIA",
+      role:"PR Mogul · Convicted Yewtree · Indecent Assault",
+      status:"CONVICTED (2014) — DECEASED (2017)",
+      networth:"~$10M",
+      desc:"Max Clifford (1943–2017) was Britain's most powerful celebrity publicist. He represented some of the biggest names in entertainment and controlled media narratives for decades. In 2014, he was convicted under Operation Yewtree of eight counts of indecent assault against four women and girls aged 15 to 19, committed between 1977 and 1984. He was sentenced to eight years. He died in prison in December 2017. His role as a PR fixer meant he had intimate knowledge of celebrity misconduct — he both suppressed and weaponised scandal for profit. He claimed to have buried stories about other predators.",
+      intelRole:"Clifford's role was uniquely dangerous: he was the suppression mechanism. As the most powerful celebrity PR in Britain, he controlled what stories reached the press and what stories were killed. He boasted of burying scandals. His conviction revealed that the man responsible for managing public narratives about celebrities was himself a predator — and that his knowledge of others' misconduct gave him leverage to continue operating.",
+      epsteinLink:"No direct Epstein connection. Clifford operated the UK media suppression infrastructure — the same machinery that kept Savile's crimes out of the press for decades. His role as fixer-predator mirrors the dual function of figures in the Epstein network who both participated in and helped conceal abuse.",
+      significance:"The man who buried celebrity scandals for a living was convicted of assault. He knew where the bodies were buried because he buried them. He died in prison knowing things that died with him.",
+      evidence:"Convicted May 2014, Southwark Crown Court. 8 counts indecent assault. Victims aged 15–19. Offences 1977–1984. Sentenced 8 years. Died HMP Littlehey, 10 December 2017.",
+      link:"He was the fixer. He buried the stories. He was one of them the whole time."
+    },
+
+    // ─── CHRIS DENNING ───────────────────────────────────
+    {id:"chris_denning", label:"Chris Denning", type:"suspicious", radius:14,
+      agency:"BBC",
+      role:"BBC DJ · Serial Child Sex Offender · Multiple Convictions",
+      status:"CONVICTED (MULTIPLE) — IMPRISONED",
+      networth:"~$0",
+      desc:"Christopher Denning (born 1941) was a BBC Radio 1 DJ and one of the original presenters when the station launched in 1967. He is one of Britain's most prolific convicted paedophiles. He has been convicted of child sexual offences multiple times: in the UK (1974, 1985, 1996, 2014), in the Czech Republic (arrest), and in Slovakia. In 2014, under Operation Yewtree, he was convicted of 21 offences of indecent assault and four of inciting a child to commit an act of gross indecency, against 11 boys aged 8 to 14 between 1967 and 1985. He was sentenced to 13 years. He remains imprisoned.",
+      intelRole:"Denning's case is the clearest demonstration that the BBC harboured multiple serial predators simultaneously. He was convicted in 1974 — twenty years before Yewtree. He was convicted again in 1985. Again in 1996. The BBC's institutional response to each conviction was silence. He continued to have industry connections. The institution that employed him when he began offending never publicly acknowledged the pattern until Yewtree forced it.",
+      epsteinLink:"No direct Epstein connection. Part of the BBC institutional abuse network. Active simultaneously with Savile. The BBC employed both of them at the same time, in the same building, with the same access to children.",
+      significance:"Convicted in 1974. 1985. 1996. 2014. Four decades of convictions. The BBC employed him. The system convicted him and let him continue. He is still in prison.",
+      evidence:"Convicted 1974, 1985, 1996 UK. Convicted 2014 Yewtree: 21 counts indecent assault, 4 counts inciting gross indecency. 11 victims aged 8–14. Offences 1967–1985. Sentenced 13 years. Currently imprisoned.",
+      link:"Four convictions across four decades. The BBC hired him. The courts convicted him. Nobody stopped him."
+    },
+
+    // ─── PETER RIGHTON ────────────────────────────────────
+    {id:"peter_righton", label:"Peter Righton", type:"suspicious", radius:16,
+      agency:"UK GOVERNMENT / SOCIAL WORK",
+      role:"Government Adviser · Child Protection Expert · International Trafficking Network",
+      status:"CONVICTED (1992) — DECEASED (2007)",
+      networth:"~$0",
+      desc:"Peter Righton (1926–2007) was a senior social worker and government adviser on residential childcare. He was a consultant to the National Children's Bureau and lectured at the National Institute for Social Work. He was the UK government's expert on children's homes. In 1992, he was convicted of importing child pornography. Police who raided his home found correspondence linking him to an international paedophile network that included figures in children's homes, schools, and institutions across the UK and Europe. His personal papers — seized by police and later examined by journalists — contained letters discussing the procurement and sharing of children between abusers in positions of institutional authority.",
+      intelRole:"Righton represents the most dangerous category of predator: one placed at the centre of child protection policy. He advised the government on how children's homes should operate — while running a network that exploited children in those same homes. His papers revealed the structure: institutional abusers in positions of authority, sharing access to children across organisations and borders. This is the infrastructure that the Westminster paedophile dossier was attempting to document before it was lost.",
+      epsteinLink:"No direct Epstein connection. Righton operated the UK domestic institutional trafficking infrastructure — children's homes as procurement sites. His network overlaps with the allegations in the Waterhouse Inquiry (North Wales), the Grafton Close investigations, and the broader Westminster paedophile network. The methodology is identical to Epstein's: institutional access, controlled environments, networked abuse.",
+      significance:"The government's own expert on protecting children in care was running a network that trafficked them. His papers proved the network existed. The full investigation was never completed.",
+      evidence:"Convicted 1992: importing child pornography. Police seizure of correspondence documenting international paedophile network. Papers examined by Channel 4 Dispatches and investigative journalists. Links to children's homes network. Government adviser on residential childcare. National Children's Bureau consultant. Died 2007.",
+      link:"They asked him how to protect the children. He was trafficking them. His papers proved the network. Nobody followed the trail to the end."
+    },
+
+    // ─── SIDNEY COOKE ────────────────────────────────────
+    {id:"sidney_cooke", label:"Sidney Cooke", type:"suspicious", radius:16,
+      agency:"CRIMINAL NETWORK",
+      role:"Serial Child Rapist · Convicted Murderer · Supplier to VIP Abuse Networks",
+      status:"CONVICTED — IMPRISONED (LIFE)",
+      networth:"~$0",
+      desc:"Sidney Cooke (born 1927) is a convicted serial child rapist and the ringleader of a paedophile gang responsible for the kidnap, rape, and murder of Jason Swift, aged 14, in 1985. He was convicted of Swift's manslaughter in 1989. He was released in 1998 despite public outcry, then re-arrested and convicted of further child sex offences in 1999, receiving two life sentences. Multiple witnesses and investigators have alleged that Cooke supplied children to organised abuse parties attended by prominent individuals. These allegations were investigated under Operation Fairbank and Operation Midland but were never fully resolved.",
+      intelRole:"Cooke represents the supply side of organised VIP abuse. Multiple sources — including former police officers and social workers — have alleged that his network supplied children to parties where prominent figures were present. The allegation is not that Cooke moved in elite circles — he did not. The allegation is that his network provided children to those who did. This is the procurement infrastructure that connects street-level predators to institutional power.",
+      epsteinLink:"No direct Epstein connection. Cooke's alleged role as a supplier of children to VIP abuse parties is the UK domestic equivalent of Epstein's trafficking operation — procurement infrastructure serving powerful clients. The methodology differs (Cooke targeted vulnerable street children; Epstein targeted teenagers through modelling and massage recruitment) but the structural function is identical: providing children to powerful men.",
+      significance:"Convicted child rapist and murderer. Multiple allegations of supplying children to VIP parties. Two life sentences. The allegations about his network's VIP clients were never fully investigated.",
+      evidence:"Convicted 1989: manslaughter of Jason Swift (14). Released 1998. Convicted 1999: multiple child sex offences. Two life sentences. Operation Fairbank/Midland investigated VIP supply allegations. Currently imprisoned.",
+      link:"He supplied the children. The question of who he supplied them to was never fully answered."
+    },
+
+    // ─── TONY MCSWEENEY ──────────────────────────────────
+    {id:"tony_mcsweeney", label:"Tony McSweeney", type:"suspicious", radius:12,
+      agency:"CATHOLIC CHURCH",
+      role:"Catholic Priest · Convicted · Grafton Close Children's Home",
+      status:"CONVICTED (2014)",
+      networth:"~$0",
+      desc:"Father Tony McSweeney was a Catholic priest convicted in 2014 of making indecent images of children. He was linked to Grafton Close children's home in London, a Catholic-run home where systematic abuse occurred. His conviction was part of a broader investigation into abuse at Grafton Close, which also involved the home's manager John Stingemore. The home was operated by the Catholic Crusade of Rescue.",
+      intelRole:"McSweeney's conviction connects the Catholic institutional abuse infrastructure to the children's home network. Grafton Close — a Catholic-run children's home — was a site where children in state care were abused by those entrusted with their protection. The Catholic Church's role in running children's homes placed it at the intersection of state childcare and institutional abuse.",
+      epsteinLink:"No direct Epstein connection. Part of the UK institutional abuse network operating through children's homes. The Catholic Church's management of children's homes created the same conditions Epstein exploited: captive vulnerable populations controlled by authority figures with institutional protection.",
+      significance:"A priest convicted of child abuse imagery, linked to a Catholic children's home where systematic abuse occurred. The institution that ran the home — the Catholic Church — had global form for exactly this.",
+      evidence:"Convicted 2014: making indecent images of children. Linked to Grafton Close children's home investigation. Catholic Crusade of Rescue operated the home.",
+      link:"The Church ran the home. The priest made the images. The children had nowhere to go."
+    },
+
+    // ─── JOHN STINGEMORE ─────────────────────────────────
+    {id:"john_stingemore", label:"John Stingemore", type:"suspicious", radius:12,
+      agency:"GRAFTON CLOSE CHILDREN'S HOME",
+      role:"Home Manager · Died Before Trial · Systematic Abuse",
+      status:"DECEASED — DIED BEFORE TRIAL",
+      networth:"~$0",
+      desc:"John Stingemore was the manager of Grafton Close children's home in London, run by the Catholic Crusade of Rescue. He was under investigation for the systematic sexual abuse of children in his care when he died before he could be brought to trial. Survivors described organised abuse at the home during his management. His death meant no criminal accountability for the institutional abuse that occurred under his authority.",
+      intelRole:"Stingemore's death before trial follows the pattern that recurs throughout the UK institutional abuse investigations: key suspects dying before accountability. Leon Brittan died before interview under caution. Cyril Smith died before the full exposure. Savile died before any investigation. The pattern is so consistent it functions as a structural feature of the system rather than coincidence.",
+      epsteinLink:"No direct Epstein connection. Part of the children's home abuse infrastructure. His death before trial mirrors the pattern of key Epstein network figures dying before full accountability — Epstein himself, Brunel, and multiple UK establishment figures.",
+      significance:"Manager of a children's home where systematic abuse occurred. Died before trial. No accountability. The children he was responsible for protecting were the children who were abused.",
+      evidence:"Manager of Grafton Close children's home. Under investigation for child sexual abuse. Died before trial. Linked to Tony McSweeney investigation. Catholic Crusade of Rescue operated the home.",
+      link:"He ran the home. He died before trial. The children got nothing."
+    },
+
+    // ─── PETER HAYMAN ────────────────────────────────────
+    {id:"peter_hayman", label:"Peter Hayman", type:"suspicious", radius:16,
+      agency:"UK DIPLOMATIC SERVICE / PIE",
+      role:"Senior Diplomat · Paedophile Information Exchange Member · Protected by Establishment",
+      status:"DECEASED (1992) — PROTECTED DURING LIFETIME",
+      networth:"~$0",
+      desc:"Sir Peter Hayman KCMG CVO MBE (1914–1992) was a senior British diplomat who served as High Commissioner to Canada and held senior positions in the Foreign Office. In 1978, a package of child pornography was found on a London bus, traced to Hayman. He was a member of the Paedophile Information Exchange (PIE) — an organisation that openly campaigned for the legalisation of sex with children — under a false name. Despite the evidence, he was given a formal warning rather than prosecuted. His identity was protected by an injunction until Geoffrey Dickens MP named him under parliamentary privilege in 1983. The Attorney General at the time, Sir Michael Havers, had personally intervened to prevent prosecution.",
+      intelRole:"Hayman's case is the clearest documented example of establishment protection of a paedophile. A senior diplomat — a knight, a High Commissioner — was caught with child pornography and was a member of an organisation campaigning to legalise child abuse. The Attorney General personally intervened to prevent prosecution. His identity was protected by court order. This is not alleged cover-up — it is documented, on the parliamentary record, protection of a predator by the machinery of the state.",
+      epsteinLink:"No direct Epstein connection. Hayman's case demonstrates the UK establishment's documented willingness to protect paedophiles in positions of power — the same institutional culture that enabled the Epstein network's UK connections to operate without accountability. The Attorney General who protected Hayman occupied the same office that would later fail to pursue the Westminster paedophile dossier.",
+      significance:"Caught with child pornography. Member of PIE. The Attorney General stopped the prosecution. A court order hid his identity. An MP had to use parliamentary privilege to name him. This is documented. This is on the record. The system protected him.",
+      evidence:"1978: child pornography found on London bus, traced to Hayman. PIE membership confirmed under false name. Attorney General Sir Michael Havers intervened to prevent prosecution. Given formal warning only. Identity protected by injunction. Named by Geoffrey Dickens MP under parliamentary privilege 1983. KCMG, CVO, MBE — honours retained. Died 1992.",
+      link:"They caught him on a bus with child pornography. The Attorney General said don't prosecute. They gave him a warning and a court order to hide his name. He kept his knighthood."
+    },
+
+    // ─── MAURICE OLDFIELD ────────────────────────────────
+    {id:"maurice_oldfield", label:"Maurice Oldfield", type:"suspicious", radius:16,
+      agency:"MI6 (SIS)",
+      role:"Director of MI6 · Named in Operation Midland Allegations",
+      status:"DECEASED (1981) — SECURITY CLEARANCE REVOKED POSTHUMOUSLY",
+      networth:"~$0",
+      desc:"Sir Maurice Oldfield GCMG CBE (1915–1981) was the Chief of the Secret Intelligence Service (MI6) from 1973 to 1978 — Britain's most senior intelligence officer. After his death, Margaret Thatcher confirmed in Parliament that his positive vetting (security clearance) had been revoked after he admitted to homosexual encounters — illegal at the time in the contexts involved. Subsequent allegations placed him at Kincora Boys' Home in Belfast, where systematic abuse of boys occurred. He was named in Operation Midland allegations regarding VIP abuse. His name has appeared in multiple investigations into establishment paedophilia, though he died before any could reach conclusion.",
+      intelRole:"The Director of MI6 — the head of British foreign intelligence — with revoked security clearance and allegations linking him to a boys' home where systematic abuse occurred. Kincora was not just a site of abuse — it was alleged to be an intelligence-run entrapment operation, where boys were abused and the abuse was used to generate kompromat on political figures in Northern Ireland. If the allegations are true, the head of MI6 was compromised by the same methodology his own service allegedly operated.",
+      epsteinLink:"No direct Epstein connection. The Kincora allegations represent the UK intelligence parallel to the Epstein honeytrap thesis: an institution deliberately facilitating abuse to generate compromising material on powerful figures. If MI6 ran Kincora as a kompromat operation — as multiple investigators have alleged — then the methodology is identical to what intelligence analysts believe Epstein's operation was designed to achieve.",
+      significance:"The head of MI6 had his security clearance revoked after admitting compromising behaviour. He was linked to a boys' home alleged to be an intelligence-run entrapment operation. He died before any investigation could question him. The man responsible for protecting Britain's secrets may have been the most compromised person in the building.",
+      evidence:"MI6 Chief 1973–1978. Security clearance revoked posthumously — confirmed by Thatcher in Parliament. Kincora Boys' Home allegations. Named in Operation Midland. GCMG, CBE. Died 11 March 1981.",
+      link:"The head of MI6 had his clearance revoked. He was linked to a boys' home that may have been an intelligence operation. He died before anyone could ask him under oath."
+    },
+
+    // ─── MICHAEL HANLEY ──────────────────────────────────
+    {id:"michael_hanley", label:"Michael Hanley", type:"suspicious", radius:14,
+      agency:"MI5 (SECURITY SERVICE)",
+      role:"Director General of MI5 · Named in Operation Midland Allegations",
+      status:"DECEASED (2001)",
+      networth:"~$0",
+      desc:"Sir Michael Bowen Hanley KCB (1918–2001) was the Director General of MI5 from 1972 to 1978. He was named in Operation Midland allegations regarding VIP child abuse. The allegations placed senior intelligence figures at gatherings where children were abused. Hanley headed MI5 during the same period Maurice Oldfield headed MI6 — both intelligence chiefs named in the same cluster of allegations. He died in 2001, long before Operation Midland began.",
+      intelRole:"The Director General of MI5 and the Chief of MI6, serving simultaneously, both named in the same cluster of VIP abuse allegations. If both heads of British intelligence were compromised, the question becomes: compromised by whom? The agencies they led were responsible for identifying exactly this kind of vulnerability in others. The possibility that both were compromised simultaneously suggests either catastrophic internal failure or deliberate external operation.",
+      epsteinLink:"No direct Epstein connection. Named in the same Operation Midland allegations as Maurice Oldfield. The simultaneous compromise of MI5 and MI6 leadership — if the allegations are accurate — represents the ultimate intelligence failure: the two people responsible for protecting the state from exactly this kind of compromise were themselves compromised.",
+      significance:"The head of MI5 and the head of MI6, at the same time, both named in VIP abuse allegations. Both died before any investigation. Both services held files on other abusers and chose not to act.",
+      evidence:"Director General MI5 1972–1978. Named in Operation Midland allegations. Served simultaneously with Maurice Oldfield (MI6 Chief). KCB. Died 2001.",
+      link:"MI5 and MI6. Both directors. Same period. Same allegations. Both dead before anyone asked."
+    },
+
+    // ─── PETER MORRISON ──────────────────────────────────
+    {id:"peter_morrison", label:"Peter Morrison", type:"suspicious", radius:14,
+      agency:"UK CONSERVATIVE PARTY / GOVERNMENT",
+      role:"Deputy Chairman Conservative Party · Thatcher Aide · Welsh Children's Home Allegations",
+      status:"DECEASED (1995)",
+      networth:"~$0",
+      desc:"Sir Peter Morrison (1944–1995) was a Conservative MP, Parliamentary Private Secretary to Margaret Thatcher, and deputy chairman of the Conservative Party. He was widely rumoured within Westminster to be involved in the sexual abuse of boys. Edwina Currie wrote in her published diaries that 'ichild abuse was alleged of Peter Morrison. The whips knew about it.' His name appeared in connection with investigations into abuse at children's homes in North Wales — the subject of the Waterhouse Inquiry. He died in 1995 of a heart attack, before the Waterhouse Inquiry published its findings.",
+      intelRole:"Morrison's case demonstrates the whips' office function: the party apparatus knew about the allegations and used the knowledge for political management rather than child protection. Edwina Currie's diary entry confirms institutional knowledge. The Conservative whips' office maintained files on MPs' vulnerabilities — including sexual misconduct — as leverage for party discipline. Morrison's alleged abuse was known, documented internally, and used politically rather than reported to police.",
+      epsteinLink:"No direct Epstein connection. Morrison is part of the Westminster paedophile network — the cluster of Conservative politicians and establishment figures alleged to have abused children, particularly through the children's home system. The whips' office knowledge-and-leverage model mirrors the intelligence kompromat model that analysts believe Epstein's operation served.",
+      significance:"Thatcher's aide. The whips knew. Edwina Currie published it. Connected to North Wales children's homes. Died before the inquiry reported. The party used the knowledge as leverage instead of protecting the children.",
+      evidence:"Conservative MP. PPS to Thatcher. Deputy chairman Conservative Party. Edwina Currie diary: whips knew of child abuse allegations. Linked to North Wales children's home investigations. Waterhouse Inquiry context. Died 1995.",
+      link:"The whips knew. Edwina Currie wrote it down. He died before the inquiry. The party protected itself, not the children."
+    },
+
+    // ─── ANTHONY BLUNT ───────────────────────────────────
+    {id:"anthony_blunt", label:"Anthony Blunt", type:"suspicious", radius:16,
+      agency:"MI5 / SOVIET INTELLIGENCE / ROYAL HOUSEHOLD",
+      role:"MI5 Officer · Confirmed Soviet Spy · Surveyor of the Queen's Pictures · Elm Guest House Allegations",
+      status:"DECEASED (1983) — EXPOSED 1979",
+      networth:"~$0",
+      desc:"Anthony Frederick Blunt (1907–1983) was an art historian, MI5 officer during WWII, Surveyor of the Queen's Pictures, and a confirmed member of the Cambridge Five Soviet spy ring. He passed British and American intelligence secrets to the Soviet Union for decades. He was secretly granted immunity from prosecution in 1964 in exchange for his confession, and his treachery was only publicly revealed by Margaret Thatcher in 1979. He was stripped of his knighthood. Subsequent allegations placed him at the Elm Guest House in Barnes, London — a venue alleged to have been used for the organised sexual abuse of children, attended by prominent figures. He retained his position in the Royal Household for 15 years after MI5 knew he was a Soviet spy.",
+      intelRole:"Blunt represents the intersection of every thread: Soviet intelligence penetration, royal household access, MI5 institutional protection, and alleged involvement in organised child abuse. He was a confirmed traitor who was granted immunity and allowed to remain in the Queen's household. If the Elm Guest House allegations are accurate, he was also a participant in organised child abuse — meaning the Queen's art adviser was simultaneously a Soviet spy and an alleged child abuser, and MI5 knew about the espionage and chose to protect him rather than expose either. The immunity deal that protected a traitor may also have protected a predator.",
+      epsteinLink:"No direct Epstein connection. Blunt embodies the kompromat thesis in its purest form: a man compromised on multiple axes — espionage, sexuality (illegal at the time), and allegedly child abuse — who was protected by the state because exposure would damage the institution more than concealment. This is exactly the mechanism that analysts believe Epstein's operation was designed to exploit.",
+      significance:"Soviet spy. MI5 officer. Queen's art adviser. Given immunity. Allegedly attended a venue where children were abused. Every institution that knew about him chose to protect itself rather than act. He kept his position in the Palace for fifteen years after they knew he was a traitor.",
+      evidence:"Confirmed Cambridge Five member. MI5 officer WWII. Surveyor of the Queen's Pictures 1945–1972. Immunity granted 1964. Publicly exposed by Thatcher 1979. Knighthood stripped. Elm Guest House allegations — multiple witness accounts. Died 26 March 1983.",
+      link:"Soviet spy. Queen's art adviser. MI5 knew and kept him in the Palace. If the Elm Guest House allegations are true, the immunity deal that protected a traitor also protected a child abuser. The system chose itself over the children. Every time."
     },
 
   ],
@@ -645,6 +841,84 @@ const supplementalData = {
     { source: "shabtai_shavit", target: "ben_menashe", strength: 0.4 },
     { source: "shabtai_shavit", target: "black_cube", strength: 0.4 },
     { source: "shabtai_shavit", target: "milchan", strength: 0.4 },
+
+    { source: "savile", target: "andrew", strength: 0.5 },
+    { source: "savile", target: "king_charles", strength: 0.6 },
+    { source: "savile", target: "cyril_smith", strength: 0.5 },
+    { source: "savile", target: "leon_brittan", strength: 0.4 },
+    { source: "savile", target: "edward_heath", strength: 0.5 },
+    { source: "savile", target: "murdoch", strength: 0.3 },
+    { source: "savile", target: "blair", strength: 0.3 },
+
+    // Rolf Harris
+    { source: "rolf_harris", target: "savile", strength: 0.5 },
+    { source: "rolf_harris", target: "chris_denning", strength: 0.3 },
+    { source: "rolf_harris", target: "king_charles", strength: 0.3 },
+
+    // Gary Glitter
+    { source: "gary_glitter", target: "savile", strength: 0.5 },
+    { source: "gary_glitter", target: "chris_denning", strength: 0.4 },
+    { source: "gary_glitter", target: "max_clifford", strength: 0.3 },
+
+    // Max Clifford
+    { source: "max_clifford", target: "savile", strength: 0.4 },
+    { source: "max_clifford", target: "murdoch", strength: 0.5 },
+    { source: "max_clifford", target: "rolf_harris", strength: 0.3 },
+
+    // Chris Denning
+    { source: "chris_denning", target: "savile", strength: 0.6 },
+    { source: "chris_denning", target: "gary_glitter", strength: 0.4 },
+
+    // Peter Righton
+    { source: "peter_righton", target: "john_stingemore", strength: 0.6 },
+    { source: "peter_righton", target: "tony_mcsweeney", strength: 0.4 },
+    { source: "peter_righton", target: "sidney_cooke", strength: 0.5 },
+    { source: "peter_righton", target: "cyril_smith", strength: 0.4 },
+    { source: "peter_righton", target: "peter_hayman", strength: 0.5 },
+
+    // Sidney Cooke
+    { source: "sidney_cooke", target: "peter_righton", strength: 0.5 },
+    { source: "sidney_cooke", target: "cyril_smith", strength: 0.4 },
+    { source: "sidney_cooke", target: "leon_brittan", strength: 0.3 },
+
+    // Tony McSweeney
+    { source: "tony_mcsweeney", target: "john_stingemore", strength: 0.7 },
+    { source: "tony_mcsweeney", target: "peter_righton", strength: 0.4 },
+
+    // John Stingemore
+    { source: "john_stingemore", target: "tony_mcsweeney", strength: 0.7 },
+    { source: "john_stingemore", target: "peter_righton", strength: 0.6 },
+
+    // Peter Hayman
+    { source: "peter_hayman", target: "cyril_smith", strength: 0.5 },
+    { source: "peter_hayman", target: "leon_brittan", strength: 0.5 },
+    { source: "peter_hayman", target: "peter_righton", strength: 0.5 },
+    { source: "peter_hayman", target: "peter_morrison", strength: 0.4 },
+    { source: "peter_hayman", target: "anthony_blunt", strength: 0.4 },
+
+    // Maurice Oldfield
+    { source: "maurice_oldfield", target: "michael_hanley", strength: 0.6 },
+    { source: "maurice_oldfield", target: "edward_heath", strength: 0.5 },
+    { source: "maurice_oldfield", target: "leon_brittan", strength: 0.4 },
+    { source: "maurice_oldfield", target: "anthony_blunt", strength: 0.4 },
+
+    // Michael Hanley
+    { source: "michael_hanley", target: "maurice_oldfield", strength: 0.6 },
+    { source: "michael_hanley", target: "cyril_smith", strength: 0.4 },
+    { source: "michael_hanley", target: "leon_brittan", strength: 0.4 },
+
+    // Peter Morrison
+    { source: "peter_morrison", target: "edward_heath", strength: 0.5 },
+    { source: "peter_morrison", target: "cyril_smith", strength: 0.5 },
+    { source: "peter_morrison", target: "leon_brittan", strength: 0.5 },
+    { source: "peter_morrison", target: "peter_hayman", strength: 0.4 },
+
+    // Anthony Blunt
+    { source: "anthony_blunt", target: "king_charles", strength: 0.5 },
+    { source: "anthony_blunt", target: "maurice_oldfield", strength: 0.4 },
+    { source: "anthony_blunt", target: "peter_hayman", strength: 0.4 },
+    { source: "anthony_blunt", target: "andrew", strength: 0.3 },
+    { source: "anthony_blunt", target: "leon_brittan", strength: 0.3 },
 
   ]
 };
