@@ -5,10 +5,6 @@
 <title>Epstein Network Graph</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
-/* ── CHROME: Use translate3d to force compositor layers everywhere,
-   contain:strict on #graph prevents any paint outside the SVG canvas.
-   background-image on body is cheap (no JS, no DOM nodes).          ── */
 body{
   background:#0f172a;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
@@ -18,20 +14,11 @@ body{
     linear-gradient(90deg,rgba(148,163,184,0.04) 1px,transparent 1px);
   background-size:40px 40px;
 }
-
-/* ── CONTROLS
-   contain:layout style — Chrome paint-invalidation stays inside the panel.
-   will-change:transform — Chrome promotes panel to its own GPU layer
-   so main-thread paints on it never bleed into the graph layer.      ── */
 #controls{
   position:fixed;top:52px;left:10px;
   background:#1e293b;border:1px solid #334155;border-radius:12px;
   padding:20px;z-index:10;width:284px;max-height:90vh;overflow-y:auto;
-  box-shadow:0 4px 6px -1px rgba(0,0,0,0.3),0 2px 4px -2px rgba(0,0,0,0.2);
-  will-change:transform;
-  contain:layout style;
-  /* CHROME: isolation creates a stacking context, preventing z-index
-     repaints from propagating upward to the graph layer.            */
+  box-shadow:0 4px 6px -1px rgba(0,0,0,0.3);
   isolation:isolate;
 }
 #controls::-webkit-scrollbar{width:4px}
@@ -45,10 +32,7 @@ body{
 #search{
   width:100%;padding:8px 12px;background:#0f172a;border:1px solid #334155;
   border-radius:8px;color:#f1f5f9;font-size:13px;margin-bottom:12px;
-  font-family:inherit;outline:none;
-  /* CHROME: transition only 'border-color' and 'box-shadow' — both
-     compositor-eligible in Chrome (no layout).                       */
-  transition:border-color 0.2s,box-shadow 0.2s;
+  font-family:inherit;outline:none;transition:border-color 0.2s,box-shadow 0.2s;
 }
 #search:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
 #search::placeholder{color:#475569}
@@ -56,14 +40,10 @@ body{
 #controls input[type="range"]{width:100%;accent-color:#6366f1}
 #controls input[type="checkbox"]{accent-color:#6366f1}
 #stats{font-size:11px;color:#475569;margin-top:12px;border-top:1px solid #334155;padding-top:10px;line-height:1.6}
-
-/* ── CATEGORY BUTTONS ── */
 .cat-buttons{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .cat-btn{
   padding:5px 9px;border-radius:6px;font-size:9px;font-weight:600;
   border:1px solid #334155;background:#0f172a;color:#64748b;cursor:pointer;
-  /* CHROME: 'background' and 'color' are cheap paint-only operations;
-     avoid 'width/height' in transitions — those trigger layout.      */
   transition:background 0.15s,color 0.15s,border-color 0.15s;
   text-transform:uppercase;letter-spacing:0.3px;
 }
@@ -72,96 +52,28 @@ body{
 .confirmed-btn{border-color:rgba(239,68,68,0.3)!important;color:#ff6b6b!important}
 .confirmed-btn:hover{background:rgba(239,68,68,0.1)!important}
 .confirmed-btn.active{background:rgba(239,68,68,0.2)!important;color:#ff4444!important;border-color:rgba(239,68,68,0.5)!important}
-
-/* ── TOOLTIP
-   CHROME: Use translate3d (not left/top) so position updates stay
-   on the GPU compositor thread and never trigger layout.
-   contain:layout style paint — Chrome skips geometry for everything
-   outside this element during tooltip repositioning.                 ── */
 #tooltip{
-  position:fixed;background:#1e293b;border:1px solid #334155;
+  position:fixed;top:0;left:0;
+  background:#1e293b;border:1px solid #334155;
   border-radius:10px;padding:14px;font-size:12px;max-width:380px;
   pointer-events:none;display:none;z-index:20;line-height:1.6;color:#cbd5e1;
-  box-shadow:0 10px 15px -3px rgba(0,0,0,0.4),0 4px 6px -4px rgba(0,0,0,0.3);
-  will-change:transform;
-  contain:layout style paint;
-  /* CHROME: top/left pinned to 0 so the browser only composites
-     the transform offset, avoiding a style recalc on move.          */
-  top:0;left:0;
+  box-shadow:0 10px 15px -3px rgba(0,0,0,0.4);
 }
 #tooltip .name{font-size:15px;font-weight:700;margin-bottom:4px;color:#f1f5f9}
 #tooltip .lbl{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;font-weight:600}
 #tooltip .hint{margin-top:8px;color:#475569;font-size:10px;font-style:italic}
-
-/* ── SVG LABELS
-   CHROME: pointer-events:none on the parent <g> is inherited by
-   every <text> child, saving hit-test work per frame.               ── */
-.node-label{
-  font-size:9px;fill:#94a3b8;pointer-events:none;
-  text-anchor:middle;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  font-weight:500;
-  /* CHROME: paint-order:stroke fill is faster than separate stroke
-     elements when text needs an outline; skip if no stroke.         */
-}
-
-/* ── NODE FADE-IN
-   Applied to the <circle> element directly (not the <g> parent).
-   CSS transition on opacity — Chrome composites this entirely on
-   the GPU thread. The JS sets opacity:0 then flips to 0.9 via
-   requestAnimationFrame so the browser sees two distinct states
-   and interpolates between them.                                 ── */
-.node-fade{
-  transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1);
-  will-change: opacity;
-}
-
-/* ── PULSE ANIMATION
-   CHROME: animate only opacity — compositor-only, zero main-thread cost.
-   will-change:opacity hints Chrome to allocate a separate layer for
-   each ring node before the animation begins.
-   transform-box:fill-box + transform-origin:center avoids layout
-   side-effects in SVG's default coordinate space.                   ── */
-@keyframes subtlePulse{
-  0%  {opacity:.20}
-  50% {opacity:.05}
-  100%{opacity:.20}
-}
-.pulse-ring{
-  animation:subtlePulse 3s ease-in-out infinite;
-  transform-origin:center;
-  transform-box:fill-box;
-  will-change:opacity;
-}
-
-/* ── DOSSIER
-   CHROME: animating 'right' triggers layout recalc every frame.
-   We replace it with transform:translateX so Chrome's compositor
-   handles the slide entirely off the main thread.                   ── */
 #dossier{
   position:fixed;top:0;right:0;width:520px;height:100vh;
   background:#1e293b;border-left:1px solid #334155;z-index:30;
   overflow-y:auto;font-size:13px;color:#cbd5e1;
   box-shadow:-20px 0 60px rgba(0,0,0,0.4);
-  /* Start off-screen to the right */
   transform:translateX(520px);
-  /* CHROME: cubic-bezier easing on transform is compositor-eligible */
   transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  will-change:transform;
-  contain:layout style;
   isolation:isolate;
 }
 #dossier.open{transform:translateX(0)}
-#dossier-header{
-  background:#1e293b;padding:24px 28px 20px;border-bottom:1px solid #334155;
-  position:sticky;top:0;z-index:2;
-}
-#dossier-close{
-  position:absolute;top:16px;right:20px;background:#0f172a;border:none;
-  color:#64748b;font-size:16px;width:36px;height:36px;border-radius:8px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:background 0.15s,color 0.15s;
-}
+#dossier-header{background:#1e293b;padding:24px 28px 20px;border-bottom:1px solid #334155;position:sticky;top:0;z-index:2;}
+#dossier-close{position:absolute;top:16px;right:20px;background:#0f172a;border:none;color:#64748b;font-size:16px;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;}
 #dossier-close:hover{background:#334155;color:#f1f5f9}
 #dossier-name{font-size:24px;font-weight:800;margin-bottom:2px;color:#f1f5f9}
 #dossier-agency{font-size:11px;color:#64748b;letter-spacing:0.5px;margin-bottom:4px}
@@ -182,13 +94,7 @@ body{
 .dossier-callout.blue{background:rgba(59,130,246,0.08);border-left-color:#3b82f6;color:#93c5fd}
 .dossier-callout.gray{background:rgba(100,116,139,0.08);border-left-color:#64748b;color:#94a3b8}
 .conn-list{list-style:none;padding:0}
-.conn-list li{
-  padding:10px 12px;margin-bottom:4px;background:#0f172a;border-radius:8px;
-  border-left:3px solid #334155;cursor:pointer;display:flex;
-  justify-content:space-between;align-items:center;
-  /* CHROME: only transition transform — no layout props */
-  transition:background 0.15s,border-left-color 0.15s,transform 0.15s;
-}
+.conn-list li{padding:10px 12px;margin-bottom:4px;background:#0f172a;border-radius:8px;border-left:3px solid #334155;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.15s,border-left-color 0.15s,transform 0.15s;}
 .conn-list li:hover{background:#1e293b;border-left-color:#818cf8;transform:translateX(2px)}
 .conn-name{color:#e2e8f0;font-size:12px;font-weight:500}
 .conn-strength{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700}
@@ -198,46 +104,21 @@ body{
 .core-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
 .threat-badge{display:inline-block;padding:6px 16px;border-radius:8px;font-size:14px;font-weight:800;letter-spacing:1.5px}
 .cat-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;margin:2px}
-
-/* ── WRITEUP NAVBAR
-   CHROME: backdrop-filter is GPU-accelerated in Chrome.
-   contain:layout style paint — keeps navbar paints isolated.        ── */
 #writeup-nav{
   position:fixed;top:0;left:0;right:0;z-index:10000;
   background:rgba(10,10,14,0.95);
-  -webkit-backdrop-filter:blur(12px);
-  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   border-bottom:1px solid rgba(255,255,255,0.06);
   display:flex;align-items:center;padding:0 20px;height:42px;
-  font-family:'Inter',system-ui,sans-serif;gap:0;
-  will-change:transform;
-  contain:layout style paint;
+  font-family:'Inter',system-ui,sans-serif;
 }
 #writeup-nav .nav-brand{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-right:24px;white-space:nowrap}
 #writeup-nav .nav-items{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
 #writeup-nav .nav-items::-webkit-scrollbar{display:none}
-#writeup-nav .nav-btn{
-  background:none;border:1px solid transparent;color:#64748b;
-  font-size:10px;font-weight:500;letter-spacing:0.5px;padding:6px 14px;
-  border-radius:4px;cursor:pointer;white-space:nowrap;
-  transition:color 0.2s,background 0.2s,border-color 0.2s;
-  font-family:inherit;
-}
+#writeup-nav .nav-btn{background:none;border:1px solid transparent;color:#64748b;font-size:10px;font-weight:500;letter-spacing:0.5px;padding:6px 14px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:color 0.2s,background 0.2s,border-color 0.2s;font-family:inherit;}
 #writeup-nav .nav-btn:hover{color:#e2e8f0;background:rgba(255,255,255,0.04)}
 #writeup-nav .nav-btn.active{color:#e2e8f0;border-color:rgba(148,163,184,0.25);background:rgba(148,163,184,0.08)}
-
-/* ── WRITEUP OVERLAY
-   CHROME: Use display:none + visibility trick to keep the overlay
-   out of the render tree when invisible.                            ── */
-#writeup-overlay{
-  display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10001;
-  background:rgba(15,23,42,0.98);
-  -webkit-backdrop-filter:blur(20px);
-  backdrop-filter:blur(20px);
-  overflow-y:auto;padding:62px 20px 60px;
-  font-family:'Inter',system-ui,sans-serif;
-  contain:layout style paint;
-}
+#writeup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10001;background:rgba(15,23,42,0.98);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;padding:62px 20px 60px;font-family:'Inter',system-ui,sans-serif;}
 #writeup-overlay.visible{display:block}
 #writeup-content{max-width:720px;margin:0 auto;color:#cbd5e1}
 #writeup-content .writeup-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(148,163,184,0.1)}
@@ -252,30 +133,13 @@ body{
 #writeup-content .writeup-pullquote p{color:#e2e8f0;font-size:14px;font-weight:500;margin-bottom:0;line-height:1.75}
 #writeup-content .writeup-closing{margin-top:48px;padding-top:32px;border-top:1px solid rgba(148,163,184,0.1)}
 #writeup-content .writeup-closing p{color:#cbd5e1;font-size:14px;font-weight:500;line-height:1.85}
-#writeup-close{
-  position:fixed;top:8px;right:20px;z-index:10002;
-  background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);
-  color:#94a3b8;font-size:11px;font-weight:600;padding:6px 16px;border-radius:4px;
-  cursor:pointer;font-family:inherit;letter-spacing:1px;display:none;
-  transition:background 0.2s,color 0.2s;
-}
+#writeup-close{position:fixed;top:8px;right:20px;z-index:10002;background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);color:#94a3b8;font-size:11px;font-weight:600;padding:6px 16px;border-radius:4px;cursor:pointer;font-family:inherit;letter-spacing:1px;display:none;transition:background 0.2s,color 0.2s;}
 #writeup-close:hover{background:rgba(148,163,184,0.15);color:#e2e8f0}
-
-/* ── SVG CANVAS
-   CHROME: contain:strict tells Chrome this element's paint,
-   layout and size are entirely self-contained — eliminates
-   ancestor invalidation when anything inside the SVG changes.
-   will-change:transform promotes to GPU layer immediately.          ── */
-#graph{
-  display:block;
-  contain:strict;
-  will-change:transform;
-}
+#graph{display:block;position:fixed;top:0;left:0;}
 </style>
 </head>
 <body>
 
-<!-- WRITEUP NAVBAR -->
 <nav id="writeup-nav">
   <div class="nav-brand">WRITEUPS &amp; CONCLUSIONS</div>
   <div class="nav-items">
@@ -283,17 +147,12 @@ body{
   </div>
 </nav>
 <button id="writeup-close" onclick="closeWriteup()">&#x2715; CLOSE</button>
-
-<!-- WRITEUP OVERLAY -->
-<div id="writeup-overlay">
-  <div id="writeup-content"></div>
-</div>
+<div id="writeup-overlay"><div id="writeup-content"></div></div>
 
 <div id="controls">
   <h1>Epstein Network</h1>
   <div class="subtitle">Interactive intelligence graph</div>
   <input type="text" id="search" placeholder="Search by name...">
-
   <h2>Filter by relationship</h2>
   <div class="cat-buttons" id="cat-buttons">
     <button class="cat-btn active" data-cat="all">All</button>
@@ -311,16 +170,13 @@ body{
     <button class="cat-btn" data-cat="uncertain">Uncertain</button>
     <button class="cat-btn confirmed-btn" data-cat="confirmed">&#9888; Confirmed / Documented</button>
   </div>
-
   <h2>Filter by classification</h2>
   <label><input type="checkbox" class="tf" value="center" checked><span class="dot" style="background:#ef4444"></span>Principal Targets</label>
   <label><input type="checkbox" class="tf" value="convicted" checked><span class="dot" style="background:#2dd4bf"></span>Convicted</label>
   <label><input type="checkbox" class="tf" value="suspicious" checked><span class="dot" style="background:#60a5fa"></span>Suspicious</label>
   <label><input type="checkbox" class="tf" value="possibly"><span class="dot" style="background:#a78bfa"></span>Possibly Involved</label>
-
   <h2>Min link strength: <span id="sv">0</span></h2>
   <input type="range" id="str" min="0" max="1" step="0.1" value="0">
-
   <h2>Display</h2>
   <label><input type="checkbox" id="labels" checked> Show labels</label>
   <label><input type="checkbox" id="orphans" checked> Show unlinked nodes</label>
@@ -345,9 +201,8 @@ body{
   <div id="dossier-body"></div>
 </div>
 
-<svg id="graph"></svg>
+<canvas id="graph"></canvas>
 
-<!-- D3 — load async, non-blocking -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="list.js?v=5"></script>
 <script src="list2.js?v=3"></script>
@@ -355,9 +210,7 @@ body{
 <script>
 'use strict';
 
-/* ════════════════════════════════════════════════════════════
-   MERGE SUPPLEMENTAL DATA
-   ════════════════════════════════════════════════════════════ */
+/* ── MERGE SUPPLEMENTAL DATA ── */
 if (typeof supplementalData !== 'undefined') {
   const existingIds = new Set(graphData.nodes.map(n => n.id));
   for (const n of supplementalData.nodes) {
@@ -370,9 +223,7 @@ if (typeof supplementalData !== 'undefined') {
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   CONSTANTS
-   ════════════════════════════════════════════════════════════ */
+/* ── CONSTANTS ── */
 const categories = {
   operational:["epstein","maxwell_g","kellen","marcinkova","groff","brunel","alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"],
   financial:["epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle","pritzker","lutnick","bloomberg","mort_z","diller","barrack","dubin","eva_dubin","nat_rothschild","lynn_rothschild"],
@@ -388,48 +239,45 @@ const categories = {
   cover:["epstein","maxwell_g","wexner","black","bronfman_c","bronfman_s","hawking","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","ito","gates","summers","bob_wright","gutfreund","woody","charlie_rose","lauer","spacey","copperfield","chopra","naomi","handler","branson","jack_lang","juan_carlos","king_carl_xvi","john_podesta","lindsey_graham"],
   uncertain:["thiel","bezos","sergey_brin","larry_page","bloomberg","murdoch","pritzker","burkle","diller","mort_z","hawking","chopra","chaim_herzog","yitzhak_shamir","shabtai_shavit"]
 };
-
 const catNames={operational:"Operational",financial:"Financial",legal:"Legal Shield",intel:"Intelligence",intel_il:"🇮🇱 Mossad / IL",intel_us:"🇺🇸 CIA / FBI",intel_uk:"🇬🇧 MI5 / MI6",intel_ru:"🇷🇺 KGB / FSB",intel_ae:"🇦🇪 UAE / Gulf",named:"Named by Victims",cover:"Social Cover",uncertain:"Uncertain",confirmed:"⚠ Confirmed / Documented"};
 const catColors={operational:"rgba(248,113,113,0.12);color:#f87171;border-color:rgba(248,113,113,0.25)",financial:"rgba(34,197,94,0.1);color:#4ade80;border-color:rgba(34,197,94,0.2)",legal:"rgba(251,146,60,0.1);color:#fb923c;border-color:rgba(251,146,60,0.2)",intel:"rgba(99,102,241,0.1);color:#818cf8;border-color:rgba(99,102,241,0.2)",intel_il:"rgba(59,130,246,0.12);color:#60a5fa;border-color:rgba(59,130,246,0.25)",intel_us:"rgba(239,68,68,0.1);color:#f87171;border-color:rgba(239,68,68,0.2)",intel_uk:"rgba(168,85,247,0.1);color:#c084fc;border-color:rgba(168,85,247,0.2)",intel_ru:"rgba(239,68,68,0.12);color:#fb7185;border-color:rgba(239,68,68,0.25)",intel_ae:"rgba(234,179,8,0.1);color:#facc15;border-color:rgba(234,179,8,0.2)",named:"rgba(239,68,68,0.15);color:#fca5a5;border-color:rgba(239,68,68,0.3)",cover:"rgba(100,116,139,0.1);color:#94a3b8;border-color:rgba(100,116,139,0.2)",uncertain:"rgba(250,204,21,0.1);color:#facc15;border-color:rgba(250,204,21,0.2)",confirmed:"rgba(239,68,68,0.15);color:#ff6b6b;border-color:rgba(239,68,68,0.3)"};
-
 const C={center:"#ef4444",convicted:"#2dd4bf",suspicious:"#60a5fa",possibly:"#a78bfa"};
 const Clight={center:"rgba(239,68,68,0.1)",convicted:"rgba(45,212,191,0.1)",suspicious:"rgba(96,165,250,0.1)",possibly:"rgba(167,139,250,0.1)"};
 const Cborder={center:"rgba(239,68,68,0.25)",convicted:"rgba(45,212,191,0.25)",suspicious:"rgba(96,165,250,0.25)",possibly:"rgba(167,139,250,0.25)"};
 const typeLabel={center:"PRINCIPAL TARGET",convicted:"CONVICTED",suspicious:"SUSPICIOUS - UNDER REVIEW",possibly:"POSSIBLY INVOLVED"};
+const coreSet=new Set(categories.operational);
+const confirmedSet=new Set(categories.confirmed);
+const forceBlue=new Set(["staley","wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
 
-const coreSet     = new Set(categories.operational);
-const confirmedSet= new Set(categories.confirmed);
-const forceBlue   = new Set(["staley","wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
-
-/* ════════════════════════════════════════════════════════════
-   GRAPH SETUP
-   ════════════════════════════════════════════════════════════ */
+/* ── CANVAS SETUP ── */
+const canvas = document.getElementById('graph');
+const ctx = canvas.getContext('2d');
 const W = window.innerWidth, H = window.innerHeight;
-const svg = d3.select("#graph").attr("width",W).attr("height",H);
-const g   = svg.append("g");
+canvas.width = W * devicePixelRatio;
+canvas.height = H * devicePixelRatio;
+canvas.style.width = W + 'px';
+canvas.style.height = H + 'px';
+ctx.scale(devicePixelRatio, devicePixelRatio);
 
-/* CHROME: Use SVG 'transform' attribute (not CSS) for zoom.
-   Attribute changes go through SVG's own rendering path and
-   never trigger Chrome's CSS layout engine.                   */
-svg.call(
-  d3.zoom()
-    .scaleExtent([0.1, 8])
-    .on("zoom", e => g.attr("transform", e.transform))
-);
+/* ── ZOOM / PAN STATE ── */
+let tx = 0, ty = 0, scale = 1;
 
-const S = 0.55;
-
-/* Spread once to avoid per-tick object allocation */
+/* ── DATA ── */
 const nodes = graphData.nodes.map(d => ({...d}));
 const links = graphData.links.map(d => ({...d}));
-
 const nodeMap = new Map(nodes.map(n => [n.id, n]));
+const S = 0.55;
 
-/* ════════════════════════════════════════════════════════════
-   SIMULATION — run synchronously then freeze
-   CHROME: Synchronous ticking avoids 300+ rAF callbacks and
-   style recalcs on load.  alphaDecay tuned so 300 ticks ≈
-   stable layout without overshoot.                           ════════════════════════════════════════════════════════════ */
+/* Pre-cache link src/tgt after forceLink resolves them */
+const linkSrcIds = links.map(l => typeof l.source === 'object' ? l.source.id : l.source);
+const linkTgtIds = links.map(l => typeof l.target === 'object' ? l.target.id : l.target);
+const linkStrengths = new Float32Array(links.map(l => l.strength||0.5));
+
+/* Adjacency index */
+const adjIndex = new Map();
+for (const n of nodes) adjIndex.set(n.id, new Set([n.id]));
+
+/* ── SIMULATION ── */
 const sim = d3.forceSimulation(nodes)
   .force("link",      d3.forceLink(links).id(d=>d.id).distance(d=>100/(d.strength||0.5)).strength(d=>d.strength||0.5))
   .force("charge",    d3.forceManyBody().strength(d=>-(d.radius*S)*18))
@@ -441,272 +289,569 @@ const sim = d3.forceSimulation(nodes)
 
 for (let i = 0; i < 300; i++) sim.tick();
 
-/* Save the original settled positions so we can restore them
-   when returning to "All" — prevents nodes from staying in the
-   clustered positions left by a sub-filter physics run.       */
-nodes.forEach(d => { d._ox = d.x; d._oy = d.y; d.fx = d.x; d.fy = d.y; });
-
-/* Label-offset collision resolution */
-{
-  const len  = nodes.length;
-  const offY = new Float32Array(len);
-  const lblW = new Float32Array(len);
-  const lblH = 12;
-  for (let i = 0; i < len; i++) { offY[i] = (nodes[i].radius*S)+14; lblW[i] = nodes[i].label.length*6; }
-  for (let pass = 0; pass < 12; pass++) {
-    let moved = false;
-    for (let i = 0; i < len; i++) {
-      const ax=nodes[i].x-lblW[i]/2, ay=nodes[i].y+offY[i]-lblH/2;
-      const ar=ax+lblW[i],           ab=ay+lblH;
-      let blocked=false;
-      for (let j = 0; j < len; j++) {
-        if (i===j) continue;
-        const r=nodes[j].radius*S+3, cx=nodes[j].x, cy=nodes[j].y;
-        const clx=ax>cx?ax:ar<cx?ar:cx, cly=ay>cy?ay:ab<cy?ab:cy;
-        const dx=cx-clx, dy=cy-cly;
-        if (dx*dx+dy*dy<r*r){blocked=true;break;}
-        const bx=nodes[j].x-lblW[j]/2, by=nodes[j].y+offY[j]-lblH/2;
-        if(!(ar<bx||bx+lblW[j]<ax||ab<by||by+lblH<ay)){blocked=true;break;}
-      }
-      if(blocked){offY[i]+=10;moved=true;}
-    }
-    if(!moved) break;
-  }
-  for (let i = 0; i < len; i++) nodes[i]._labelOffY = offY[i];
-}
-
-/* ════════════════════════════════════════════════════════════
-   DOM CREATION
-   ════════════════════════════════════════════════════════════ */
-const linkEl = g.append("g").attr("class","links")
-  .selectAll("line").data(links).join("line")
-  .attr("stroke", d => {
-    const s = d.strength||0.5;
-    return s>=0.8?"rgba(239,68,68,0.5)":s>=0.6?"rgba(251,146,60,0.4)":s>=0.4?"rgba(100,116,139,0.25)":"rgba(100,116,139,0.12)";
-  })
-  .attr("stroke-width",  d => Math.max(0.5,(d.strength||0.5)*2.5))
-  .attr("stroke-opacity", 0.6)
-  .attr("x1", d=>d.source.x).attr("y1", d=>d.source.y)
-  .attr("x2", d=>d.target.x).attr("y2", d=>d.target.y);
-
-const nodeEl = g.append("g").selectAll("g").data(nodes).join("g")
-  .attr("transform", d=>`translate(${d.x},${d.y})`);
-
-/* Pulse rings (center nodes only) */
-nodeEl.filter(d=>d.type==="center").append("circle")
-  .attr("class","pulse-ring")
-  .attr("r", d=>(d.radius*S)+6)
-  .attr("fill","none")
-  .attr("stroke", d=> forceBlue.has(d.id)?"#60a5fa":confirmedSet.has(d.id)?"#ef4444":C[d.type])
-  .attr("stroke-width",1.5);
-
-/* Main circles */
-nodeEl.append("circle")
-  .attr("r",      d=>d.radius*S)
-  .attr("fill",   d=> forceBlue.has(d.id)?"#60a5fa":confirmedSet.has(d.id)?"#ef4444":(C[d.type]||"#64748b"))
-  .attr("stroke", d=> forceBlue.has(d.id)?"rgba(96,165,250,0.4)":confirmedSet.has(d.id)?"rgba(239,68,68,0.4)":"rgba(255,255,255,0.15)")
-  .attr("stroke-width",1.5)
-  .attr("opacity",0.9)
-  .style("cursor","pointer")
-  /* CHROME: drop-shadow filter is composited in Chrome when the element
-     has its own layer; skip will-change on individual circles though —
-     too many layers for Chrome to manage.                              */
-  .attr("filter","drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
-
-/* Labels in a separate <g> so opacity changes don't trigger circle repaints */
-const lblEl = g.append("g").attr("pointer-events","none")
-  .selectAll("text").data(nodes).join("text")
-  .attr("class","node-label")
-  .attr("x", d=>d.x)
-  .attr("y", d=>d.y)
-  .attr("dy", d=>(d.radius*S)+12)
-  .attr("fill", d=> forceBlue.has(d.id)?"#93c5fd":confirmedSet.has(d.id)?"#fca5a5":"#94a3b8")
-  .text(d=>d.label);
-
-/* ════════════════════════════════════════════════════════════
-   POSITION UPDATER — rAF-batched
-   CHROME: All DOM writes are batched into one rAF callback.
-   A guard flag prevents callback stacking on rapid ticks.    ════════════════════════════════════════════════════════════ */
-let rafPending = false;
-function schedulePositionUpdate() {
-  if (rafPending) return;
-  rafPending = true;
-  requestAnimationFrame(() => {
-    rafPending = false;
-    linkEl
-      .attr("x1", d=>d.source.x).attr("y1", d=>d.source.y)
-      .attr("x2", d=>d.target.x).attr("y2", d=>d.target.y);
-    nodeEl.attr("transform", d=>`translate(${d.x},${d.y})`);
-    lblEl.attr("x", d=>d.x).attr("y", d=>d.y);
-  });
-}
-
-/* ════════════════════════════════════════════════════════════
-   DRAG
-   Full view: sim is frozen — drag moves only the one node
-   directly, no physics wake-up at all.
-   Filtered view: normal physics drag.                        ════════════════════════════════════════════════════════════ */
-nodeEl.call(
-  d3.drag()
-    .on("start", (e,d) => {
-      if (isFullView()) {
-        d.fx = null; d.fy = null; /* just unpin for direct placement */
-      } else {
-        if(simRunning){ sim.stop(); simRunning=false; sim.on("tick.refit",null).on("end.refit",null); restoreDefaultForces(); }
-        sim.alphaTarget(0.3).restart();
-        d.fx=d.x; d.fy=d.y;
-      }
-    })
-    .on("drag", (e,d) => {
-      d.fx=e.x; d.fy=e.y; d.x=e.x; d.y=e.y;
-      schedulePositionUpdate();
-    })
-    .on("end", (e,d) => {
-      if (isFullView()) {
-        d.fx=d.x; d.fy=d.y; /* re-pin at drop position */
-      } else {
-        sim.alphaTarget(0).stop();
-        d.fx=null; d.fy=null;
-      }
-    })
-);
-sim.on("tick", schedulePositionUpdate);
-
-/* ════════════════════════════════════════════════════════════
-   TOOLTIP
-   CHROME: translate3d (not top/left) keeps tooltip updates
-   on the compositor thread.  top:0;left:0 in CSS means the
-   browser only composites the transform offset.              ════════════════════════════════════════════════════════════ */
-const tipEl = document.getElementById("tooltip");
-
-/* Pre-build adjacency index once — O(E) lookup vs O(E) per hover */
-const adjIndex = new Map(); // id → Set of neighbour ids
-for (const n of nodes) adjIndex.set(n.id, new Set([n.id]));
+/* Build adjacency after forceLink resolves objects */
 for (const l of links) {
   const s = l.source.id||l.source, t = l.target.id||l.target;
   adjIndex.get(s)?.add(t);
   adjIndex.get(t)?.add(s);
+  /* Update cached IDs after forceLink resolves */
+  linkSrcIds[links.indexOf(l)] = s;
+  linkTgtIds[links.indexOf(l)] = t;
 }
 
-nodeEl
-  .on("mouseover", function(ev, d) {
-    const conn = adjIndex.get(d.id) || new Set([d.id]);
+/* Save original positions */
+nodes.forEach(d => { d._ox = d.x; d._oy = d.y; d.fx = d.x; d.fy = d.y; });
 
-    /* CHROME: single rAF batch — no repeated style flushes */
-    requestAnimationFrame(() => {
-      nodeEl.select("circle:last-of-type").attr("opacity", n => conn.has(n.id)?0.9:0.12);
-      lblEl.attr("opacity",  n => conn.has(n.id)?1:0.08);
-      linkEl.attr("stroke-opacity", l => {
-        const s=l.source.id||l.source, t=l.target.id||l.target;
-        return (s===d.id||t===d.id)?0.9:0.03;
-      });
+/* ── FILTER STATE ── */
+let activeCat = "all";
+let _visCache = null;
+let visSet = new Set(); /* current visible set — used by draw loop */
+let hoveredNode = null;
+let searchQuery = "";
+let showLabels = true;
+let minStrength = 0;
+let showOrphans = true;
+
+/* Node opacity targets for smooth fade */
+const nodeOpacity = new Float32Array(nodes.length).fill(0);
+const nodeLabelLC = nodes.map(n => n.label.toLowerCase());
+
+function invalidateVis() { _visCache = null; }
+
+function getVisibleSet() {
+  if (_visCache) return _visCache;
+  const at = new Set();
+  document.querySelectorAll(".tf").forEach(el => { if(el.checked) at.add(el.value); });
+  const catSet = activeCat !== "all" ? new Set(categories[activeCat]||[]) : null;
+  let linkedSet = null;
+  if (!showOrphans) {
+    linkedSet = new Set();
+    for (let i = 0; i < links.length; i++) {
+      if (linkStrengths[i] >= minStrength) {
+        linkedSet.add(linkSrcIds[i]);
+        linkedSet.add(linkTgtIds[i]);
+      }
+    }
+  }
+  const vis = new Set();
+  for (const d of nodes) {
+    if (!at.has(d.type)) continue;
+    if (catSet && !catSet.has(d.id)) continue;
+    if (linkedSet && !linkedSet.has(d.id)) continue;
+    vis.add(d.id);
+  }
+  _visCache = vis;
+  return vis;
+}
+
+/* ── DRAW LOOP ── */
+let rafId = null;
+let pulseT = 0; /* for pulse ring animation */
+
+function nodeColor(d) {
+  if (forceBlue.has(d.id)) return "#60a5fa";
+  if (confirmedSet.has(d.id)) return "#ef4444";
+  return C[d.type] || "#64748b";
+}
+
+function draw() {
+  rafId = null;
+  pulseT += 0.016;
+
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  /* Apply zoom/pan */
+  ctx.save();
+  ctx.translate(tx, ty);
+  ctx.scale(scale, scale);
+
+  const conn = hoveredNode ? (adjIndex.get(hoveredNode.id) || new Set()) : null;
+
+  /* ── LINKS ── */
+  for (let i = 0; i < links.length; i++) {
+    const l = links[i];
+    const s = l.source, t = l.target;
+    const sid = s.id||s, tid = t.id||t;
+    if (!visSet.has(sid) || !visSet.has(tid)) continue;
+    if (linkStrengths[i] < minStrength) continue;
+
+    const str = linkStrengths[i];
+    let alpha = 0.4;
+    if (conn) {
+      alpha = (sid === hoveredNode.id || tid === hoveredNode.id) ? 0.85 : 0.04;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(t.x, t.y);
+    ctx.lineWidth = Math.max(0.5, str * 2.5);
+    if (str >= 0.8) ctx.strokeStyle = `rgba(239,68,68,${alpha})`;
+    else if (str >= 0.6) ctx.strokeStyle = `rgba(251,146,60,${alpha})`;
+    else if (str >= 0.4) ctx.strokeStyle = `rgba(100,116,139,${alpha})`;
+    else ctx.strokeStyle = `rgba(100,116,139,${alpha * 0.5})`;
+    ctx.stroke();
+  }
+
+  /* ── NODES ── */
+  for (let i = 0; i < nodes.length; i++) {
+    const d = nodes[i];
+    if (!visSet.has(d.id)) continue;
+
+    const op = nodeOpacity[i];
+    if (op <= 0.01) continue;
+
+    const r = d.radius * S;
+    const color = nodeColor(d);
+    const dimmed = conn && !conn.has(d.id);
+    const finalOp = dimmed ? op * 0.12 : op;
+
+    ctx.globalAlpha = finalOp;
+
+    /* Pulse ring for center nodes */
+    if (d.type === "center") {
+      const pulse = 0.1 + 0.1 * Math.sin(pulseT * 2 + i);
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, r + 6, 0, Math.PI * 2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = finalOp * pulse;
+      ctx.stroke();
+      ctx.globalAlpha = finalOp;
+    }
+
+    /* Node circle */
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = forceBlue.has(d.id) ? "rgba(96,165,250,0.4)"
+                    : confirmedSet.has(d.id) ? "rgba(239,68,68,0.4)"
+                    : "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = 1;
+
+  /* ── LABELS ── */
+  if (showLabels) {
+    ctx.font = `500 9px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    for (let i = 0; i < nodes.length; i++) {
+      const d = nodes[i];
+      if (!visSet.has(d.id)) continue;
+      const op = nodeOpacity[i];
+      if (op <= 0.01) continue;
+
+      const dimmed = conn && !conn.has(d.id);
+      const searchDimmed = searchQuery && !nodeLabelLC[i].includes(searchQuery);
+      let labelOp = dimmed ? 0.08 : (searchDimmed ? 0.08 : 1.0);
+      ctx.globalAlpha = op * labelOp;
+
+      const lx = d.x + (d._lx || 0);
+      const ly = d.y + (d._ly || d.radius * S + 4);
+
+      ctx.fillStyle = forceBlue.has(d.id) ? "#93c5fd"
+                    : confirmedSet.has(d.id) ? "#fca5a5"
+                    : "#94a3b8";
+      ctx.fillText(d.label, lx, ly);
+    }
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function scheduleRedraw() {
+  if (!rafId) rafId = requestAnimationFrame(draw);
+}
+
+/* ── OPACITY ANIMATION ── */
+/* Instead of CSS transitions, we animate opacity values in JS
+   and redraw every frame until all targets are reached. */
+const opacityTargets = new Float32Array(nodes.length);
+let animating = false;
+let animRafId = null;
+
+function tickOpacity() {
+  animRafId = null;
+  let stillMoving = false;
+  for (let i = 0; i < nodes.length; i++) {
+    const diff = opacityTargets[i] - nodeOpacity[i];
+    if (Math.abs(diff) > 0.01) {
+      nodeOpacity[i] += diff * 0.12; /* ease factor */
+      stillMoving = true;
+    } else {
+      nodeOpacity[i] = opacityTargets[i];
+    }
+  }
+  draw();
+  if (stillMoving) animRafId = requestAnimationFrame(tickOpacity);
+  else animating = false;
+}
+
+function setOpacityTargets() {
+  for (let i = 0; i < nodes.length; i++) {
+    opacityTargets[i] = visSet.has(nodes[i].id) ? 0.9 : 0;
+  }
+  if (!animating) {
+    animating = true;
+    animRafId = requestAnimationFrame(tickOpacity);
+  }
+}
+
+/* ── LABEL PLACEMENT ── */
+function placeLabels(vis) {
+  const LH = 11, PAD = 3, charW = 5.8;
+  const placed = [];
+  const angles = [Math.PI*0.5, 0, Math.PI, -Math.PI*0.5, Math.PI*0.25, Math.PI*0.75, -Math.PI*0.25, -Math.PI*0.75];
+  const active = vis || visSet;
+
+  for (let i = 0; i < nodes.length; i++) {
+    const d = nodes[i];
+    if (!active.has(d.id)) continue;
+    const r = d.radius * S + 4 + PAD;
+    const lw = d.label.length * charW;
+    let bestScore = Infinity, bestDx = 0, bestDy = r + LH * 0.5;
+    for (const ang of angles) {
+      const dist = r + LH * 0.5 + PAD;
+      const cx = d.x + Math.cos(ang) * dist;
+      const cy = d.y + Math.sin(ang) * dist;
+      const ax = cx - lw/2, ay = cy - LH/2, ar = cx + lw/2, ab = cy + LH/2;
+      let score = 0;
+      for (let j = 0; j < nodes.length; j++) {
+        if (!active.has(nodes[j].id)) continue;
+        const nr = nodes[j].radius * S + PAD;
+        const clx = Math.max(ax, Math.min(ar, nodes[j].x));
+        const cly = Math.max(ay, Math.min(ab, nodes[j].y));
+        const dx = nodes[j].x - clx, dy = nodes[j].y - cly;
+        if (dx*dx + dy*dy < nr*nr) score += 100;
+      }
+      for (const p of placed) {
+        if (ar > p.ax && ax < p.ar && ab > p.ay && ay < p.ab) score += 50;
+      }
+      if (score < bestScore) {
+        bestScore = score;
+        bestDx = cx - d.x;
+        bestDy = cy - d.y;
+        if (score === 0) break;
+      }
+    }
+    d._lx = bestDx;
+    d._ly = bestDy;
+    placed.push({ ax: d.x+bestDx-lw/2, ay: d.y+bestDy-LH/2, ar: d.x+bestDx+lw/2, ab: d.y+bestDy+LH/2 });
+  }
+}
+
+/* ── CAMERA ── */
+function panTo(targetTx, targetTy, targetScale, duration) {
+  const startTx = tx, startTy = ty, startScale = scale;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    tx = startTx + (targetTx - startTx) * ease;
+    ty = startTy + (targetTy - startTy) * ease;
+    scale = startScale + (targetScale - startScale) * ease;
+    scheduleRedraw();
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function centerOnEpstein() {
+  const ep = nodes.find(d => d.id === "epstein");
+  if (!ep) return;
+  const s = 1.1;
+  panTo(W/2 - ep._ox * s, H/2 - ep._oy * s, s, 700);
+}
+
+function centerOnVisible(vis) {
+  const active = vis || visSet;
+  const visNodes = nodes.filter(d => active.has(d.id));
+  if (!visNodes.length) return;
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for (const d of visNodes) {
+    const r = d.radius * S;
+    if (d.x-r < x0) x0=d.x-r; if (d.y-r < y0) y0=d.y-r;
+    if (d.x+r > x1) x1=d.x+r; if (d.y+r > y1) y1=d.y+r;
+  }
+  const pad=80, bw=x1-x0+pad*2, bh=y1-y0+pad*2;
+  const s = Math.min(W/bw, H/bh, 2.5);
+  panTo(W/2 - (x0+x1)/2*s, H/2 - (y0+y1)/2*s, s, 650);
+}
+
+/* ── SIMULATION CONTROL ── */
+let simRunning = false, refitTimer = null;
+
+function restoreDefaultForces() {
+  sim.force("center", d3.forceCenter(W/2,H/2))
+     .force("x", d3.forceX(W/2).strength(0.02))
+     .force("y", d3.forceY(H/2).strength(0.02))
+     .force("charge", d3.forceManyBody().strength(d=>-(d.radius*S)*18))
+     .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+4));
+}
+
+function freezeSimulation() {
+  if (refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
+  sim.stop(); simRunning = false;
+  sim.on("tick.refit", null).on("end.refit", null).on("tick", null);
+  for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
+  placeLabels(null);
+  centerOnEpstein();
+}
+
+function unfreezeNodes() { for (const d of nodes) { d.fx=null; d.fy=null; } }
+
+function isFullView() { return activeCat === "all"; }
+
+function refitVisibleNodes() {
+  if (refitTimer) clearTimeout(refitTimer);
+  refitTimer = setTimeout(() => {
+    if (!visSet.size) return;
+    if (simRunning) { sim.stop(); simRunning = false; }
+    unfreezeNodes();
+    centerOnVisible(visSet);
+    const panelW = 284+32, cx = panelW+(W-panelW)/2, cy = H/2;
+    sim.force("center", d3.forceCenter(cx,cy).strength(1))
+       .force("x", d3.forceX().x(d => visSet.has(d.id)?cx:d.x).strength(d => visSet.has(d.id)?0.15:0))
+       .force("y", d3.forceY().y(d => visSet.has(d.id)?cy:d.y).strength(d => visSet.has(d.id)?0.15:0))
+       .force("charge", d3.forceManyBody().strength(d => visSet.has(d.id)?-(d.radius*S)*22:0))
+       .force("collision", d3.forceCollide().radius(d => visSet.has(d.id)?(d.radius*S)+6:0));
+    sim.on("tick.refit", scheduleRedraw);
+    sim.on("end.refit", () => {
+      simRunning = false;
+      sim.on("tick.refit",null).on("end.refit",null);
+      restoreDefaultForces();
+      sim.on("tick", scheduleRedraw);
+      placeLabels(visSet);
+      centerOnVisible(visSet);
     });
+    simRunning = true;
+    sim.alpha(0.6).alphaDecay(0.028).alphaTarget(0).restart();
+  }, 100);
+}
 
-    const nodeCats = Object.entries(categories)
-      .filter(([,v])=>v.includes(d.id)).map(([k])=>catNames[k]);
-    let h = `<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
-    if(d.agency) h+=`<div style="font-size:10px;color:#64748b;margin-bottom:4px">${d.agency}</div>`;
-    if(d.role)   h+=`<div><span class="lbl">Role: </span>${d.role}</div>`;
-    if(d.status) h+=`<div><span class="lbl">Status: </span>${d.status}</div>`;
-    if(nodeCats.length) h+=`<div style="margin-top:5px;color:#64748b;font-size:10px">${nodeCats.join(' · ')}</div>`;
-    h+=`<div class="hint">Click to open dossier →</div>`;
+/* ── APPLY FILTERS ── */
+function applyFilters() {
+  invalidateVis();
+  visSet = getVisibleSet();
+  setOpacityTargets();
+  updateStats();
+}
 
-    tipEl.innerHTML = h;
-    tipEl.style.display = "block";
-    /* CHROME: translate3d forces GPU compositing — no layout recalc */
-    tipEl.style.transform = `translate3d(${ev.clientX+15}px,${ev.clientY-10}px,0)`;
-  })
-  .on("mousemove", function(ev) {
-    /* CHROME: separate mousemove handler stays lightweight;
-       only transform is mutated — no innerHTML, no reflow.  */
-    tipEl.style.transform = `translate3d(${ev.clientX+15}px,${ev.clientY-10}px,0)`;
-  })
-  .on("mouseout", function() {
-    requestAnimationFrame(() => {
-      nodeEl.select("circle:last-of-type").attr("opacity",0.9);
-      lblEl.attr("opacity",1);
-      linkEl.attr("stroke-opacity",0.6);
-    });
+function updateStats() {
+  let visL = 0;
+  for (let i = 0; i < links.length; i++) {
+    if (linkStrengths[i] >= minStrength && visSet.has(linkSrcIds[i]) && visSet.has(linkTgtIds[i])) visL++;
+  }
+  document.getElementById("stats").innerHTML =
+    `${visSet.size} of ${nodes.length} nodes · ${visL} of ${links.length} links<br>Scroll to zoom · Drag to pan<br>Hover to highlight · Click for dossier`;
+}
+
+/* ── MOUSE / TOUCH INTERACTION ── */
+const tipEl = document.getElementById("tooltip");
+
+/* Convert screen coords to graph coords */
+function toGraph(cx, cy) {
+  return { x: (cx - tx) / scale, y: (cy - ty) / scale };
+}
+
+function hitTest(gx, gy) {
+  /* Test nodes in reverse order (last drawn = on top) */
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const d = nodes[i];
+    if (!visSet.has(d.id)) continue;
+    const r = d.radius * S;
+    const dx = gx - d.x, dy = gy - d.y;
+    if (dx*dx + dy*dy <= r*r) return d;
+  }
+  return null;
+}
+
+function showTooltip(d, clientX, clientY) {
+  const nodeCats = Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>catNames[k]);
+  let h = `<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
+  if (d.agency) h += `<div style="font-size:10px;color:#64748b;margin-bottom:4px">${d.agency}</div>`;
+  if (d.role)   h += `<div><span class="lbl">Role: </span>${d.role}</div>`;
+  if (d.status) h += `<div><span class="lbl">Status: </span>${d.status}</div>`;
+  if (nodeCats.length) h += `<div style="margin-top:5px;color:#64748b;font-size:10px">${nodeCats.join(' · ')}</div>`;
+  h += `<div class="hint">Click to open dossier →</div>`;
+  tipEl.innerHTML = h;
+  tipEl.style.display = "block";
+  tipEl.style.transform = `translate3d(${clientX+15}px,${clientY-10}px,0)`;
+}
+
+/* Pan/zoom state */
+let isPanning = false, panStartX = 0, panStartY = 0, panStartTx = 0, panStartTy = 0;
+let dragNode = null, dragStartX = 0, dragStartY = 0;
+let mouseDownX = 0, mouseDownY = 0, mouseDownTime = 0;
+
+canvas.addEventListener("mousedown", e => {
+  if (e.button !== 0) return;
+  mouseDownX = e.clientX; mouseDownY = e.clientY; mouseDownTime = Date.now();
+  const g = toGraph(e.clientX, e.clientY);
+  const hit = hitTest(g.x, g.y);
+  if (hit) {
+    dragNode = hit;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    if (isFullView()) { hit.fx = null; hit.fy = null; }
+    else {
+      if (simRunning) { sim.stop(); simRunning=false; sim.on("tick.refit",null).on("end.refit",null); restoreDefaultForces(); }
+      sim.alphaTarget(0.3).restart();
+      hit.fx = hit.x; hit.fy = hit.y;
+    }
+  } else {
+    isPanning = true;
+    panStartX = e.clientX; panStartY = e.clientY;
+    panStartTx = tx; panStartTy = ty;
+  }
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (dragNode) {
+    const g = toGraph(e.clientX, e.clientY);
+    dragNode.fx = g.x; dragNode.fy = g.y;
+    dragNode.x  = g.x; dragNode.y  = g.y;
+    scheduleRedraw();
+    return;
+  }
+  if (isPanning) {
+    tx = panStartTx + (e.clientX - panStartX);
+    ty = panStartTy + (e.clientY - panStartY);
+    scheduleRedraw();
+    return;
+  }
+  /* Hover hit-test */
+  const g = toGraph(e.clientX, e.clientY);
+  const hit = hitTest(g.x, g.y);
+  if (hit !== hoveredNode) {
+    hoveredNode = hit;
+    scheduleRedraw();
+  }
+  if (hit) {
+    showTooltip(hit, e.clientX, e.clientY);
+    canvas.style.cursor = "pointer";
+  } else {
     tipEl.style.display = "none";
-  });
+    canvas.style.cursor = "default";
+  }
+});
 
-/* ════════════════════════════════════════════════════════════
-   DOSSIER
-   ════════════════════════════════════════════════════════════ */
+canvas.addEventListener("mouseup", e => {
+  if (dragNode) {
+    const moved = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
+    const elapsed = Date.now() - mouseDownTime;
+    if (moved < 5 && elapsed < 300) openDossier(dragNode);
+    if (isFullView()) { dragNode.fx = dragNode.x; dragNode.fy = dragNode.y; }
+    else { sim.alphaTarget(0).stop(); dragNode.fx = null; dragNode.fy = null; }
+    dragNode = null;
+    scheduleRedraw();
+  }
+  if (isPanning) {
+    isPanning = false;
+    /* Click on background closes dossier */
+    const moved = Math.hypot(e.clientX - mouseDownX, e.clientY - mouseDownY);
+    if (moved < 5) document.getElementById("dossier").classList.remove("open");
+  }
+});
+
+canvas.addEventListener("mouseleave", () => {
+  hoveredNode = null; isPanning = false; dragNode = null;
+  tipEl.style.display = "none";
+  scheduleRedraw();
+});
+
+canvas.addEventListener("wheel", e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.91;
+  const newScale = Math.max(0.1, Math.min(8, scale * factor));
+  /* Zoom toward cursor */
+  tx = e.clientX - (e.clientX - tx) * (newScale / scale);
+  ty = e.clientY - (e.clientY - ty) * (newScale / scale);
+  scale = newScale;
+  scheduleRedraw();
+}, { passive: false });
+
+/* Touch support */
+let lastTouchDist = 0, touchPanX = 0, touchPanY = 0;
+canvas.addEventListener("touchstart", e => {
+  if (e.touches.length === 2) {
+    lastTouchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+  } else if (e.touches.length === 1) {
+    touchPanX = e.touches[0].clientX; touchPanY = e.touches[0].clientY;
+    panStartTx = tx; panStartTy = ty;
+  }
+}, {passive:true});
+canvas.addEventListener("touchmove", e => {
+  e.preventDefault();
+  if (e.touches.length === 2) {
+    const d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    const factor = d / lastTouchDist;
+    const mx = (e.touches[0].clientX+e.touches[1].clientX)/2;
+    const my = (e.touches[0].clientY+e.touches[1].clientY)/2;
+    const ns = Math.max(0.1, Math.min(8, scale*factor));
+    tx = mx - (mx-tx)*(ns/scale); ty = my - (my-ty)*(ns/scale); scale = ns;
+    lastTouchDist = d;
+  } else if (e.touches.length === 1) {
+    tx = panStartTx + (e.touches[0].clientX - touchPanX);
+    ty = panStartTy + (e.touches[0].clientY - touchPanY);
+  }
+  scheduleRedraw();
+}, {passive:false});
+
+/* ── DOSSIER ── */
 function openDossier(d) {
   tipEl.style.display = "none";
-  const color  = C[d.type]||"#64748b";
-  const light  = Clight[d.type]||"rgba(100,116,139,0.1)";
+  const color = C[d.type]||"#64748b";
+  const light = Clight[d.type]||"rgba(100,116,139,0.1)";
   const border = Cborder[d.type]||"rgba(100,116,139,0.25)";
   const isCore = coreSet.has(d.id);
-
-  document.getElementById("dossier-name").textContent   = d.label;
+  document.getElementById("dossier-name").textContent = d.label;
   const agEl = document.getElementById("dossier-agency");
-  agEl.textContent    = d.agency||"";
-  agEl.style.display  = d.agency?"block":"none";
+  agEl.textContent = d.agency||""; agEl.style.display = d.agency?"block":"none";
   const roEl = document.getElementById("dossier-role");
-  roEl.textContent    = d.role||"";
-  roEl.style.display  = d.role?"block":"none";
-
+  roEl.textContent = d.role||""; roEl.style.display = d.role?"block":"none";
   const statusEl = document.getElementById("dossier-status");
-  if(d.status){
-    statusEl.textContent    = d.status;
-    statusEl.style.display  = "inline-block";
-    const isDead  = /DECEASED|DIED/.test(d.status);
-    const isConv  = /CONVICTED/.test(d.status);
-    const isFled  = /FLED/.test(d.status);
-    const isImm   = /IMMUNITY/.test(d.status);
+  if (d.status) {
+    statusEl.textContent = d.status; statusEl.style.display = "inline-block";
+    const isDead=/DECEASED|DIED/.test(d.status), isConv=/CONVICTED/.test(d.status);
+    const isFled=/FLED/.test(d.status), isImm=/IMMUNITY/.test(d.status);
     statusEl.style.background = isDead?"rgba(100,116,139,0.1)":isConv?"rgba(248,113,113,0.1)":isFled?"rgba(251,146,60,0.1)":isImm?"rgba(250,204,21,0.1)":light;
-    statusEl.style.color      = isDead?"#64748b":isConv?"#f87171":isFled?"#fb923c":isImm?"#facc15":color;
-    statusEl.style.border     = "1px solid "+(isDead?"rgba(100,116,139,0.2)":isConv?"rgba(248,113,113,0.2)":isFled?"rgba(251,146,60,0.2)":isImm?"rgba(250,204,21,0.2)":border);
-  } else {
-    statusEl.style.display = "none";
-  }
-
+    statusEl.style.color = isDead?"#64748b":isConv?"#f87171":isFled?"#fb923c":isImm?"#facc15":color;
+    statusEl.style.border = "1px solid "+(isDead?"rgba(100,116,139,0.2)":isConv?"rgba(248,113,113,0.2)":isFled?"rgba(251,146,60,0.2)":isImm?"rgba(250,204,21,0.2)":border);
+  } else { statusEl.style.display = "none"; }
   const nwEl = document.getElementById("dossier-networth");
-  nwEl.textContent   = d.networth||"";
-  nwEl.style.display = d.networth?"inline-block":"none";
-
+  nwEl.textContent = d.networth||""; nwEl.style.display = d.networth?"inline-block":"none";
   const stamps={center:"TARGET",convicted:"CONVICTED",suspicious:"SUSPECT",possibly:"MONITOR"};
   document.getElementById("dossier-stamp").textContent = stamps[d.type]||"FILE";
-
   const body = document.getElementById("dossier-body");
   const parts = [];
-
-  if(isCore) parts.push(`<div style="margin-bottom:16px"><span class="core-badge">⬤ OPERATIONAL RING</span></div>`);
-
+  if (isCore) parts.push(`<div style="margin-bottom:16px"><span class="core-badge">⬤ OPERATIONAL RING</span></div>`);
   const isUncertain = categories.uncertain.includes(d.id) && !categories.named.includes(d.id);
-  if(isUncertain) parts.push(`<div class="dossier-callout gray" style="margin-bottom:16px">⚠ Documented connection — role uncertain. Not named under oath. May be a client, a leverage target, or a social contact. This file reflects documented contact, not proven participation.</div>`);
-
-  if(d.intelRole)    parts.push(`<div class="dossier-section"><h3>Intelligence Assessment</h3><div class="dossier-callout red">${d.intelRole}</div></div>`);
-  if(d.epsteinLink)  parts.push(`<div class="dossier-section"><h3>Epstein Connection</h3><div class="dossier-callout">${d.epsteinLink}</div></div>`);
-  if(d.significance) parts.push(`<div class="dossier-section"><h3>Why This Matters</h3><div class="dossier-callout blue">${d.significance}</div></div>`);
-  if(d.desc)         parts.push(`<div class="dossier-section"><h3>Summary</h3><p>${d.desc}</p></div>`);
-  if(d.evidence)     parts.push(`<div class="dossier-section"><h3>Evidence</h3><p>${d.evidence}</p></div>`);
-  if(d.link)         parts.push(`<div class="dossier-section"><h3>Analyst Note</h3><p style="color:#64748b;font-style:italic">${d.link}</p></div>`);
-
+  if (isUncertain) parts.push(`<div class="dossier-callout gray" style="margin-bottom:16px">⚠ Documented connection — role uncertain.</div>`);
+  if (d.intelRole)    parts.push(`<div class="dossier-section"><h3>Intelligence Assessment</h3><div class="dossier-callout red">${d.intelRole}</div></div>`);
+  if (d.epsteinLink)  parts.push(`<div class="dossier-section"><h3>Epstein Connection</h3><div class="dossier-callout">${d.epsteinLink}</div></div>`);
+  if (d.significance) parts.push(`<div class="dossier-section"><h3>Why This Matters</h3><div class="dossier-callout blue">${d.significance}</div></div>`);
+  if (d.desc)         parts.push(`<div class="dossier-section"><h3>Summary</h3><p>${d.desc}</p></div>`);
+  if (d.evidence)     parts.push(`<div class="dossier-section"><h3>Evidence</h3><p>${d.evidence}</p></div>`);
+  if (d.link)         parts.push(`<div class="dossier-section"><h3>Analyst Note</h3><p style="color:#64748b;font-style:italic">${d.link}</p></div>`);
   const nodeCats = Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>k);
-  if(nodeCats.length){
-    parts.push(`<div class="dossier-section"><h3>Network Role</h3><div style="display:flex;gap:4px;flex-wrap:wrap">${
-      nodeCats.map(c=>`<span class="cat-tag" style="background:${catColors[c]}">${catNames[c]}</span>`).join("")
-    }</div></div>`);
-  }
-
+  if (nodeCats.length) parts.push(`<div class="dossier-section"><h3>Network Role</h3><div style="display:flex;gap:4px;flex-wrap:wrap">${nodeCats.map(c=>`<span class="cat-tag" style="background:${catColors[c]}">${catNames[c]}</span>`).join("")}</div></div>`);
   parts.push(`<div class="dossier-section"><h3>Profile</h3>
     <div class="dossier-field"><div class="fl">Subject ID</div><div class="fv" style="font-family:ui-monospace,monospace;color:${color}">${d.id.toUpperCase()}</div></div>
     <div class="dossier-field"><div class="fl">Classification</div><div class="fv">${typeLabel[d.type]||d.type}</div></div>
-    ${d.networth?`<div class="dossier-field"><div class="fl">Net Worth</div><div class="fv">${d.networth}</div></div>`:""}
-  </div>`);
-
-  /* Build connections from links array */
+    ${d.networth?`<div class="dossier-field"><div class="fl">Net Worth</div><div class="fv">${d.networth}</div></div>`:""}</div>`);
   const conns = [];
   for (const l of links) {
     const sid=l.source.id||l.source, tid=l.target.id||l.target;
-    if(sid===d.id){ const t=nodeMap.get(tid); if(t) conns.push({node:t,strength:l.strength||0.5,direction:"→"}); }
-    if(tid===d.id){ const s=nodeMap.get(sid); if(s) conns.push({node:s,strength:l.strength||0.5,direction:"←"}); }
+    if (sid===d.id) { const t=nodeMap.get(tid); if(t) conns.push({node:t,strength:l.strength||0.5,direction:"→"}); }
+    if (tid===d.id) { const s=nodeMap.get(sid); if(s) conns.push({node:s,strength:l.strength||0.5,direction:"←"}); }
   }
   conns.sort((a,b)=>b.strength-a.strength);
-
   parts.push(`<div class="dossier-section"><h3>Connections (${conns.length})</h3><ul class="conn-list">${
     conns.map(c=>{
       const sc=c.strength>=0.7?"str-high":c.strength>=0.4?"str-med":"str-low";
@@ -714,312 +859,77 @@ function openDossier(d) {
       return `<li data-id="${c.node.id}"><span class="conn-name"><span style="color:${C[c.node.type]||'#64748b'}">●</span> ${c.direction} ${c.node.label}${opTag}</span><span class="conn-strength ${sc}">${Math.round(c.strength*100)}%</span></li>`;
     }).join("")
   }</ul></div>`);
-
   const threatLevel=d.type==="center"?"CRITICAL":d.type==="convicted"?"HIGH":isCore?"HIGH":conns.length>10?"ELEVATED":conns.length>5?"MODERATE":"LOW";
   const tC={CRITICAL:"#f87171",HIGH:"#fb923c",ELEVATED:"#fbbf24",MODERATE:"#818cf8",LOW:"#475569"};
-  const tB={CRITICAL:"rgba(248,113,113,0.1)",HIGH:"rgba(251,146,60,0.1)",ELEVATED:"rgba(251,191,36,0.1)",MODERATE:"rgba(129,140,248,0.1)",LOW:"rgba(71,85,105,0.1)"};
+  const tB={CRITICAL:"rgba(248,113,113,0.1)",HIGH:"rgba(251,146,0.1)",ELEVATED:"rgba(251,191,36,0.1)",MODERATE:"rgba(129,140,248,0.1)",LOW:"rgba(71,85,105,0.1)"};
   parts.push(`<div class="dossier-section"><h3>Assessment</h3>
     <span class="threat-badge" style="background:${tB[threatLevel]};color:${tC[threatLevel]};border:1px solid ${tC[threatLevel]}30">${threatLevel}</span>
-    <div style="margin-top:8px;color:#475569;font-size:11px">${conns.length} direct connections · Network weight: ${d.radius}</div>
-  </div>`);
-
+    <div style="margin-top:8px;color:#475569;font-size:11px">${conns.length} direct connections · Network weight: ${d.radius}</div></div>`);
   parts.push(`<div style="margin-top:24px;padding-top:12px;border-top:1px solid #334155;color:#334155;font-size:9px;text-align:center;letter-spacing:0.5px">FILE REF: EP-NET-${d.id.toUpperCase()} · CLASSIFICATION: RESTRICTED</div>`);
-
-  /* Single innerHTML write — one layout recalc */
   body.innerHTML = parts.join("");
-
-  /* Event delegation for connection list */
   body.querySelector(".conn-list")?.addEventListener("click", e => {
     const li = e.target.closest("li[data-id]");
-    if(!li) return;
+    if (!li) return;
     const t = nodeMap.get(li.dataset.id);
-    if(t){ body.scrollTop=0; openDossier(t); }
+    if (t) { body.scrollTop=0; openDossier(t); }
   });
-
   document.getElementById("dossier").classList.add("open");
   document.getElementById("dossier").scrollTop = 0;
 }
 
-nodeEl.on("click", function(ev,d){ ev.stopPropagation(); openDossier(d); });
 document.getElementById("dossier-close").addEventListener("click", () => document.getElementById("dossier").classList.remove("open"));
-svg.on("click", () => document.getElementById("dossier").classList.remove("open"));
 
-/* ════════════════════════════════════════════════════════════
-   FILTER SYSTEM
-   CHROME: Visibility-set is cached and only invalidated when
-   filter state changes. All DOM writes batched in rAF.
-   Direct raw-element arrays (nodeEls/lblEls/linkEls) bypass
-   D3 selection overhead entirely on the hot path.            ════════════════════════════════════════════════════════════ */
-let activeCat   = "all";
-let _visCache   = null;
-let filterRaf   = null;
-
-function invalidateVis() { _visCache = null; }
-
-function getVisibleSet() {
-  if (_visCache) return _visCache;
-
-  const at = new Set();
-  document.querySelectorAll(".tf").forEach(el => { if(el.checked) at.add(el.value); });
-  const ms  = +document.getElementById("str").value;
-  const so  = document.getElementById("orphans").checked;
-  const catSet = activeCat !== "all" ? new Set(categories[activeCat]||[]) : null;
-
-  let linkedSet = null;
-  if(!so) {
-    linkedSet = new Set();
-    for (const l of links) {
-      if((l.strength||0.5) >= ms) {
-        linkedSet.add(l.source.id||l.source);
-        linkedSet.add(l.target.id||l.target);
-      }
-    }
-  }
-
-  const vis = new Set();
-  for (const d of nodes) {
-    if(!at.has(d.type))                   continue;
-    if(catSet && !catSet.has(d.id))       continue;
-    if(linkedSet && !linkedSet.has(d.id)) continue;
-    vis.add(d.id);
-  }
-  _visCache = vis;
-  return vis;
-}
-
-function applyFilters() {
-  if(filterRaf) return;
-  filterRaf = requestAnimationFrame(() => { filterRaf = null; applyFiltersNow(); });
-}
-
-/* CHROME: Pre-built raw DOM element arrays eliminate D3 selection
-   overhead (no .nodes() call, no .each() callback overhead,
-   no selection proxy object allocation per element) on every filter. */
-const nodeEls  = nodeEl.nodes();
-const lblEls   = lblEl.nodes();
-const linkEls  = linkEl.nodes();
-
-/* Pre-cache lower-case labels for O(1) search comparison */
-const nodeLabelLC = nodes.map(n => n.label.toLowerCase());
-
-/* CHROME: Pre-cache source/target IDs as strings to avoid
-   repeated (l.source.id||l.source) coercion in the hot loop */
-const linkSrcIds = links.map(l => l.source.id||l.source);
-const linkTgtIds = links.map(l => l.target.id||l.target);
-const linkStrengths = new Float32Array(links.map(l => l.strength||0.5));
-
-const prevVis = new Set();
-
-function applyFiltersNow() {
-  const q          = document.getElementById("search").value.toLowerCase();
-  const showLabels = document.getElementById("labels").checked;
-  const ms         = +document.getElementById("str").value;
-  const vis        = getVisibleSet();
-
-  /* ── Nodes — raw DOM, no D3 overhead ── */
-  for (let i = 0, len = nodes.length; i < len; i++) {
-    const id  = nodes[i].id;
-    const nel = nodeEls[i];
-    const lel = lblEls[i];
-    const v   = vis.has(id);
-    const m   = !q || nodeLabelLC[i].includes(q);
-
-    /* CHROME: setting display on the group is a single paint invalidation
-       that covers all children, cheaper than per-child style changes.   */
-    nel.style.display = v ? "" : "none";
-
-    const circ = nel.lastElementChild;
-    const targetOpacity = (v && m) ? "0.9" : "0.12";
-
-    if (v && !prevVis.has(nodes[i].id) && circ) {
-      /* Newly visible: start at 0, add transition class, then flip
-         to target opacity in the next frame so Chrome interpolates  */
-      circ.classList.add("node-fade");
-      circ.style.opacity = "0";
-      requestAnimationFrame(() => {
-        circ.style.opacity = targetOpacity;
-      });
-    } else if (circ) {
-      circ.style.opacity = targetOpacity;
-    }
-
-    lel.style.display  = (v && showLabels) ? "" : "none";
-    lel.style.opacity  = m ? "1" : "0.08";
-  }
-
-  prevVis.clear();
-  for (const id of vis) prevVis.add(id);
-
-  /* ── Links — raw DOM, pre-cached IDs ── */
-  for (let i = 0, len = links.length; i < len; i++) {
-    /* CHROME: TypedArray access (Float32Array) is ~3× faster than
-       object property lookup in tight loops.                       */
-    linkEls[i].style.display =
-      (linkStrengths[i] >= ms && vis.has(linkSrcIds[i]) && vis.has(linkTgtIds[i]))
-        ? "" : "none";
-  }
-
-  /* ── Stats — cheap text-only update ── */
-  let visN = vis.size, visL = 0;
-  for (let i = 0, len = links.length; i < len; i++) {
-    if (linkStrengths[i] >= ms && vis.has(linkSrcIds[i]) && vis.has(linkTgtIds[i])) visL++;
-  }
-  document.getElementById("stats").innerHTML =
-    `${visN} of ${nodes.length} nodes · ${visL} of ${links.length} links<br>Scroll to zoom · Drag to move<br>Hover to highlight · Click for dossier`;
-}
-
-/* Initial render */
-applyFiltersNow();
-requestAnimationFrame(centerOnEpstein);
-
-let refitTimer  = null;
-let simRunning  = false;
-
-function restoreDefaultForces() {
-  sim
-    .force("center",    d3.forceCenter(W/2, H/2))
-    .force("x",         d3.forceX(W/2).strength(0.02))
-    .force("y",         d3.forceY(H/2).strength(0.02))
-    .force("charge",    d3.forceManyBody().strength(d => -(d.radius*S)*18))
-    .force("collision", d3.forceCollide().radius(d => (d.radius*S)+4));
-}
-
-/* Hard-stop the simulation and restore every node to its original
-   settled position from the initial 300-tick layout.
-   Called BEFORE applyFilters — nodes are already at their correct
-   spread-out positions when they become visible, so no clustering
-   or bouncing occurs.  Position writes are synchronous (no rAF). */
-function freezeSimulation() {
-  if(refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
-  sim.stop();
-  simRunning = false;
-  sim.on("tick.refit", null).on("end.refit", null).on("tick", null);
-  /* Restore original spread positions, then pin */
-  for (const d of nodes) { d.x = d._ox; d.y = d._oy; d.fx = d._ox; d.fy = d._oy; }
-  /* Synchronous DOM write so Chrome sees correct positions before
-     applyFilters makes nodes visible — zero bounce frames.       */
-  linkEl
-    .attr("x1", d=>d.source.x).attr("y1", d=>d.source.y)
-    .attr("x2", d=>d.target.x).attr("y2", d=>d.target.y);
-  nodeEl.attr("transform", d=>`translate(${d.x},${d.y})`);
-  lblEl.attr("x", d=>d.x).attr("y", d=>d.y);
-  centerOnEpstein();
-}
-
-function centerOnEpstein() {
-  const ep = nodes.find(d => d.id === "epstein");
-  if (!ep) return;
-  const scale = 1.1;
-  const tx = W / 2 - ep._ox * scale;
-  const ty = H / 2 - ep._oy * scale;
-  svg.transition()
-    .duration(700)
-    .ease(d3.easeCubicInOut)
-    .call(d3.zoom().transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-}
-
-function unfreezeNodes() {
-  for (const d of nodes) { d.fx = null; d.fy = null; }
-}
-
-function refitVisibleNodes(){
-  if(refitTimer) clearTimeout(refitTimer);
-  refitTimer = setTimeout(() => {
-    const vis = getVisibleSet();
-    if(!vis.size) return;
-
-    if(simRunning) { sim.stop(); simRunning = false; }
-    unfreezeNodes();
-
-    const panelW = 284+32;
-    const cx = panelW + (W-panelW)/2, cy = H/2;
-
-    sim
-      .force("center",    d3.forceCenter(cx, cy).strength(1))
-      .force("x",         d3.forceX().x(d  => vis.has(d.id) ? cx : d.x).strength(d => vis.has(d.id) ? 0.15 : 0))
-      .force("y",         d3.forceY().y(d  => vis.has(d.id) ? cy : d.y).strength(d => vis.has(d.id) ? 0.15 : 0))
-      .force("charge",    d3.forceManyBody().strength(d => vis.has(d.id) ? -(d.radius*S)*22 : 0))
-      .force("collision", d3.forceCollide().radius(d => vis.has(d.id) ? (d.radius*S)+6 : 0));
-
-    /* Named handlers prevent accidental stacking */
-    sim.on("tick.refit", schedulePositionUpdate);
-    sim.on("end.refit", () => {
-      simRunning = false;
-      sim.on("tick.refit", null).on("end.refit", null);
-      restoreDefaultForces();
-      sim.on("tick", schedulePositionUpdate);
-    });
-
-    simRunning = true;
-    sim.alpha(0.6).alphaDecay(0.028).alphaTarget(0).restart();
-  }, 100);
-}
-
-/* ── isFullView: true when the category is "All" (no sub-filter).
-   Checkbox/slider state is irrelevant — what matters is whether
-   we're trying to show the entire graph, in which case the sim
-   must stay dead.                                               ── */
-function isFullView() {
-  return activeCat === "all";
-}
-
-/* ── Event wiring ── */
+/* ── EVENT WIRING ── */
 document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     activeCat = btn.dataset.cat;
-    invalidateVis();
-    /* Freeze BEFORE applyFilters so nodes are already pinned when
-       they become visible — no single frame of bouncing.          */
     if (isFullView()) freezeSimulation();
     applyFilters();
     if (!isFullView()) refitVisibleNodes();
   });
 });
 
-/* CHROME: passive:true on input events lets Chrome skip waiting
-   for preventDefault() and avoids scroll-blocking.              */
-document.getElementById("search").addEventListener("input", applyFilters, {passive:true});
+document.getElementById("search").addEventListener("input", function() {
+  searchQuery = this.value.toLowerCase();
+  scheduleRedraw();
+}, {passive:true});
 
 document.querySelectorAll(".tf").forEach(el => el.addEventListener("change", () => {
-  invalidateVis();
   if (isFullView()) freezeSimulation();
   applyFilters();
   if (!isFullView()) refitVisibleNodes();
 }));
 
-document.getElementById("str").addEventListener("input", function(){
+document.getElementById("str").addEventListener("input", function() {
   document.getElementById("sv").textContent = this.value;
-  invalidateVis();
+  minStrength = +this.value;
   if (isFullView()) freezeSimulation();
   applyFilters();
   if (!isFullView()) refitVisibleNodes();
 }, {passive:true});
 
-document.getElementById("labels").addEventListener("change", applyFilters);
-document.getElementById("orphans").addEventListener("change", () => {
-  invalidateVis();
+document.getElementById("labels").addEventListener("change", function() {
+  showLabels = this.checked; scheduleRedraw();
+});
+
+document.getElementById("orphans").addEventListener("change", function() {
+  showOrphans = this.checked;
   if (isFullView()) freezeSimulation();
   applyFilters();
   if (!isFullView()) refitVisibleNodes();
 });
 
-/* ════════════════════════════════════════════════════════════
-   WRITEUP SYSTEM
-   ════════════════════════════════════════════════════════════ */
+/* ── WRITEUP SYSTEM ── */
 function renderWriteup(key) {
   const w = (typeof WRITEUPS !== 'undefined') && WRITEUPS[key];
   if (!w) return;
   const parts = [`<div class="writeup-header"><div class="writeup-title">${w.title}</div><div class="writeup-subtitle">${w.subtitle}</div></div>`];
   w.sections.forEach(s => {
     parts.push(`<div class="writeup-section${s.closing?' writeup-closing':''}">`);
-    if(s.title) parts.push(`<div class="writeup-section-title">${s.title}</div>`);
-    s.content.forEach(c => {
-      parts.push(c.type==="pullquote"
-        ?`<div class="writeup-pullquote"><p>${c.text}</p></div>`
-        :`<p>${c.text}</p>`);
-    });
+    if (s.title) parts.push(`<div class="writeup-section-title">${s.title}</div>`);
+    s.content.forEach(c => { parts.push(c.type==="pullquote"?`<div class="writeup-pullquote"><p>${c.text}</p></div>`:`<p>${c.text}</p>`); });
     parts.push(`</div>`);
   });
   document.getElementById("writeup-content").innerHTML = parts.join("");
@@ -1028,16 +938,22 @@ function renderWriteup(key) {
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   document.querySelector(`.nav-btn[data-writeup="${key}"]`)?.classList.add("active");
 }
-
 function closeWriteup() {
   document.getElementById("writeup-overlay").classList.remove("visible");
   document.getElementById("writeup-close").style.display = "none";
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
 }
-
 document.querySelectorAll(".nav-btn[data-writeup]").forEach(btn => {
   btn.addEventListener("click", () => renderWriteup(btn.dataset.writeup));
 });
+
+/* ── INIT ── */
+applyFilters();
+requestAnimationFrame(() => {
+  placeLabels(null);
+  centerOnEpstein();
+});
+sim.on("tick", scheduleRedraw);
 </script>
 </body>
 </html>
