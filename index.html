@@ -176,29 +176,50 @@ const lStr=new Float32Array(links.map(l=>l.strength||0.5));
 const adjIndex=new Map();
 for(const n of nodes) adjIndex.set(n.id,new Set([n.id]));
 
-const sim=d3.forceSimulation(nodes)
-  .force("link",d3.forceLink(links).id(d=>d.id).distance(d=>55/(d.strength||0.5)).strength(d=>(d.strength||0.5)*0.7))
-  .force("charge",d3.forceManyBody().strength(d=>-(d.radius*S)*14).distanceMax(500))
-  .force("center",d3.forceCenter(W/2,H/2))
-  .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+16).strength(1.0).iterations(4))
-  .force("x",d3.forceX(W/2).strength(0.06))
-  .force("y",d3.forceY(H/2).strength(0.06))
-  .velocityDecay(0.4).alphaDecay(0.012).stop();
+// ── Scatter nodes randomly around center (not radially) ──
+{
+  nodes.forEach((d)=>{
+    d.x=W/2+(Math.random()-0.5)*W*0.6;
+    d.y=H/2+(Math.random()-0.5)*H*0.6;
+  });
+}
 
-for(const d of nodes){d.x=W/2+(Math.random()-0.5)*W*0.7;d.y=H/2+(Math.random()-0.5)*H*0.7;}
- /* Pin Epstein to center during initial settle */
+// ── Standard force-directed layout: runs live, never blocks ──
+const sim=d3.forceSimulation(nodes)
+  .force("link",d3.forceLink(links).id(d=>d.id)
+    .distance(d=>{
+      const str=d.strength||0.5;
+      return 40+((1-str)*80);
+    })
+    .strength(d=>(d.strength||0.5)*0.6))
+  .force("charge",d3.forceManyBody()
+    .strength(-120)
+    .distanceMin(10)
+    .distanceMax(600))
+  .force("center",d3.forceCenter(W/2,H/2))
+  .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+4).strength(0.7).iterations(2))
+  .force("x",d3.forceX(W/2).strength(0.04))
+  .force("y",d3.forceY(H/2).strength(0.04))
+  .velocityDecay(0.4)
+  .alphaDecay(0.02)
+  .alphaMin(0.001)
+  .on("tick",()=>{
+    for(const d of nodes){d._ox=d.x;d._oy=d.y;}
+    scheduleRedraw();
+  });
+
 const epInit=nodeMap.get("epstein");
 if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=H/2;}
-sim.alpha(1);
-for(let i=0;i<1000;i++) sim.tick();
-/* Save Epstein's pinned position */
-if(epInit){epInit._ox=W/2;epInit._oy=H/2;}
 
+// resolve adjacency immediately (links are still raw strings here)
 for(let i=0;i<links.length;i++){
-  const l=links[i],s=l.source.id||l.source,t=l.target.id||l.target;
+  const l=links[i];
+  const s=typeof l.source==='object'?l.source.id:l.source;
+  const t=typeof l.target==='object'?l.target.id:l.target;
   adjIndex.get(s)?.add(t); adjIndex.get(t)?.add(s);
   lSrcIds[i]=s; lTgtIds[i]=t;
 }
+if(epInit){epInit._ox=W/2;epInit._oy=H/2;}
 nodes.forEach(d=>{d._ox=d.x;d._oy=d.y;});
 
 let activeCat="all",_visCache=null,visSet=new Set(),hoveredNode=null,searchQuery="",showLabels=true,minStrength=0,showOrphans=true;
@@ -303,7 +324,7 @@ function draw(){
   }
   ctx.globalAlpha=1;
 
-  /* labels — reads _lx/_ly offsets written by placeLabels() */
+  /* labels */
   if(showLabels){
     const fs=Math.max(6,Math.min(9,7/Math.sqrt(Math.max(0.3,scale))));
     ctx.font=`500 ${fs}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
@@ -381,10 +402,10 @@ function setOpTgt(){
 let simRunning=false,refitTimer=null;
 function restoreForces(){
   sim.force("center",d3.forceCenter(W/2,H/2))
-     .force("x",d3.forceX(W/2).strength(0.06))
-     .force("y",d3.forceY(H/2).strength(0.06))
-     .force("charge",d3.forceManyBody().strength(d=>-(d.radius*S)*14).distanceMax(500))
-     .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+16).strength(1.0).iterations(4));
+     .force("charge",d3.forceManyBody().strength(-120).distanceMin(10).distanceMax(600))
+     .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+4).strength(0.7).iterations(2))
+     .force("x",d3.forceX(W/2).strength(0.04))
+     .force("y",d3.forceY(H/2).strength(0.04));
 }
 function stopSim(){
   if(refitTimer){clearTimeout(refitTimer);refitTimer=null;}
@@ -392,11 +413,7 @@ function stopSim(){
 }
 
 function resolveOverlaps(){
-  /* Run collision-only passes on current positions */
-  const colForce=d3.forceCollide().radius(d=>visSet.has(d.id)?(d.radius*S)+16:0).strength(1.0).iterations(6);
-  colForce.initialize(nodes,()=>1);
-  for(let i=0;i<80;i++) colForce(0.3);
-  for(const d of nodes){d._ox=d.x;d._oy=d.y;d.fx=d.x;d.fy=d.y;}
+  /* No longer pin nodes — let the live sim handle it */
 }
 
 function refitVis(){
@@ -404,36 +421,41 @@ function refitVis(){
   refitTimer=setTimeout(()=>{
     const vis=getVisibleSet(); if(!vis.size) return;
     stopSim();
-    /* Unpin all */
+    /* Unpin all nodes so they can flow naturally */
     for(const d of nodes){d.fx=null;d.fy=null;}
-    /* Keep Epstein pinned to center in All view */
+    /* Pin Epstein to center in All view */
     if(activeCat==="all"){
       const ep=nodeMap.get("epstein");
       if(ep){ep.fx=W/2;ep.fy=H/2;ep.x=W/2;ep.y=H/2;}
     }
     const cx=W/2,cy=H/2,vc=vis.size;
-    const cm=vc<15?22:vc<40?16:12;
-    const cs=vc<15?0.35:vc<40?0.22:0.14;
-    sim.force("center",d3.forceCenter(cx,cy).strength(1))
-       .force("x",d3.forceX(cx).strength(d=>vis.has(d.id)?cs:0))
-       .force("y",d3.forceY(cy).strength(d=>vis.has(d.id)?cs:0))
-       .force("charge",d3.forceManyBody().strength(d=>vis.has(d.id)?-(d.radius*S)*cm:0).distanceMax(500))
-       .force("collision",d3.forceCollide().radius(d=>vis.has(d.id)?(d.radius*S)+16:0).strength(1.0).iterations(4));
+    /* Scale forces based on how many nodes are visible */
+    const chargeStr=vc<15?-200:vc<40?-150:-120;
+    const centerStr=vc<15?0.12:vc<40?0.08:0.04;
+    sim.force("center",d3.forceCenter(cx,cy))
+       .force("charge",d3.forceManyBody().strength(d=>vis.has(d.id)?chargeStr:0).distanceMin(10).distanceMax(600))
+       .force("collision",d3.forceCollide().radius(d=>vis.has(d.id)?(d.radius*S)+4:0).strength(0.7).iterations(2))
+       .force("x",d3.forceX(cx).strength(d=>vis.has(d.id)?centerStr:0))
+       .force("y",d3.forceY(cy).strength(d=>vis.has(d.id)?centerStr:0));
+    /* Re-scatter hidden nodes toward visible positions so they don't drag layout */
+    for(const d of nodes){
+      if(!vis.has(d.id)){d.x=cx;d.y=cy;}
+    }
     sim.on("tick.r",()=>{
       for(const d of nodes)if(vis.has(d.id)){d._ox=d.x;d._oy=d.y;}
       scheduleRedraw();
     });
     sim.on("end.r",()=>{
-      simRunning=false;sim.on("tick.r",null).on("end.r",null);sim.stop();
-      for(const d of nodes){d.fx=d.x;d.fy=d.y;d._ox=d.x;d._oy=d.y;}
-      /* Ensure Epstein stays dead center in All view */
+      simRunning=false;sim.on("tick.r",null).on("end.r",null);
+      /* Do NOT pin nodes — let them stay interactive */
+      for(const d of nodes){d._ox=d.x;d._oy=d.y;}
       if(activeCat==="all"){
         const ep=nodeMap.get("epstein");
-        if(ep){ep.fx=W/2;ep.fy=W/2;ep.x=W/2;ep.y=H/2;ep._ox=W/2;ep._oy=H/2;}
+        if(ep){ep.fx=W/2;ep.fy=H/2;ep._ox=W/2;ep._oy=H/2;}
       }
       restoreForces();scheduleRedraw();
     });
-    simRunning=true;sim.alpha(0.8).alphaDecay(0.022).alphaTarget(0).restart();
+    simRunning=true;sim.alpha(1).alphaDecay(0.02).alphaTarget(0).restart();
   },80);
 }
 
@@ -487,8 +509,12 @@ canvas.addEventListener("mouseup",e=>{
   if(dragNode){
     const moved=Math.hypot(e.clientX-dragSX,e.clientY-dragSY),elapsed=Date.now()-mdT;
     if(moved<5&&elapsed<300) openDossier(dragNode);
-    dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;dragNode.fx=dragNode.x;dragNode.fy=dragNode.y;
-    dragNode=null;sim.alphaTarget(0).alpha(0.0001);
+    dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;
+    /* Release the node — don't keep it pinned */
+    dragNode.fx=null;dragNode.fy=null;
+    /* But keep Epstein pinned */
+    if(dragNode.id==="epstein"&&activeCat==="all"){dragNode.fx=W/2;dragNode.fy=H/2;}
+    dragNode=null;sim.alphaTarget(0).alpha(0.1).restart();
     scheduleRedraw();
   }
   if(isPanning){
@@ -497,7 +523,12 @@ canvas.addEventListener("mouseup",e=>{
   }
 });
 canvas.addEventListener("mouseleave",()=>{
-  if(dragNode){dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;dragNode.fx=dragNode.x;dragNode.fy=dragNode.y;dragNode=null;sim.alphaTarget(0).alpha(0.0001);}
+  if(dragNode){
+    dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;
+    dragNode.fx=null;dragNode.fy=null;
+    if(dragNode.id==="epstein"&&activeCat==="all"){dragNode.fx=W/2;dragNode.fy=H/2;}
+    dragNode=null;sim.alphaTarget(0).alpha(0.1).restart();
+  }
   hoveredNode=null;isPanning=false;tipEl.style.display="none";scheduleRedraw();
 });
 canvas.addEventListener("wheel",e=>{
@@ -592,9 +623,7 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>btn.addEventList
   document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active"); activeCat=btn.dataset.cat;
   stopSim();
-  /* Always unpin and re-run sim so collisions resolve */
   for(const d of nodes){d.fx=null;d.fy=null;d.x=d._ox;d.y=d._oy;}
-  /* Pin Epstein to center when viewing All */
   if(activeCat==="all"){
     const ep=nodeMap.get("epstein");
     if(ep){ep.x=W/2;ep.y=H/2;ep.fx=W/2;ep.fy=H/2;ep._ox=W/2;ep._oy=H/2;}
@@ -605,7 +634,6 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>btn.addEventList
 
 document.querySelectorAll(".tf").forEach(el=>{if(el.value==="possibly")el.checked=false;});
 applyFilters();
-resolveOverlaps();
 
 {
   const vn=nodes.filter(d=>visSet.has(d.id));

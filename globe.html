@@ -136,6 +136,7 @@ canvas{display:block;width:100%;height:100%}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 <script src="list.js?v=33"></script>
 <script src="list2.js?v=33"></script>
 <script src="dates.js?v=3"></script>
@@ -394,27 +395,121 @@ camera.position.z = 2.8;
 /* ── GLOBE GEOMETRY ── */
 const GLOBE_R = 1.0;
 
-// Earth-like sphere with dark ocean shader
-const globeGeo  = new THREE.SphereGeometry(GLOBE_R, 64, 64);
-const globeMat  = new THREE.MeshPhongMaterial({
-  color: 0x0a1628,
-  emissive: 0x020408,
-  shininess: 12,
-  transparent: true,
-  opacity: 0.95,
+/* ── GLOBE TEXTURE — real GeoJSON world map via Natural Earth ── */
+// We draw the texture onto a 2D canvas using equirectangular projection,
+// then hand it to Three.js as a CanvasTexture.
+// The GeoJSON is fetched from a public CDN (unpkg / jsdelivr).
+
+const globeGeo = new THREE.SphereGeometry(GLOBE_R, 64, 64);
+const globeMat = new THREE.MeshPhongMaterial({
+  color: 0x0a1628,   // placeholder until texture loads
+  shininess: 8,
+  specular: new THREE.Color(0x1a3a5c),
 });
+
 const globe = new THREE.Mesh(globeGeo, globeMat);
 scene.add(globe);
 
-// Wireframe grid overlay (lat/lon lines)
-const gridGeo = new THREE.SphereGeometry(GLOBE_R + 0.001, 36, 18);
-const gridMat = new THREE.MeshBasicMaterial({
-  color: 0x0f2040,
-  wireframe: true,
-  transparent: true,
-  opacity: 0.18,
-});
-scene.add(new THREE.Mesh(gridGeo, gridMat));
+async function buildGlobeTexture() {
+  const TEX_W = 4096, TEX_H = 2048;
+  const canvas = document.createElement('canvas');
+  canvas.width = TEX_W; canvas.height = TEX_H;
+  const ctx = canvas.getContext('2d');
+
+  // Ocean base — deep dark blue
+  ctx.fillStyle = '#04111e';
+  ctx.fillRect(0, 0, TEX_W, TEX_H);
+
+  // Graticule (every 30°) — very subtle
+  ctx.strokeStyle = '#081828';
+  ctx.lineWidth = 0.8;
+  for (let lon = -180; lon <= 180; lon += 30) {
+    const x = (lon + 180) / 360 * TEX_W;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, TEX_H); ctx.stroke();
+  }
+  for (let lat = -90; lat <= 90; lat += 30) {
+    const y = (90 - lat) / 180 * TEX_H;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(TEX_W, y); ctx.stroke();
+  }
+
+  function drawRing(ring) {
+    ring.forEach(([lon, lat], i) => {
+      // clamp lon to avoid wrap artefacts on antimeridian-crossing polygons
+      const x = (lon + 180) / 360 * TEX_W;
+      const y = (90 - lat) / 180 * TEX_H;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+  }
+
+  function drawFeature(feature) {
+    const geom = feature.geometry;
+    if (!geom) return;
+    ctx.beginPath();
+    if (geom.type === 'Polygon') {
+      geom.coordinates.forEach(ring => drawRing(ring));
+    } else if (geom.type === 'MultiPolygon') {
+      geom.coordinates.forEach(poly => poly.forEach(ring => drawRing(ring)));
+    }
+    ctx.closePath();
+    // Land fill — distinctly lighter than ocean
+    ctx.fillStyle = '#122840';
+    ctx.fill();
+    // Coastline stroke
+    ctx.strokeStyle = '#2a5878';
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+  }
+
+  // Try 50m first (better detail), fall back to 110m
+  const URLS = [
+    'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json',
+    'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',
+  ];
+
+  let loaded = false;
+  for (const url of URLS) {
+    if (loaded) break;
+    try {
+      const res  = await fetch(url);
+      const topo = await res.json();
+      // Make sure topojson client is ready
+      if (typeof topojson === 'undefined') await new Promise(r => setTimeout(r, 800));
+      if (typeof topojson !== 'undefined') {
+        const countries = topojson.feature(topo, topo.objects.countries);
+        countries.features.forEach(drawFeature);
+
+        // Also draw country borders (land/land edges) in a darker tone
+        try {
+          const borders = topojson.mesh(topo, topo.objects.countries, (a, b) => a !== b);
+          ctx.beginPath();
+          // borders is a single GeoJSON MultiLineString
+          if (borders.type === 'MultiLineString') {
+            borders.coordinates.forEach(line => {
+              line.forEach(([lon, lat], i) => {
+                const x = (lon + 180) / 360 * TEX_W;
+                const y = (90 - lat)  / 180 * TEX_H;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+              });
+            });
+          }
+          ctx.strokeStyle = '#0e2236';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        } catch (_) {}
+
+        loaded = true;
+      }
+    } catch (e) {
+      console.warn('Globe texture fetch failed for', url, e);
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  globeMat.map = tex;
+  globeMat.color.set(0xffffff);
+  globeMat.needsUpdate = true;
+  tex.needsUpdate = true;
+}
 
 // Atmosphere glow
 const atmGeo = new THREE.SphereGeometry(GLOBE_R * 1.04, 32, 32);
@@ -470,7 +565,7 @@ NODES.forEach(n => {
   const total = locCount[key];
   if (total > 1) {
     const angle = (idx / total) * Math.PI * 2;
-    const spread = Math.min(3.5, 1.2 + total * 0.3);
+    const spread = Math.min(8.0, 2.0 + total * 0.5);
     n.lat += Math.sin(angle) * spread;
     n.lon += Math.cos(angle) * spread;
   }
@@ -488,7 +583,7 @@ const linkGroup = new THREE.Group();
 scene.add(linkGroup);
 
 function makeNodeMesh(d) {
-  const r = Math.max(0.008, Math.min(0.028, (d.radius || 10) * 0.00085));
+  const r = Math.max(0.012, Math.min(0.035, (d.radius || 10) * 0.0012));
   const geo  = new THREE.SphereGeometry(r, 12, 8);
   const col  = nColor(d);
   const mat  = new THREE.MeshPhongMaterial({
@@ -590,21 +685,22 @@ function buildVis() {
 
 buildVis();
 rebuildScene();
+buildGlobeTexture();
 
 /* ── RAYCASTER (hit test) ── */
 const raycaster = new THREE.Raycaster();
 raycaster.params.Points = { threshold: 0.02 };
 
 function getHit(ex, ey) {
-  // ex/ey relative to canvas-wrap
   const rect = wrap.getBoundingClientRect();
   const mouse = new THREE.Vector2(
     ((ex - rect.left) / rect.width)  * 2 - 1,
    -((ey - rect.top)  / rect.height) * 2 + 1
   );
   raycaster.setFromCamera(mouse, camera);
+  // Only test currently visible meshes — avoids clicking through globe
   const meshes = [];
-  nodeObjs.forEach(({mesh}) => meshes.push(mesh));
+  nodeObjs.forEach(({mesh}) => { if (mesh.visible) meshes.push(mesh); });
   const hits = raycaster.intersectObjects(meshes);
   return hits.length ? hits[0].object.userData.node : null;
 }
@@ -639,7 +735,7 @@ window.addEventListener('mousemove', e => {
   if (!isDragging) return;
   const dx = e.clientX - prevMX, dy = e.clientY - prevMY;
   spherical.theta -= dx * 0.005;
-  spherical.phi   += dy * 0.005;
+  spherical.phi   -= dy * 0.005;   // inverted: drag up = tilt back
   spherical.phi    = Math.max(0.15, Math.min(Math.PI - 0.15, spherical.phi));
   updateCamera();
   prevMX = e.clientX; prevMY = e.clientY;
@@ -665,7 +761,7 @@ cvEl.addEventListener('touchmove', e => {
   e.preventDefault();
   if (e.touches.length === 1 && isDragging) {
     const dx = e.touches[0].clientX - prevMX, dy = e.touches[0].clientY - prevMY;
-    spherical.theta -= dx * 0.005; spherical.phi += dy * 0.005;
+    spherical.theta -= dx * 0.005; spherical.phi -= dy * 0.005;  // inverted
     spherical.phi = Math.max(0.15, Math.min(Math.PI-0.15, spherical.phi));
     updateCamera(); prevMX = e.touches[0].clientX; prevMY = e.touches[0].clientY;
   } else if (e.touches.length === 2) {
@@ -719,36 +815,150 @@ cvEl.addEventListener('dblclick', e => {
   }
 });
 
-/* ── HIGHLIGHT on hover ── */
-function updateHighlight() {
+// Static adjacency for hover neighbour highlight
+const STATIC_ADJ = new Map();
+NODES.forEach(n => STATIC_ADJ.set(n.id, new Set()));
+LINKS.forEach(l => {
+  const s = l.source.id||l.source, t = l.target.id||l.target;
+  STATIC_ADJ.get(s)?.add(t);
+  STATIC_ADJ.get(t)?.add(s);
+});
+
+/* ── LOD + SCREEN-SPACE LAYOUT ─────────────────────────────────────────────
+ *
+ * Every frame:
+ *  1. Classify each node into a priority tier (0=always show, 1=mid zoom, 2=close only)
+ *  2. Project each node to screen space
+ *  3. Run a greedy screen-space repulsion pass — if two dots are closer than
+ *     MIN_SCREEN_SEP pixels, hide the lower-priority one
+ *  4. Show labels only when radius > LABEL_ZOOM_THRESHOLD and node won
+ *     the repulsion pass
+ *  5. Scale dot size with zoom so dots stay roughly constant in screen pixels
+ *
+ * This is the standard approach used by Mapbox, Datawrapper, and D3 bubble maps.
+ */
+
+// Importance tier — 0 = always visible, 1 = mid zoom, 2 = close zoom only
+const TIER = new Map();
+NODES.forEach(n => {
+  if (n.type === 'center' || CONFIRMED.has(n.id)) TIER.set(n.id, 0);
+  else if (n.radius >= 20) TIER.set(n.id, 1);
+  else TIER.set(n.id, 2);
+});
+
+// Sort nodes by tier so tier-0 wins repulsion fights
+const NODE_PRIORITY = [...NODES].sort((a,b) => (TIER.get(a.id)||2) - (TIER.get(b.id)||2));
+
+const _proj   = new THREE.Vector3();
+const _screen = new THREE.Vector2();
+
+function projectToScreen(worldPos) {
+  _proj.copy(worldPos).project(camera);
+  const rect = wrap.getBoundingClientRect();
+  return new THREE.Vector2(
+    (_proj.x + 1) / 2 * rect.width,
+    (-_proj.y + 1) / 2 * rect.height
+  );
+}
+
+function isBehindGlobe(worldPos) {
+  const toPoint = new THREE.Vector3().copy(worldPos).normalize();
+  return toPoint.dot(camera.position.clone().normalize()) < -0.15;
+}
+
+// MIN screen-pixel separation between dot centres before culling lower-priority one
+const MIN_SEP = 28;   // px — tune this
+
+// Zoom thresholds (spherical.radius)
+// radius 2.8 = fully zoomed out, 1.4 = max zoom in
+const SHOW_TIER1_R  = 2.2;   // show tier-1 below this radius
+const SHOW_TIER2_R  = 1.8;   // show tier-2 below this radius
+const SHOW_LABELS_R = 2.0;   // show any labels below this radius
+
+function updateLOD() {
+  const r = spherical.radius;
+  const showTier1 = r <= SHOW_TIER1_R;
+  const showTier2 = r <= SHOW_TIER2_R;
+  const showLabels = r <= SHOW_LABELS_R;
+
+  // Scale dot size: at r=2.8 use scale 1.0, at r=1.4 use scale 0.55
+  // so dots stay roughly the same physical pixel size
+  const dotScale = Math.max(0.55, Math.min(1.4, r * 0.5));
+
+  // Greedy repulsion: mark which nodes win screen space
+  const screenPts = [];   // [{x,y,id}]
+  const visible   = new Map();   // id → bool
+
+  for (const d of NODE_PRIORITY) {
+    if (!visSet.has(d.id)) continue;
+    const tier = TIER.get(d.id) || 2;
+    if (tier === 1 && !showTier1) { visible.set(d.id, false); continue; }
+    if (tier === 2 && !showTier2) { visible.set(d.id, false); continue; }
+
+    const obj = nodeObjs.get(d.id);
+    if (!obj) continue;
+
+    // Is node on the visible hemisphere?
+    if (isBehindGlobe(obj.mesh.position)) { visible.set(d.id, false); continue; }
+
+    const sc = projectToScreen(obj.mesh.position);
+
+    // Repulsion: check against all already-placed dots
+    let blocked = false;
+    for (const pt of screenPts) {
+      if (Math.hypot(sc.x - pt.x, sc.y - pt.y) < MIN_SEP) {
+        blocked = true; break;
+      }
+    }
+
+    if (blocked) { visible.set(d.id, false); }
+    else         { visible.set(d.id, true); screenPts.push({x: sc.x, y: sc.y, id: d.id}); }
+  }
+
+  // Apply visibility + scale
   nodeObjs.forEach(({mesh, label}, id) => {
-    const d = NODE_BY.get(id);
-    const col = nColor(d);
-    if (!hovered) {
-      mesh.material.opacity = 1; mesh.material.emissiveIntensity = 0.55;
-      label.material.opacity = 0.85;
-    } else if (id === hovered.id) {
-      mesh.material.emissiveIntensity = 1.2;
-      mesh.scale.setScalar(1.4);
-      label.material.opacity = 1;
+    const show = visible.get(id) !== false && visSet.has(id);
+    mesh.visible  = show;
+    label.visible = show && showLabels;
+
+    if (!show) return;
+
+    // Scale dot to stay constant screen size
+    mesh.scale.setScalar(dotScale);
+
+    // Hover highlight
+    if (hovered) {
+      if (id === hovered.id) {
+        mesh.material.emissiveIntensity = 1.3;
+        mesh.scale.setScalar(dotScale * 1.6);
+        label.visible = true;
+        label.material.opacity = 1;
+      } else if (STATIC_ADJ.get(hovered.id)?.has(id)) {
+        mesh.material.emissiveIntensity = 0.7;
+        mesh.material.opacity = 1;
+        label.visible = showLabels;
+        label.material.opacity = 0.9;
+      } else {
+        mesh.material.emissiveIntensity = 0.08;
+        mesh.material.opacity = 0.15;
+        label.visible = false;
+      }
     } else {
-      mesh.material.opacity = 0.18; mesh.material.emissiveIntensity = 0.15;
-      mesh.scale.setScalar(1);
-      label.material.opacity = 0.08;
+      mesh.material.emissiveIntensity = 0.55;
+      mesh.material.opacity = 1;
+      label.material.opacity = 0.9;
     }
   });
 }
 
 /* ── RENDER LOOP ── */
-let frame = 0;
 function animate() {
   requestAnimationFrame(animate);
-  frame++;
   if (autoRotate) {
     spherical.theta += 0.0008;
     updateCamera();
   }
-  updateHighlight();
+  updateLOD();
   renderer.render(scene, camera);
 }
 animate();
