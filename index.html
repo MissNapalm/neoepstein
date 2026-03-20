@@ -5,172 +5,89 @@
 <title>Epstein Network Graph</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  background:#0f172a;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  overflow:hidden;color:#e2e8f0;
-  background-image:
-    linear-gradient(rgba(148,163,184,0.04) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(148,163,184,0.04) 1px,transparent 1px);
-  background-size:40px 40px;
-}
-#controls{
-  position:fixed;top:52px;left:10px;
-  background:#1e293b;border:1px solid #334155;border-radius:12px;
-  padding:20px;z-index:10;width:284px;max-height:90vh;overflow-y:auto;
-  box-shadow:0 4px 6px -1px rgba(0,0,0,0.3);
-  isolation:isolate;
-}
+body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;color:#e2e8f0;background-image:linear-gradient(rgba(148,163,184,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,0.04) 1px,transparent 1px);background-size:40px 40px}
+#controls{position:fixed;top:10px;left:10px;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;z-index:10;width:260px;max-height:95vh;overflow-y:auto;box-shadow:0 4px 6px -1px rgba(0,0,0,0.3)}
 #controls::-webkit-scrollbar{width:4px}
-#controls::-webkit-scrollbar-track{background:transparent}
 #controls::-webkit-scrollbar-thumb{background:#334155;border-radius:2px}
-#controls h1{font-size:16px;color:#f1f5f9;margin-bottom:4px;font-weight:700}
-#controls .subtitle{font-size:11px;color:#64748b;margin-bottom:16px}
-#controls h2{font-size:10px;color:#94a3b8;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
-#controls label{display:block;font-size:12px;padding:3px 0;cursor:pointer;color:#94a3b8}
+#controls h1{font-size:15px;color:#f1f5f9;margin-bottom:2px;font-weight:700}
+#controls .sub{font-size:11px;color:#64748b;margin-bottom:12px}
+#controls h2{font-size:10px;color:#94a3b8;margin:12px 0 5px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+#controls label{display:block;font-size:12px;padding:2px 0;cursor:pointer;color:#94a3b8}
 #controls label:hover{color:#f1f5f9}
-#search{
-  width:100%;padding:8px 12px;background:#0f172a;border:1px solid #334155;
-  border-radius:8px;color:#f1f5f9;font-size:13px;margin-bottom:12px;
-  font-family:inherit;outline:none;transition:border-color 0.2s,box-shadow 0.2s;
-}
-#search:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
+#search{width:100%;padding:7px 10px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none}
+#search:focus{border-color:#6366f1}
 #search::placeholder{color:#475569}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
-#controls input[type="range"]{width:100%;accent-color:#6366f1}
-#controls input[type="checkbox"]{accent-color:#6366f1}
-#stats{font-size:11px;color:#475569;margin-top:12px;border-top:1px solid #334155;padding-top:10px;line-height:1.6}
-.cat-buttons{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
-.cat-btn{
-  padding:5px 9px;border-radius:6px;font-size:9px;font-weight:600;
-  border:1px solid #334155;background:#0f172a;color:#64748b;cursor:pointer;
-  transition:background 0.15s,color 0.15s,border-color 0.15s;
-  text-transform:uppercase;letter-spacing:0.3px;
-}
-.cat-btn:hover{background:rgba(255,255,255,.07)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+#controls input[type=range]{width:100%;accent-color:#6366f1}
+#controls input[type=checkbox]{accent-color:#6366f1}
+#stats{font-size:11px;color:#475569;margin-top:10px;border-top:1px solid #334155;padding-top:8px;line-height:1.6}
+.cat-buttons{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.cat-btn{padding:4px 8px;border-radius:5px;font-size:9px;font-weight:600;border:1px solid #334155;background:#0f172a;color:#64748b;cursor:pointer;text-transform:uppercase;letter-spacing:0.3px}
+.cat-btn:hover{background:rgba(255,255,255,.06)}
 .cat-btn.active{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.3)}
-.confirmed-btn{border-color:rgba(239,68,68,0.3)!important;color:#ff6b6b!important}
-.confirmed-btn:hover{background:rgba(239,68,68,0.1)!important}
-.confirmed-btn.active{background:rgba(239,68,68,0.2)!important;color:#ff4444!important;border-color:rgba(239,68,68,0.5)!important}
-#tooltip{
-  position:fixed;top:0;left:0;
-  background:#1e293b;border:1px solid #334155;
-  border-radius:10px;padding:14px;font-size:12px;max-width:380px;
-  pointer-events:none;display:none;z-index:20;line-height:1.6;color:#cbd5e1;
-  box-shadow:0 10px 15px -3px rgba(0,0,0,0.4);
-}
-#tooltip .name{font-size:15px;font-weight:700;margin-bottom:4px;color:#f1f5f9}
-#tooltip .lbl{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;font-weight:600}
-#tooltip .hint{margin-top:8px;color:#475569;font-size:10px;font-style:italic}
-#dossier{
-  position:fixed;top:0;right:0;width:520px;height:100vh;
-  background:#1e293b;border-left:1px solid #334155;z-index:30;
-  overflow-y:auto;font-size:13px;color:#cbd5e1;
-  box-shadow:-20px 0 60px rgba(0,0,0,0.4);
-  transform:translateX(520px);
-  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  isolation:isolate;
-}
-#dossier.open{transform:translateX(0)}
-#dossier-header{background:#1e293b;padding:24px 28px 20px;border-bottom:1px solid #334155;position:sticky;top:0;z-index:2;}
-#dossier-close{position:absolute;top:16px;right:20px;background:#0f172a;border:none;color:#64748b;font-size:16px;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,color 0.15s;}
-#dossier-close:hover{background:#334155;color:#f1f5f9}
-#dossier-name{font-size:24px;font-weight:800;margin-bottom:2px;color:#f1f5f9}
-#dossier-agency{font-size:11px;color:#64748b;letter-spacing:0.5px;margin-bottom:4px}
-#dossier-role{font-size:13px;color:#94a3b8;margin-bottom:8px}
-#dossier-status{display:inline-block;margin-right:6px;padding:4px 12px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:0.5px}
-#dossier-networth{display:inline-block;padding:4px 12px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:0.3px;background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2)}
-#dossier-body{padding:24px 28px 48px}
-#dossier-stamp{position:absolute;top:50px;right:24px;font-size:24px;font-weight:900;color:rgba(99,102,241,0.08);transform:rotate(-12deg);letter-spacing:3px;pointer-events:none;text-transform:uppercase}
-.classified-banner{text-align:center;padding:8px;font-size:9px;letter-spacing:2px;font-weight:700;background:#0f172a;color:#475569;border-bottom:1px solid #334155}
-.dossier-section{margin-bottom:24px}
-.dossier-section h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#818cf8;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #1e293b;font-weight:700}
-.dossier-section p{color:#94a3b8;line-height:1.8;font-size:13px}
-.dossier-field{margin-bottom:8px}
-.dossier-field .fl{color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
-.dossier-field .fv{color:#e2e8f0;margin-top:2px;font-weight:500}
-.dossier-callout{background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0;font-size:12px;color:#fbbf24;line-height:1.7}
-.dossier-callout.red{background:rgba(239,68,68,0.08);border-left-color:#ef4444;color:#fca5a5}
-.dossier-callout.blue{background:rgba(59,130,246,0.08);border-left-color:#3b82f6;color:#93c5fd}
-.dossier-callout.gray{background:rgba(100,116,139,0.08);border-left-color:#64748b;color:#94a3b8}
-.conn-list{list-style:none;padding:0}
-.conn-list li{padding:10px 12px;margin-bottom:4px;background:#0f172a;border-radius:8px;border-left:3px solid #334155;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.15s,border-left-color 0.15s,transform 0.15s;}
-.conn-list li:hover{background:#1e293b;border-left-color:#818cf8;transform:translateX(2px)}
-.conn-name{color:#e2e8f0;font-size:12px;font-weight:500}
-.conn-strength{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700}
-.str-high{background:rgba(239,68,68,0.12);color:#ef4444}
-.str-med{background:rgba(251,146,60,0.12);color:#fb923c}
-.str-low{background:rgba(100,116,139,0.12);color:#64748b}
-.core-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
-.threat-badge{display:inline-block;padding:6px 16px;border-radius:8px;font-size:14px;font-weight:800;letter-spacing:1.5px}
-.cat-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;margin:2px}
-#writeup-nav{
-  position:fixed;top:0;left:0;right:0;z-index:10000;
-  background:rgba(10,10,14,0.95);
-  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  display:flex;align-items:center;padding:0 20px;height:42px;
-  font-family:'Inter',system-ui,sans-serif;
-}
-#writeup-nav .nav-brand{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8;margin-right:24px;white-space:nowrap}
-#writeup-nav .nav-items{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
-#writeup-nav .nav-items::-webkit-scrollbar{display:none}
-#writeup-nav .nav-btn{background:none;border:1px solid transparent;color:#64748b;font-size:10px;font-weight:500;letter-spacing:0.5px;padding:6px 14px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:color 0.2s,background 0.2s,border-color 0.2s;font-family:inherit;}
-#writeup-nav .nav-btn:hover{color:#e2e8f0;background:rgba(255,255,255,0.04)}
-#writeup-nav .nav-btn.active{color:#e2e8f0;border-color:rgba(148,163,184,0.25);background:rgba(148,163,184,0.08)}
-#writeup-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10001;background:rgba(15,23,42,0.98);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);overflow-y:auto;padding:62px 20px 60px;font-family:'Inter',system-ui,sans-serif;}
-#writeup-overlay.visible{display:block}
-#writeup-content{max-width:720px;margin:0 auto;color:#cbd5e1}
-#writeup-content .writeup-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(148,163,184,0.1)}
-#writeup-content .writeup-title{font-size:28px;font-weight:800;letter-spacing:-0.5px;color:#f1f5f9;line-height:1.2;margin-bottom:12px}
-#writeup-content .writeup-subtitle{font-size:13px;font-weight:400;color:#64748b;letter-spacing:0.5px;line-height:1.6;font-style:italic}
-#writeup-content .writeup-section{margin-bottom:40px}
-#writeup-content .writeup-section-title{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:#94a3b8;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid rgba(148,163,184,0.08)}
-#writeup-content p{font-size:14px;line-height:1.85;color:#94a3b8;margin-bottom:16px}
-#writeup-content p strong{color:#e2e8f0;font-weight:600}
-#writeup-content p em{color:#cbd5e1;font-style:italic}
-#writeup-content .writeup-pullquote{border-left:3px solid #475569;padding:16px 20px;margin:24px 0;background:rgba(148,163,184,0.04);border-radius:0 4px 4px 0}
-#writeup-content .writeup-pullquote p{color:#e2e8f0;font-size:14px;font-weight:500;margin-bottom:0;line-height:1.75}
-#writeup-content .writeup-closing{margin-top:48px;padding-top:32px;border-top:1px solid rgba(148,163,184,0.1)}
-#writeup-content .writeup-closing p{color:#cbd5e1;font-size:14px;font-weight:500;line-height:1.85}
-#writeup-close{position:fixed;top:8px;right:20px;z-index:10002;background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);color:#94a3b8;font-size:11px;font-weight:600;padding:6px 16px;border-radius:4px;cursor:pointer;font-family:inherit;letter-spacing:1px;display:none;transition:background 0.2s,color 0.2s;}
-#writeup-close:hover{background:rgba(148,163,184,0.15);color:#e2e8f0}
-#graph{display:block;position:fixed;top:0;left:0;}
+.conf-btn{border-color:rgba(239,68,68,0.3)!important;color:#ff6b6b!important}
+.conf-btn.active{background:rgba(239,68,68,0.2)!important;color:#ff4444!important;border-color:rgba(239,68,68,0.5)!important}
+#tip{position:fixed;top:0;left:0;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px;font-size:12px;max-width:340px;pointer-events:none;display:none;z-index:20;line-height:1.6;color:#cbd5e1;box-shadow:0 10px 15px -3px rgba(0,0,0,0.4)}
+#tip .name{font-size:14px;font-weight:700;margin-bottom:3px;color:#f1f5f9}
+#tip .lbl{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;font-weight:600}
+#tip .hint{margin-top:6px;color:#475569;font-size:10px;font-style:italic}
+#dos{position:fixed;top:0;right:0;width:500px;height:100vh;background:#1e293b;border-left:1px solid #334155;z-index:30;overflow-y:auto;font-size:13px;color:#cbd5e1;box-shadow:-20px 0 60px rgba(0,0,0,0.4);transform:translateX(500px);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+#dos.open{transform:translateX(0)}
+#dos-hdr{background:#1e293b;padding:22px 26px 18px;border-bottom:1px solid #334155;position:sticky;top:0;z-index:2}
+#dos-x{position:absolute;top:14px;right:18px;background:#0f172a;border:none;color:#64748b;font-size:15px;width:34px;height:34px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#dos-x:hover{background:#334155;color:#f1f5f9}
+#dos-name{font-size:22px;font-weight:800;margin-bottom:2px;color:#f1f5f9}
+#dos-role{font-size:13px;color:#94a3b8;margin-bottom:6px}
+#dos-status{display:inline-block;margin-right:5px;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:0.5px}
+#dos-nw{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2)}
+#dos-body{padding:22px 26px 48px}
+.cls-banner{text-align:center;padding:7px;font-size:9px;letter-spacing:2px;font-weight:700;background:#0f172a;color:#475569;border-bottom:1px solid #334155}
+.ds{margin-bottom:22px}
+.ds h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#818cf8;margin-bottom:9px;padding-bottom:5px;border-bottom:2px solid #1e293b;font-weight:700}
+.ds p{color:#94a3b8;line-height:1.8;font-size:13px}
+.df{margin-bottom:7px}
+.df .fl{color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+.df .fv{color:#e2e8f0;margin-top:2px;font-weight:500}
+.cal{background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;padding:11px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;color:#fbbf24;line-height:1.7}
+.cal.red{background:rgba(239,68,68,0.08);border-left-color:#ef4444;color:#fca5a5}
+.cal.blue{background:rgba(59,130,246,0.08);border-left-color:#3b82f6;color:#93c5fd}
+.cal.gray{background:rgba(100,116,139,0.08);border-left-color:#64748b;color:#94a3b8}
+.cl{list-style:none;padding:0}
+.cl li{padding:9px 11px;margin-bottom:3px;background:#0f172a;border-radius:8px;border-left:3px solid #334155;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.12s,border-left-color 0.12s,transform 0.12s}
+.cl li:hover{background:#1e293b;border-left-color:#818cf8;transform:translateX(2px)}
+.cn{color:#e2e8f0;font-size:12px;font-weight:500}
+.cs{font-size:10px;padding:3px 7px;border-radius:20px;font-weight:700}
+.sh{background:rgba(239,68,68,0.12);color:#ef4444}
+.sm{background:rgba(251,146,60,0.12);color:#fb923c}
+.sl{background:rgba(100,116,139,0.12);color:#64748b}
+.tb{display:inline-block;padding:5px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:1.5px}
+.ctag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;margin:2px}
+#graph{display:block;position:fixed;top:0;left:0}
 </style>
 </head>
 <body>
-
-<nav id="writeup-nav">
-  <div class="nav-brand">WRITEUPS &amp; CONCLUSIONS</div>
-  <div class="nav-items">
-    <button class="nav-btn" data-writeup="britain">Britain's Darkest Secret</button>
-  </div>
-</nav>
-<button id="writeup-close" onclick="closeWriteup()">&#x2715; CLOSE</button>
-<div id="writeup-overlay"><div id="writeup-content"></div></div>
-
 <div id="controls">
   <h1>Epstein Network</h1>
-  <div class="subtitle">Interactive intelligence graph</div>
-  <input type="text" id="search" placeholder="Search by name...">
+  <div class="sub">Interactive intelligence graph</div>
+  <input type="text" id="search" placeholder="Search by name…">
   <h2>Filter by relationship</h2>
   <div class="cat-buttons" id="cat-buttons">
     <button class="cat-btn active" data-cat="all">All</button>
     <button class="cat-btn" data-cat="operational">Operational</button>
     <button class="cat-btn" data-cat="financial">Financial</button>
-    <button class="cat-btn" data-cat="legal">Legal shield</button>
-    <button class="cat-btn" data-cat="intel">Intelligence</button>
-    <button class="cat-btn" data-cat="intel_il">🇮🇱 Mossad / IL</button>
-    <button class="cat-btn" data-cat="intel_us">🇺🇸 CIA / FBI</button>
-    <button class="cat-btn" data-cat="intel_uk">🇬🇧 MI5 / MI6</button>
-    <button class="cat-btn" data-cat="intel_ru">🇷🇺 KGB / FSB</button>
-    <button class="cat-btn" data-cat="intel_ae">🇦🇪 UAE / Gulf</button>
-    <button class="cat-btn" data-cat="named">Named by victims</button>
-    <button class="cat-btn" data-cat="cover">Social cover</button>
+    <button class="cat-btn" data-cat="legal">Legal</button>
+    <button class="cat-btn" data-cat="intel">Intel</button>
+    <button class="cat-btn" data-cat="intel_il">🇮🇱 Mossad</button>
+    <button class="cat-btn" data-cat="intel_us">🇺🇸 CIA/FBI</button>
+    <button class="cat-btn" data-cat="intel_uk">🇬🇧 MI5/6</button>
+    <button class="cat-btn" data-cat="intel_ru">🇷🇺 KGB/FSB</button>
+    <button class="cat-btn" data-cat="intel_ae">🇦🇪 Gulf</button>
+    <button class="cat-btn" data-cat="named">Named</button>
+    <button class="cat-btn" data-cat="cover">Cover</button>
     <button class="cat-btn" data-cat="uncertain">Uncertain</button>
-    <button class="cat-btn confirmed-btn" data-cat="confirmed">&#9888; Confirmed / Documented</button>
+    <button class="cat-btn conf-btn" data-cat="confirmed">⚠ Confirmed</button>
   </div>
-  <h2>Filter by classification</h2>
+  <h2>Classification</h2>
   <label><input type="checkbox" class="tf" value="center" checked><span class="dot" style="background:#ef4444"></span>Principal Targets</label>
   <label><input type="checkbox" class="tf" value="convicted" checked><span class="dot" style="background:#2dd4bf"></span>Convicted</label>
   <label><input type="checkbox" class="tf" value="suspicious" checked><span class="dot" style="background:#60a5fa"></span>Suspicious</label>
@@ -183,22 +100,20 @@ body{
   <div id="stats"></div>
 </div>
 
-<div id="tooltip"></div>
+<div id="tip"></div>
 
-<div id="dossier">
-  <div class="classified-banner">NETWORK INTELLIGENCE DOSSIER — RESTRICTED</div>
-  <div id="dossier-header">
-    <button id="dossier-close">&#x2715;</button>
-    <div id="dossier-name"></div>
-    <div id="dossier-agency"></div>
-    <div id="dossier-role"></div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-      <span id="dossier-status"></span>
-      <span id="dossier-networth"></span>
+<div id="dos">
+  <div class="cls-banner">NETWORK INTELLIGENCE DOSSIER — RESTRICTED</div>
+  <div id="dos-hdr">
+    <button id="dos-x">✕</button>
+    <div id="dos-name"></div>
+    <div id="dos-role"></div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:6px">
+      <span id="dos-status"></span>
+      <span id="dos-nw"></span>
     </div>
-    <div id="dossier-stamp"></div>
   </div>
-  <div id="dossier-body"></div>
+  <div id="dos-body"></div>
 </div>
 
 <canvas id="graph"></canvas>
@@ -211,21 +126,14 @@ body{
 <script>
 'use strict';
 
-/* ── MERGE SUPPLEMENTAL DATA ── */
-if (typeof supplementalData !== 'undefined') {
-  const existingIds = new Set(graphData.nodes.map(n => n.id));
-  for (const n of supplementalData.nodes) {
-    if (!existingIds.has(n.id)) { graphData.nodes.push(n); existingIds.add(n.id); }
-  }
-  const existingLinks = new Set(graphData.links.map(l => l.source + '→' + l.target));
-  for (const l of supplementalData.links) {
-    const key = l.source + '→' + l.target;
-    if (!existingLinks.has(key)) { graphData.links.push(l); existingLinks.add(key); }
-  }
+if(typeof supplementalData!=='undefined'){
+  const ei=new Set(graphData.nodes.map(n=>n.id));
+  for(const n of supplementalData.nodes) if(!ei.has(n.id)){graphData.nodes.push(n);ei.add(n.id);}
+  const el=new Set(graphData.links.map(l=>l.source+'→'+l.target));
+  for(const l of supplementalData.links){const k=l.source+'→'+l.target;if(!el.has(k)){graphData.links.push(l);el.add(k);}}
 }
 
-/* ── CONSTANTS ── */
-const categories = {
+const categories={
   operational:["epstein","maxwell_g","kellen","marcinkova","groff","brunel","alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"],
   financial:["epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle","pritzker","lutnick","bloomberg","mort_z","diller","barrack","dubin","eva_dubin","nat_rothschild","lynn_rothschild"],
   legal:["dershowitz","acosta","starr","boies","barr_d","barr_w","rosenstein","berman","strauss","freeh","mueller","comey","judge_marra"],
@@ -240,991 +148,475 @@ const categories = {
   cover:["epstein","maxwell_g","wexner","black","bronfman_c","bronfman_s","hawking","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","ito","gates","summers","bob_wright","gutfreund","woody","charlie_rose","lauer","spacey","copperfield","chopra","naomi","handler","branson","jack_lang","juan_carlos","king_carl_xvi","john_podesta","lindsey_graham"],
   uncertain:["thiel","bezos","sergey_brin","larry_page","bloomberg","murdoch","pritzker","burkle","diller","mort_z","hawking","chopra","chaim_herzog","yitzhak_shamir","shabtai_shavit"]
 };
-const catNames={operational:"Operational",financial:"Financial",legal:"Legal Shield",intel:"Intelligence",intel_il:"🇮🇱 Mossad / IL",intel_us:"🇺🇸 CIA / FBI",intel_uk:"🇬🇧 MI5 / MI6",intel_ru:"🇷🇺 KGB / FSB",intel_ae:"🇦🇪 UAE / Gulf",named:"Named by Victims",cover:"Social Cover",uncertain:"Uncertain",confirmed:"⚠ Confirmed / Documented"};
-const catColors={operational:"rgba(248,113,113,0.12);color:#f87171;border-color:rgba(248,113,113,0.25)",financial:"rgba(34,197,94,0.1);color:#4ade80;border-color:rgba(34,197,94,0.2)",legal:"rgba(251,146,60,0.1);color:#fb923c;border-color:rgba(251,146,60,0.2)",intel:"rgba(99,102,241,0.1);color:#818cf8;border-color:rgba(99,102,241,0.2)",intel_il:"rgba(59,130,246,0.12);color:#60a5fa;border-color:rgba(59,130,246,0.25)",intel_us:"rgba(239,68,68,0.1);color:#f87171;border-color:rgba(239,68,68,0.2)",intel_uk:"rgba(168,85,247,0.1);color:#c084fc;border-color:rgba(168,85,247,0.2)",intel_ru:"rgba(239,68,68,0.12);color:#fb7185;border-color:rgba(239,68,68,0.25)",intel_ae:"rgba(234,179,8,0.1);color:#facc15;border-color:rgba(234,179,8,0.2)",named:"rgba(239,68,68,0.15);color:#fca5a5;border-color:rgba(239,68,68,0.3)",cover:"rgba(100,116,139,0.1);color:#94a3b8;border-color:rgba(100,116,139,0.2)",uncertain:"rgba(250,204,21,0.1);color:#facc15;border-color:rgba(250,204,21,0.2)",confirmed:"rgba(239,68,68,0.15);color:#ff6b6b;border-color:rgba(239,68,68,0.3)"};
+const catNames={operational:"Operational",financial:"Financial",legal:"Legal Shield",intel:"Intelligence",intel_il:"🇮🇱 Mossad/IL",intel_us:"🇺🇸 CIA/FBI",intel_uk:"🇬🇧 MI5/MI6",intel_ru:"🇷🇺 KGB/FSB",intel_ae:"🇦🇪 Gulf",named:"Named by Victims",cover:"Social Cover",uncertain:"Uncertain",confirmed:"⚠ Confirmed"};
 const C={center:"#ef4444",convicted:"#2dd4bf",suspicious:"#60a5fa",possibly:"#a78bfa"};
 const Clight={center:"rgba(239,68,68,0.1)",convicted:"rgba(45,212,191,0.1)",suspicious:"rgba(96,165,250,0.1)",possibly:"rgba(167,139,250,0.1)"};
 const Cborder={center:"rgba(239,68,68,0.25)",convicted:"rgba(45,212,191,0.25)",suspicious:"rgba(96,165,250,0.25)",possibly:"rgba(167,139,250,0.25)"};
-const typeLabel={center:"PRINCIPAL TARGET",convicted:"CONVICTED",suspicious:"SUSPICIOUS - UNDER REVIEW",possibly:"POSSIBLY INVOLVED"};
+const typeLabel={center:"PRINCIPAL TARGET",convicted:"CONVICTED",suspicious:"SUSPICIOUS",possibly:"POSSIBLY INVOLVED"};
 const coreSet=new Set(categories.operational);
 const confirmedSet=new Set(categories.confirmed);
 const forceBlue=new Set(["staley","wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
 
-/* ── CANVAS SETUP ── */
-const canvas = document.getElementById('graph');
-const ctx = canvas.getContext('2d');
-const W = window.innerWidth, H = window.innerHeight;
-canvas.width = W * devicePixelRatio;
-canvas.height = H * devicePixelRatio;
-canvas.style.width = W + 'px';
-canvas.style.height = H + 'px';
-ctx.scale(devicePixelRatio, devicePixelRatio);
+const canvas=document.getElementById('graph');
+const ctx=canvas.getContext('2d');
+const W=window.innerWidth,H=window.innerHeight;
+canvas.width=W*devicePixelRatio; canvas.height=H*devicePixelRatio;
+canvas.style.width=W+'px'; canvas.style.height=H+'px';
+ctx.scale(devicePixelRatio,devicePixelRatio);
 
-/* ── ZOOM / PAN STATE ── */
-let tx = 0, ty = 0, scale = 1;
+let tx=0,ty=0,scale=1;
 
-/* ── DATA ── */
-const nodes = graphData.nodes.map(d => ({...d}));
-const links = graphData.links.map(d => ({...d}));
-const nodeMap = new Map(nodes.map(n => [n.id, n]));
-const S = 0.40;
+const nodes=graphData.nodes.map(d=>({...d}));
+const links=graphData.links.map(d=>({...d}));
+const nodeMap=new Map(nodes.map(n=>[n.id,n]));
+const S=0.40;
+const lSrcIds=new Array(links.length);
+const lTgtIds=new Array(links.length);
+const lStr=new Float32Array(links.map(l=>l.strength||0.5));
+const adjIndex=new Map();
+for(const n of nodes) adjIndex.set(n.id,new Set([n.id]));
 
-/* Pre-cache link data */
-const linkSrcIds = new Array(links.length);
-const linkTgtIds = new Array(links.length);
-const linkStrengths = new Float32Array(links.map(l => l.strength||0.5));
+const sim=d3.forceSimulation(nodes)
+  .force("link",d3.forceLink(links).id(d=>d.id).distance(d=>55/(d.strength||0.5)).strength(d=>(d.strength||0.5)*0.7))
+  .force("charge",d3.forceManyBody().strength(d=>-(d.radius*S)*14).distanceMax(500))
+  .force("center",d3.forceCenter(W/2,H/2))
+  .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+16).strength(1.0).iterations(4))
+  .force("x",d3.forceX(W/2).strength(0.06))
+  .force("y",d3.forceY(H/2).strength(0.06))
+  .velocityDecay(0.4).alphaDecay(0.012).stop();
 
-/* Adjacency index */
-const adjIndex = new Map();
-for (const n of nodes) adjIndex.set(n.id, new Set([n.id]));
-
-/* ── SIMULATION ── */
-const sim = d3.forceSimulation(nodes)
-  .force("link",      d3.forceLink(links).id(d=>d.id).distance(d=>55/(d.strength||0.5)).strength(d=>(d.strength||0.5)*0.7))
-  .force("charge",    d3.forceManyBody().strength(d=>-(d.radius*S)*8).distanceMax(350))
-  .force("center",    d3.forceCenter(W/2, H/2))
-  .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+3))
-  .force("x",         d3.forceX(W/2).strength(0.09))
-  .force("y",         d3.forceY(H/2).strength(0.09))
-  .velocityDecay(0.4)
-  .alphaDecay(0.015)
-  .stop();
-
-/* Jitter — wide spread to break symmetry evenly */
-for (const d of nodes) {
-  d.x = W/2 + (Math.random()-0.5) * W * 0.6;
-  d.y = H/2 + (Math.random()-0.5) * H * 0.6;
-}
-
-/* Run initial settle synchronously */
+for(const d of nodes){d.x=W/2+(Math.random()-0.5)*W*0.7;d.y=H/2+(Math.random()-0.5)*H*0.7;}
+ /* Pin Epstein to center during initial settle */
+const epInit=nodeMap.get("epstein");
+if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=H/2;}
 sim.alpha(1);
-for (let i = 0; i < 600; i++) sim.tick();
+for(let i=0;i<1000;i++) sim.tick();
+/* Save Epstein's pinned position */
+if(epInit){epInit._ox=W/2;epInit._oy=H/2;}
 
-/* Build adjacency after forceLink resolves objects */
-for (let i = 0; i < links.length; i++) {
-  const l = links[i];
-  const s = l.source.id||l.source, t = l.target.id||l.target;
-  adjIndex.get(s)?.add(t);
-  adjIndex.get(t)?.add(s);
-  linkSrcIds[i] = s;
-  linkTgtIds[i] = t;
+for(let i=0;i<links.length;i++){
+  const l=links[i],s=l.source.id||l.source,t=l.target.id||l.target;
+  adjIndex.get(s)?.add(t); adjIndex.get(t)?.add(s);
+  lSrcIds[i]=s; lTgtIds[i]=t;
 }
+nodes.forEach(d=>{d._ox=d.x;d._oy=d.y;});
 
-/* Save settled positions — used to restore after filter changes */
-nodes.forEach(d => { d._ox = d.x; d._oy = d.y; });
+let activeCat="all",_visCache=null,visSet=new Set(),hoveredNode=null,searchQuery="",showLabels=true,minStrength=0,showOrphans=true;
+const nodeOpacity=new Float32Array(nodes.length).fill(0);
+const nodeLabelLC=nodes.map(n=>n.label.toLowerCase());
 
-/* ── FILTER STATE ── */
-let activeCat = "all";
-let _visCache = null;
-let visSet = new Set();
-let hoveredNode = null;
-let searchQuery = "";
-let showLabels = true;
-let minStrength = 0;
-let showOrphans = true;
-
-/* Node opacity targets for smooth fade */
-const nodeOpacity = new Float32Array(nodes.length).fill(0);
-const nodeLabelLC = nodes.map(n => n.label.toLowerCase());
-
-function invalidateVis() { _visCache = null; }
-
-function getVisibleSet() {
-  if (_visCache) return _visCache;
-  const at = new Set();
-  document.querySelectorAll(".tf").forEach(el => { if(el.checked) at.add(el.value); });
-  const catSet = activeCat !== "all" ? new Set(categories[activeCat]||[]) : null;
-  let linkedSet = null;
-  if (!showOrphans) {
-    linkedSet = new Set();
-    for (let i = 0; i < links.length; i++) {
-      if (linkStrengths[i] >= minStrength) {
-        linkedSet.add(linkSrcIds[i]);
-        linkedSet.add(linkTgtIds[i]);
-      }
-    }
+function invalidateVis(){_visCache=null;}
+function getVisibleSet(){
+  if(_visCache) return _visCache;
+  const at=new Set();
+  document.querySelectorAll(".tf").forEach(el=>{if(el.checked)at.add(el.value);});
+  const catSet=activeCat!=="all"?new Set(categories[activeCat]||[]):null;
+  let linkedSet=null;
+  if(!showOrphans){
+    linkedSet=new Set();
+    for(let i=0;i<links.length;i++) if(lStr[i]>=minStrength){linkedSet.add(lSrcIds[i]);linkedSet.add(lTgtIds[i]);}
   }
-  const vis = new Set();
-  for (const d of nodes) {
-    if (!at.has(d.type)) continue;
-    if (catSet && !catSet.has(d.id)) continue;
-    if (linkedSet && !linkedSet.has(d.id)) continue;
+  const vis=new Set();
+  for(const d of nodes){
+    if(!at.has(d.type)) continue;
+    if(catSet&&!catSet.has(d.id)) continue;
+    if(linkedSet&&!linkedSet.has(d.id)) continue;
     vis.add(d.id);
   }
-  _visCache = vis;
-  return vis;
+  _visCache=vis; return vis;
 }
 
-/* ── 2ND-DEGREE ADJACENCY ── */
-function get2ndDegree(nodeId) {
-  const first = adjIndex.get(nodeId);
-  if (!first) return new Set();
-  const second = new Set(first);
-  for (const fid of first) {
-    const f2 = adjIndex.get(fid);
-    if (f2) for (const sid of f2) second.add(sid);
-  }
-  return second;
+function get2nd(id){
+  const f=adjIndex.get(id); if(!f) return new Set();
+  const s=new Set(f);
+  for(const fid of f){const f2=adjIndex.get(fid);if(f2)for(const sid of f2)s.add(sid);}
+  return s;
 }
 
-/* ── DRAW LOOP ── */
-let rafId = null;
-
-function nodeColor(d) {
-  if (forceBlue.has(d.id)) return "#60a5fa";
-  if (confirmedSet.has(d.id)) return "#ef4444";
-  return C[d.type] || "#64748b";
+let rafId=null;
+function nodeColor(d){
+  if(forceBlue.has(d.id)) return "#60a5fa";
+  if(confirmedSet.has(d.id)) return "#ef4444";
+  return C[d.type]||"#64748b";
 }
 
-function draw() {
-  rafId = null;
-
-  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-  ctx.clearRect(0, 0, W, H);
-
+function draw(){
+  rafId=null;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  ctx.clearRect(0,0,W,H);
   ctx.save();
-  ctx.translate(tx, ty);
-  ctx.scale(scale, scale);
+  ctx.translate(tx,ty);
+  ctx.scale(scale,scale);
 
-  const conn = hoveredNode ? (adjIndex.get(hoveredNode.id) || new Set()) : null;
-  const conn2 = hoveredNode ? get2ndDegree(hoveredNode.id) : null;
+  const conn=hoveredNode?(adjIndex.get(hoveredNode.id)||new Set()):null;
+  const conn2=hoveredNode?get2nd(hoveredNode.id):null;
+  const showWeak=scale>=0.5,showMed=scale>=0.3;
+  const minR4lbl=scale<0.3?22:scale<0.5?15:scale<0.8?10:0;
 
-  /* Zoom-level detail thresholds */
-  const showWeakLinks = scale >= 0.5;
-  const showMedLinks = scale >= 0.3;
-  const minRadiusForLabel = scale < 0.3 ? 22 :
-                             scale < 0.5 ? 15 :
-                             scale < 0.8 ? 10 : 0;
-
-  /* ── CLUSTER HULLS ── */
-  if (activeCat === "all" && scale > 0.25) {
-    const clusterDefs = [
-      { ids: categories.intel_il, color: "59,130,246" },
-      { ids: categories.intel_uk, color: "168,85,247" },
-      { ids: categories.intel_us, color: "239,68,68" },
-      { ids: categories.intel_ru, color: "251,113,133" },
-      { ids: categories.intel_ae, color: "234,179,8" },
-    ];
-    for (const cl of clusterDefs) {
-      const pts = cl.ids.map(id => nodeMap.get(id)).filter(n => n && visSet.has(n.id));
-      if (pts.length < 3) continue;
-      let cx=0, cy=0;
-      for (const p of pts) { cx += p.x; cy += p.y; }
-      cx /= pts.length; cy /= pts.length;
-      let rx = 0, ry = 0;
-      for (const p of pts) {
-        rx = Math.max(rx, Math.abs(p.x - cx));
-        ry = Math.max(ry, Math.abs(p.y - cy));
-      }
-      rx += 50; ry += 50;
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${cl.color},0.02)`;
-      ctx.fill();
-      ctx.strokeStyle = `rgba(${cl.color},0.06)`;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-  }
-
-  /* ── LINKS ── */
-  for (let i = 0; i < links.length; i++) {
-    const l = links[i];
-    const s = l.source, t = l.target;
-    const sid = s.id||s, tid = t.id||t;
-    if (!visSet.has(sid) || !visSet.has(tid)) continue;
-    if (linkStrengths[i] < minStrength) continue;
-
-    const str = linkStrengths[i];
-
-    /* Zoom-level culling */
-    if (!showWeakLinks && str < 0.4) continue;
-    if (!showMedLinks && str < 0.6) continue;
-
-    let alpha, lineW;
-    if (conn) {
-      if (sid === hoveredNode.id || tid === hoveredNode.id) {
-        alpha = 0.5 + str * 0.4;
-        lineW = Math.max(1.0, str * 2.5);
-      } else {
-        continue;
-      }
+  /* links */
+  for(let i=0;i<links.length;i++){
+    const l=links[i],s=l.source,t=l.target,sid=s.id||s,tid=t.id||t;
+    if(!visSet.has(sid)||!visSet.has(tid)) continue;
+    if(lStr[i]<minStrength) continue;
+    const str=lStr[i];
+    if(!showWeak&&str<0.4) continue;
+    if(!showMed&&str<0.6) continue;
+    let alpha,lineW;
+    if(conn){
+      if(sid===hoveredNode.id||tid===hoveredNode.id){alpha=0.5+str*0.4;lineW=Math.max(1,str*2.5);}
+      else continue;
     } else {
-      alpha = str >= 0.8 ? 0.22 :
-              str >= 0.6 ? 0.12 :
-              str >= 0.4 ? 0.06 : 0.03;
-      lineW = Math.max(0.3, str * 1.0);
+      alpha=str>=0.8?0.22:str>=0.6?0.12:str>=0.4?0.06:0.03;
+      lineW=Math.max(0.3,str*1.0);
     }
-
-    /* Curve offset */
-    const mx = (s.x + t.x) / 2;
-    const my = (s.y + t.y) / 2;
-    const dx = t.x - s.x, dy = t.y - s.y;
-    const len = Math.sqrt(dx*dx + dy*dy) || 1;
-    const curvature = ((i % 7) - 3) * 0.05 * len / 5;
-    const cpx = mx + (-dy / len) * curvature;
-    const cpy = my + (dx / len) * curvature;
-
-    ctx.beginPath();
-    ctx.moveTo(s.x, s.y);
-    if (Math.abs(curvature) > 2) {
-      ctx.quadraticCurveTo(cpx, cpy, t.x, t.y);
-    } else {
-      ctx.lineTo(t.x, t.y);
-    }
-
-    ctx.lineWidth = lineW;
-    if (str >= 0.8)      ctx.strokeStyle = `rgba(239,68,68,${alpha})`;
-    else if (str >= 0.6) ctx.strokeStyle = `rgba(251,146,60,${alpha})`;
-    else if (str >= 0.4) ctx.strokeStyle = `rgba(100,116,139,${alpha})`;
-    else                 ctx.strokeStyle = `rgba(71,85,105,${alpha})`;
+    const mx=(s.x+t.x)/2,my=(s.y+t.y)/2,dx=t.x-s.x,dy=t.y-s.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+    const cv=((i%7)-3)*0.05*len/5,cpx=mx+(-dy/len)*cv,cpy=my+(dx/len)*cv;
+    ctx.beginPath(); ctx.moveTo(s.x,s.y);
+    if(Math.abs(cv)>2) ctx.quadraticCurveTo(cpx,cpy,t.x,t.y); else ctx.lineTo(t.x,t.y);
+    ctx.lineWidth=lineW;
+    ctx.strokeStyle=str>=0.8?`rgba(239,68,68,${alpha})`:str>=0.6?`rgba(251,146,60,${alpha})`:str>=0.4?`rgba(100,116,139,${alpha})`:`rgba(71,85,105,${alpha})`;
     ctx.stroke();
   }
 
-  /* ── NODES ── */
-  for (let i = 0; i < nodes.length; i++) {
-    const d = nodes[i];
-    if (!visSet.has(d.id)) continue;
-
-    const op = nodeOpacity[i];
-    if (op <= 0.01) continue;
-
-    const r = d.radius * S;
-    const color = nodeColor(d);
-
-    let finalOp;
-    if (conn) {
-      if (d.id === hoveredNode.id) finalOp = op;
-      else if (conn.has(d.id)) finalOp = op * 0.95;
-      else if (conn2 && conn2.has(d.id)) finalOp = op * 0.25;
-      else finalOp = op * 0.06;
+  /* nodes */
+  for(let i=0;i<nodes.length;i++){
+    const d=nodes[i]; if(!visSet.has(d.id)) continue;
+    const op=nodeOpacity[i]; if(op<=0.01) continue;
+    const r=d.radius*S,color=nodeColor(d);
+    let fop;
+    if(conn){
+      if(d.id===hoveredNode.id) fop=op;
+      else if(conn.has(d.id)) fop=op*0.95;
+      else if(conn2&&conn2.has(d.id)) fop=op*0.25;
+      else fop=op*0.06;
     } else {
-      const searchDim = searchQuery && !nodeLabelLC[i].includes(searchQuery);
-      finalOp = searchDim ? op * 0.1 : op;
+      fop=(searchQuery&&!nodeLabelLC[i].includes(searchQuery))?op*0.1:op;
     }
-
-    ctx.globalAlpha = finalOp;
-
-    /* Glow for hovered node */
-    if (hoveredNode && d.id === hoveredNode.id) {
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 20;
-    }
-
-    /* Scale up connected nodes on hover */
-    const drawR = (conn && conn.has(d.id) && d.id !== hoveredNode?.id) ? r * 1.08 : r;
-
-    /* Node circle */
-    ctx.beginPath();
-    ctx.arc(d.x, d.y, drawR, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
-
-    ctx.strokeStyle = forceBlue.has(d.id) ? "rgba(96,165,250,0.4)"
-                    : confirmedSet.has(d.id) ? "rgba(239,68,68,0.4)"
-                    : "rgba(255,255,255,0.12)";
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
+    ctx.globalAlpha=fop;
+    if(hoveredNode&&d.id===hoveredNode.id){ctx.shadowColor=color;ctx.shadowBlur=20;}
+    const dr=(conn&&conn.has(d.id)&&d.id!==hoveredNode?.id)?r*1.08:r;
+    ctx.beginPath(); ctx.arc(d.x,d.y,dr,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.fill();
+    ctx.shadowColor="transparent"; ctx.shadowBlur=0;
+    ctx.strokeStyle=forceBlue.has(d.id)?"rgba(96,165,250,0.4)":confirmedSet.has(d.id)?"rgba(239,68,68,0.4)":"rgba(255,255,255,0.12)";
+    ctx.lineWidth=1.2; ctx.stroke();
   }
+  ctx.globalAlpha=1;
 
-  ctx.globalAlpha = 1;
-
-  /* ── LABELS ── */
-  if (showLabels) {
-    const fontSize = Math.max(6, Math.min(9, 7 / Math.sqrt(Math.max(0.3, scale))));
-    ctx.font = `500 ${fontSize}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-
-    for (let i = 0; i < nodes.length; i++) {
-      const d = nodes[i];
-      if (!visSet.has(d.id)) continue;
-      const op = nodeOpacity[i];
-      if (op <= 0.01) continue;
-
-      /* Skip small labels at low zoom unless hovered */
-      if (d.radius < minRadiusForLabel && !(conn && conn.has(d.id))) continue;
-
-      let labelOp;
-      if (conn) {
-        if (d.id === hoveredNode.id) labelOp = 1.0;
-        else if (conn.has(d.id)) labelOp = 0.9;
-        else if (conn2 && conn2.has(d.id)) labelOp = 0.15;
-        else labelOp = 0.0;
+  /* labels — reads _lx/_ly offsets written by placeLabels() */
+  if(showLabels){
+    const fs=Math.max(6,Math.min(9,7/Math.sqrt(Math.max(0.3,scale))));
+    ctx.font=`500 ${fs}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
+    ctx.textAlign="center"; ctx.textBaseline="top";
+    for(let i=0;i<nodes.length;i++){
+      const d=nodes[i]; if(!visSet.has(d.id)) continue;
+      const op=nodeOpacity[i]; if(op<=0.01) continue;
+      if(d.radius<minR4lbl&&!(conn&&conn.has(d.id))) continue;
+      let lop;
+      if(conn){
+        if(d.id===hoveredNode.id) lop=1;
+        else if(conn.has(d.id)) lop=0.9;
+        else if(conn2&&conn2.has(d.id)) lop=0.15;
+        else lop=0;
       } else {
-        const searchDim = searchQuery && !nodeLabelLC[i].includes(searchQuery);
-        labelOp = searchDim ? 0.05 : 0.85;
+        lop=(searchQuery&&!nodeLabelLC[i].includes(searchQuery))?0.05:0.85;
       }
-
-      if (labelOp <= 0.01) continue;
-      ctx.globalAlpha = op * labelOp;
-
-      const lx = d.x;
-      const nodeR = d.radius * S;
-      const labelDrawR = (conn && conn.has(d.id) && d.id !== hoveredNode?.id) ? nodeR * 1.08 : nodeR;
-      const ly = d.y + labelDrawR + 1.2 + 4;
-
-      ctx.fillStyle = forceBlue.has(d.id) ? "#93c5fd"
-                    : confirmedSet.has(d.id) ? "#fca5a5"
-                    : "#94a3b8";
-      ctx.fillText(d.label, lx, ly);
+      if(lop<=0.01) continue;
+      ctx.globalAlpha=op*lop;
+      const nodeR=d.radius*S;
+      ctx.fillStyle=forceBlue.has(d.id)?"#93c5fd":confirmedSet.has(d.id)?"#fca5a5":"#94a3b8";
+      ctx.fillText(d.label,d.x,d.y+nodeR+3);
     }
   }
-
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha=1;
   ctx.restore();
 
-  /* ── MINIMAP ── */
+  /* minimap */
   {
-    const mmW = 140, mmH = 90, mmPad = 10;
-    const mmX = W - mmW - mmPad, mmY = H - mmH - mmPad;
-    let bx0=Infinity, by0=Infinity, bx1=-Infinity, by1=-Infinity, cnt=0;
-    for (const d of nodes) {
-      if (!visSet.has(d.id)) continue;
-      if (d.x < bx0) bx0=d.x; if (d.y < by0) by0=d.y;
-      if (d.x > bx1) bx1=d.x; if (d.y > by1) by1=d.y;
-      cnt++;
+    const mw=130,mh=85,mp=8,mmx=W-mw-mp,mmy=H-mh-mp;
+    let bx0=Infinity,by0=Infinity,bx1=-Infinity,by1=-Infinity,cnt=0;
+    for(const d of nodes){
+      if(!visSet.has(d.id)) continue;
+      if(d.x<bx0)bx0=d.x;if(d.y<by0)by0=d.y;if(d.x>bx1)bx1=d.x;if(d.y>by1)by1=d.y;cnt++;
     }
-    if (cnt > 2 && bx1 > bx0) {
-      const mPad = 10;
-      const mScale = Math.min((mmW - mPad*2) / (bx1-bx0||1), (mmH - mPad*2) / (by1-by0||1));
-      const mOx = mmX + mmW/2 - (bx0+bx1)/2 * mScale;
-      const mOy = mmY + mmH/2 - (by0+by1)/2 * mScale;
-
-      ctx.fillStyle = "rgba(15,23,42,0.8)";
-      ctx.fillRect(mmX, mmY, mmW, mmH);
-      ctx.strokeStyle = "rgba(51,65,85,0.4)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mmX, mmY, mmW, mmH);
-
-      for (const d of nodes) {
-        if (!visSet.has(d.id)) continue;
-        const mx = mOx + d.x * mScale;
-        const my = mOy + d.y * mScale;
-        if (mx < mmX || mx > mmX+mmW || my < mmY || my > mmY+mmH) continue;
-        ctx.beginPath();
-        ctx.arc(mx, my, 1.2, 0, Math.PI*2);
-        ctx.fillStyle = nodeColor(d);
-        ctx.globalAlpha = 0.5;
-        ctx.fill();
+    if(cnt>2&&bx1>bx0){
+      const p=10,ms=Math.min((mw-p*2)/(bx1-bx0||1),(mh-p*2)/(by1-by0||1));
+      const ox=mmx+mw/2-(bx0+bx1)/2*ms,oy=mmy+mh/2-(by0+by1)/2*ms;
+      ctx.fillStyle="rgba(15,23,42,0.8)"; ctx.fillRect(mmx,mmy,mw,mh);
+      ctx.strokeStyle="rgba(51,65,85,0.4)"; ctx.lineWidth=1; ctx.strokeRect(mmx,mmy,mw,mh);
+      for(const d of nodes){
+        if(!visSet.has(d.id)) continue;
+        const px=ox+d.x*ms,py=oy+d.y*ms;
+        if(px<mmx||px>mmx+mw||py<mmy||py>mmy+mh) continue;
+        ctx.beginPath(); ctx.arc(px,py,1.2,0,Math.PI*2);
+        ctx.fillStyle=nodeColor(d); ctx.globalAlpha=0.5; ctx.fill();
       }
-      ctx.globalAlpha = 1;
-
-      /* Viewport rectangle */
-      const vx0 = mOx + (-tx/scale) * mScale;
-      const vy0 = mOy + (-ty/scale) * mScale;
-      const vw = (W/scale) * mScale;
-      const vh = (H/scale) * mScale;
-      ctx.strokeStyle = "rgba(99,102,241,0.4)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(
-        Math.max(mmX, vx0), Math.max(mmY, vy0),
-        Math.min(vw, mmW), Math.min(vh, mmH)
-      );
+      ctx.globalAlpha=1;
+      ctx.strokeStyle="rgba(99,102,241,0.4)"; ctx.lineWidth=1;
+      ctx.strokeRect(Math.max(mmx,ox+(-tx/scale)*ms),Math.max(mmy,oy+(-ty/scale)*ms),Math.min((W/scale)*ms,mw),Math.min((H/scale)*ms,mh));
     }
   }
 }
 
-function scheduleRedraw() {
-  if (!rafId) rafId = requestAnimationFrame(draw);
-}
+function scheduleRedraw(){if(!rafId)rafId=requestAnimationFrame(draw);}
 
-/* ── OPACITY ANIMATION ── */
-const opacityTargets = new Float32Array(nodes.length).fill(0);
-let animating = false;
-let animRafId = null;
-
-function tickOpacity() {
-  animRafId = null;
-  let stillMoving = false;
-  for (let i = 0; i < nodes.length; i++) {
-    const diff = opacityTargets[i] - nodeOpacity[i];
-    if (Math.abs(diff) > 0.01) {
-      nodeOpacity[i] += diff * 0.12;
-      stillMoving = true;
-    } else {
-      nodeOpacity[i] = opacityTargets[i];
-    }
+const opTgt=new Float32Array(nodes.length).fill(0);
+let animating=false;
+function tickOpacity(){
+  let moving=false;
+  for(let i=0;i<nodes.length;i++){
+    const d=opTgt[i]-nodeOpacity[i];
+    if(Math.abs(d)>0.01){nodeOpacity[i]+=d*0.12;moving=true;}
+    else nodeOpacity[i]=opTgt[i];
   }
   draw();
-  if (stillMoving) animRafId = requestAnimationFrame(tickOpacity);
-  else animating = false;
+  if(moving) requestAnimationFrame(tickOpacity);
+  else animating=false;
+}
+function setOpTgt(){
+  for(let i=0;i<nodes.length;i++) opTgt[i]=visSet.has(nodes[i].id)?0.9:0;
+  if(!animating){animating=true;requestAnimationFrame(tickOpacity);}
 }
 
-function setOpacityTargets() {
-  for (let i = 0; i < nodes.length; i++) {
-    opacityTargets[i] = visSet.has(nodes[i].id) ? 0.9 : 0;
-  }
-  if (!animating) {
-    animating = true;
-    animRafId = requestAnimationFrame(tickOpacity);
-  }
+let simRunning=false,refitTimer=null;
+function restoreForces(){
+  sim.force("center",d3.forceCenter(W/2,H/2))
+     .force("x",d3.forceX(W/2).strength(0.06))
+     .force("y",d3.forceY(H/2).strength(0.06))
+     .force("charge",d3.forceManyBody().strength(d=>-(d.radius*S)*14).distanceMax(500))
+     .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+16).strength(1.0).iterations(4));
+}
+function stopSim(){
+  if(refitTimer){clearTimeout(refitTimer);refitTimer=null;}
+  sim.stop();simRunning=false;sim.on("tick.r",null).on("end.r",null);
 }
 
-/* ── LABEL PLACEMENT ── */
-function placeLabels(vis) {
-  const LH = 10, PAD = 1, charW = 5.2;
-  const active = vis || visSet;
+function resolveOverlaps(){
+  /* Run collision-only passes on current positions */
+  const colForce=d3.forceCollide().radius(d=>visSet.has(d.id)?(d.radius*S)+16:0).strength(1.0).iterations(6);
+  colForce.initialize(nodes,()=>1);
+  for(let i=0;i<80;i++) colForce(0.3);
+  for(const d of nodes){d._ox=d.x;d._oy=d.y;d.fx=d.x;d.fy=d.y;}
+}
 
-  /* 12 angles — but weighted toward below-center */
-  const angles = [];
-  for (let i = 0; i < 12; i++) angles.push((i / 12) * Math.PI * 2);
-  const dists = [1.0, 1.2, 1.45];
-
-  const sorted = nodes.slice()
-    .filter(d => active.has(d.id))
-    .sort((a, b) => b.radius - a.radius);
-
-  const CELL = 50;
-  const grid = new Map();
-  function addToGrid(rect) {
-    const x0 = (rect.ax / CELL) | 0, x1 = (rect.ar / CELL) | 0;
-    const y0 = (rect.ay / CELL) | 0, y1 = (rect.ab / CELL) | 0;
-    for (let gx = x0; gx <= x1; gx++) {
-      for (let gy = y0; gy <= y1; gy++) {
-        const k = gx + ',' + gy;
-        if (!grid.has(k)) grid.set(k, []);
-        grid.get(k).push(rect);
-      }
+function refitVis(){
+  if(refitTimer) clearTimeout(refitTimer);
+  refitTimer=setTimeout(()=>{
+    const vis=getVisibleSet(); if(!vis.size) return;
+    stopSim();
+    /* Unpin all */
+    for(const d of nodes){d.fx=null;d.fy=null;}
+    /* Keep Epstein pinned to center in All view */
+    if(activeCat==="all"){
+      const ep=nodeMap.get("epstein");
+      if(ep){ep.fx=W/2;ep.fy=H/2;ep.x=W/2;ep.y=H/2;}
     }
-  }
-  function gridNear(ax, ay, ar, ab) {
-    const x0 = (ax / CELL) | 0, x1 = (ar / CELL) | 0;
-    const y0 = (ay / CELL) | 0, y1 = (ab / CELL) | 0;
-    const seen = new Set();
-    const result = [];
-    for (let gx = x0; gx <= x1; gx++) {
-      for (let gy = y0; gy <= y1; gy++) {
-        const cell = grid.get(gx + ',' + gy);
-        if (cell) for (const r of cell) {
-          if (!seen.has(r)) { seen.add(r); result.push(r); }
-        }
-      }
-    }
-    return result;
-  }
-
-  const activeNodes = sorted.map(d => ({ x: d.x, y: d.y, r: d.radius * S + 2 }));
-
-  for (const d of sorted) {
-    const r = d.radius * S + PAD;
-    const lw = d.label.length * charW + 4;
-    /* Default: directly below, snug against the node */
-    let bestScore = Infinity, bestDx = 0, bestDy = r + LH * 0.6;
-
-    for (const distMul of dists) {
-      if (bestScore <= 0) break;
-      for (const ang of angles) {
-        /* Place label center along the angle, just outside the node */
-        const dist = (r + LH * 0.5) * distMul;
-        const cx = d.x + Math.cos(ang) * dist;
-        const cy = d.y + Math.sin(ang) * dist;
-        const ax = cx - lw / 2, ay = cy - LH / 2;
-        const ar = cx + lw / 2, ab = cy + LH / 2;
-        let score = 0;
-
-        /* Penalise overlap with nodes */
-        for (const n of activeNodes) {
-          const clx = Math.max(ax, Math.min(ar, n.x));
-          const cly = Math.max(ay, Math.min(ab, n.y));
-          const ddx = n.x - clx, ddy = n.y - cly;
-          if (ddx * ddx + ddy * ddy < n.r * n.r) { score += 300; break; }
-        }
-        if (score >= 300 && bestScore < 300) continue;
-
-        /* Penalise overlap with placed labels */
-        const nearby = gridNear(ax, ay, ar, ab);
-        for (const p of nearby) {
-          if (ar > p.ax && ax < p.ar && ab > p.ay && ay < p.ab) {
-            const overlapX = Math.min(ar, p.ar) - Math.max(ax, p.ax);
-            const overlapY = Math.min(ab, p.ab) - Math.max(ay, p.ay);
-            score += 80 + (overlapX * overlapY) * 0.8;
-          }
-        }
-
-        /* Heavy penalty for distance — labels must stay close */
-        score += (distMul - 1.0) * 60;
-
-        /* Strong preference for directly below (ang ≈ π/2) */
-        const belowness = Math.cos(ang - Math.PI * 0.5); /* 1.0 when pointing straight down */
-        score -= belowness * 8;
-
-        /* Slight preference for below-right over below-left */
-        if (ang > Math.PI * 0.25 && ang < Math.PI * 0.75) score -= 2;
-
-        if (score < bestScore) {
-          bestScore = score;
-          bestDx = cx - d.x;
-          bestDy = cy - d.y;
-          if (score <= 0) break;
-        }
-      }
-    }
-
-    d._lx = bestDx;
-    d._ly = bestDy;
-    const rect = {
-      ax: d.x + bestDx - lw / 2,
-      ay: d.y + bestDy - LH / 2,
-      ar: d.x + bestDx + lw / 2,
-      ab: d.y + bestDy + LH / 2
-    };
-    addToGrid(rect);
-  }
-}
-
-/* ── CAMERA ── */
-function panTo(targetTx, targetTy, targetScale, duration) {
-  const startTx = tx, startTy = ty, startScale = scale;
-  const startTime = performance.now();
-  function step(now) {
-    const t = Math.min((now - startTime) / duration, 1);
-    const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
-    tx = startTx + (targetTx - startTx) * ease;
-    ty = startTy + (targetTy - startTy) * ease;
-    scale = startScale + (targetScale - startScale) * ease;
-    scheduleRedraw();
-    if (t < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-/* ── SIMULATION CONTROL ── */
-let simRunning = false, refitTimer = null;
-
-function restoreDefaultForces() {
-  sim.force("center", d3.forceCenter(W/2,H/2))
-     .force("x", d3.forceX(W/2).strength(0.09))
-     .force("y", d3.forceY(H/2).strength(0.09))
-     .force("charge", d3.forceManyBody().strength(d=>-(d.radius*S)*8).distanceMax(350))
-     .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+3));
-}
-
-function freezeSimulation() {
-  if (refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
-  sim.stop(); simRunning = false;
-  sim.on("tick.refit", null).on("end.refit", null);
-  for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
-  placeLabels(null);
-}
-
-function unfreezeNodes() { for (const d of nodes) { d.fx=null; d.fy=null; } }
-
-function isFullView() { return activeCat === "all"; }
-
-function refitVisibleNodes() {
-  if (refitTimer) clearTimeout(refitTimer);
-  refitTimer = setTimeout(() => {
-    const vis = getVisibleSet();
-    if (!vis.size) return;
-    if (simRunning) { sim.stop(); simRunning = false; }
-    unfreezeNodes();
-
-    const cx = W/2, cy = H/2;
-    const visCount = vis.size;
-    const chargeMul = visCount < 15 ? 18 : visCount < 40 ? 14 : 10;
-    const centerStr = visCount < 15 ? 0.3 : visCount < 40 ? 0.2 : 0.12;
-
-    sim.force("center", d3.forceCenter(cx,cy).strength(1))
-       .force("x", d3.forceX(cx).strength(d => vis.has(d.id)?centerStr:0))
-       .force("y", d3.forceY(cy).strength(d => vis.has(d.id)?centerStr:0))
-       .force("charge", d3.forceManyBody().strength(d => vis.has(d.id)?-(d.radius*S)*chargeMul:0).distanceMax(500))
-       .force("collision", d3.forceCollide().radius(d => vis.has(d.id)?(d.radius*S)+6:0));
-
-    sim.on("tick.refit", () => {
-      /* Snapshot settled positions each tick so labels track correctly */
-      for (const d of nodes) { if (vis.has(d.id)) { d._ox = d.x; d._oy = d.y; } }
+    const cx=W/2,cy=H/2,vc=vis.size;
+    const cm=vc<15?22:vc<40?16:12;
+    const cs=vc<15?0.35:vc<40?0.22:0.14;
+    sim.force("center",d3.forceCenter(cx,cy).strength(1))
+       .force("x",d3.forceX(cx).strength(d=>vis.has(d.id)?cs:0))
+       .force("y",d3.forceY(cy).strength(d=>vis.has(d.id)?cs:0))
+       .force("charge",d3.forceManyBody().strength(d=>vis.has(d.id)?-(d.radius*S)*cm:0).distanceMax(500))
+       .force("collision",d3.forceCollide().radius(d=>vis.has(d.id)?(d.radius*S)+16:0).strength(1.0).iterations(4));
+    sim.on("tick.r",()=>{
+      for(const d of nodes)if(vis.has(d.id)){d._ox=d.x;d._oy=d.y;}
       scheduleRedraw();
     });
-    sim.on("end.refit", () => {
-      simRunning = false;
-      sim.on("tick.refit",null).on("end.refit",null);
-      sim.stop();
-      /* Freeze all nodes in place — no further movement */
-      for (const d of nodes) {
-        d.fx = d.x; d.fy = d.y;
-        d._ox = d.x; d._oy = d.y;
+    sim.on("end.r",()=>{
+      simRunning=false;sim.on("tick.r",null).on("end.r",null);sim.stop();
+      for(const d of nodes){d.fx=d.x;d.fy=d.y;d._ox=d.x;d._oy=d.y;}
+      /* Ensure Epstein stays dead center in All view */
+      if(activeCat==="all"){
+        const ep=nodeMap.get("epstein");
+        if(ep){ep.fx=W/2;ep.fy=W/2;ep.x=W/2;ep.y=H/2;ep._ox=W/2;ep._oy=H/2;}
       }
-      restoreDefaultForces();
-      placeLabels(vis);
-      scheduleRedraw();
+      restoreForces();scheduleRedraw();
     });
-    simRunning = true;
-    sim.alpha(0.7).alphaDecay(0.025).alphaTarget(0).restart();
-  }, 100);
+    simRunning=true;sim.alpha(0.8).alphaDecay(0.022).alphaTarget(0).restart();
+  },80);
 }
 
-/* ── APPLY FILTERS ── */
-function applyFilters() {
-  invalidateVis();
-  visSet = getVisibleSet();
-  setOpacityTargets();
-  updateStats();
+function applyFilters(){invalidateVis();visSet=getVisibleSet();setOpTgt();updateStats();}
+function updateStats(){
+  let vl=0;
+  for(let i=0;i<links.length;i++) if(lStr[i]>=minStrength&&visSet.has(lSrcIds[i])&&visSet.has(lTgtIds[i])) vl++;
+  document.getElementById("stats").innerHTML=`${visSet.size} of ${nodes.length} nodes · ${vl} of ${links.length} links<br>Scroll to zoom · Drag to pan · Click for dossier`;
 }
 
-function updateStats() {
-  let visL = 0;
-  for (let i = 0; i < links.length; i++) {
-    if (linkStrengths[i] >= minStrength && visSet.has(linkSrcIds[i]) && visSet.has(linkTgtIds[i])) visL++;
-  }
-  document.getElementById("stats").innerHTML =
-    `${visSet.size} of ${nodes.length} nodes · ${visL} of ${links.length} links<br>Scroll to zoom · Drag to pan<br>Hover to highlight · Click for dossier`;
-}
-
-/* ── MOUSE / TOUCH INTERACTION ── */
-const tipEl = document.getElementById("tooltip");
-
-function toGraph(cx, cy) {
-  return { x: (cx - tx) / scale, y: (cy - ty) / scale };
-}
-
-function hitTest(gx, gy) {
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    const d = nodes[i];
-    if (!visSet.has(d.id)) continue;
-    const r = d.radius * S + 2;
-    const dx = gx - d.x, dy = gy - d.y;
-    if (dx*dx + dy*dy <= r*r) return d;
+const tipEl=document.getElementById("tip");
+function toGraph(cx,cy){return{x:(cx-tx)/scale,y:(cy-ty)/scale};}
+function hitTest(gx,gy){
+  for(let i=nodes.length-1;i>=0;i--){
+    const d=nodes[i]; if(!visSet.has(d.id)) continue;
+    const r=d.radius*S+2,dx=gx-d.x,dy=gy-d.y;
+    if(dx*dx+dy*dy<=r*r) return d;
   }
   return null;
 }
-
-function showTooltip(d, clientX, clientY) {
-  const nodeCats = Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>catNames[k]);
-  let h = `<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
-  if (d.agency) h += `<div style="font-size:10px;color:#64748b;margin-bottom:4px">${d.agency}</div>`;
-  if (d.role)   h += `<div><span class="lbl">Role: </span>${d.role}</div>`;
-  if (d.yearsActive) h += `<div><span class="lbl">Active: </span>${d.yearsActive}</div>`;
-  if (d.status) h += `<div><span class="lbl">Status: </span>${d.status}</div>`;
-  if (nodeCats.length) h += `<div style="margin-top:5px;color:#64748b;font-size:10px">${nodeCats.join(' · ')}</div>`;
-  h += `<div class="hint">Click to open dossier →</div>`;
-  tipEl.innerHTML = h;
-  tipEl.style.display = "block";
-  tipEl.style.transform = `translate3d(${clientX+15}px,${clientY-10}px,0)`;
+function showTip(d,cx,cy){
+  const cats=Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>catNames[k]);
+  let h=`<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
+  if(d.role) h+=`<div><span class="lbl">Role: </span>${d.role}</div>`;
+  if(d.status) h+=`<div><span class="lbl">Status: </span>${d.status}</div>`;
+  if(cats.length) h+=`<div style="margin-top:4px;color:#64748b;font-size:10px">${cats.join(' · ')}</div>`;
+  h+=`<div class="hint">Click to open dossier →</div>`;
+  tipEl.innerHTML=h; tipEl.style.display="block";
+  tipEl.style.transform=`translate3d(${cx+14}px,${cy-10}px,0)`;
 }
 
-/* Pan/zoom state */
-let isPanning = false, panStartX = 0, panStartY = 0, panStartTx = 0, panStartTy = 0;
-let dragNode = null, dragStartX = 0, dragStartY = 0;
-let mouseDownX = 0, mouseDownY = 0, mouseDownTime = 0;
+let isPanning=false,panSX=0,panSY=0,panSTx=0,panSTy=0;
+let dragNode=null,dragSX=0,dragSY=0,mdX=0,mdY=0,mdT=0;
 
-canvas.addEventListener("mousedown", e => {
-  if (e.button !== 0) return;
-  mouseDownX = e.clientX; mouseDownY = e.clientY; mouseDownTime = Date.now();
-  const g = toGraph(e.clientX, e.clientY);
-  const hit = hitTest(g.x, g.y);
-  if (hit) {
-    dragNode = hit;
-    dragStartX = e.clientX; dragStartY = e.clientY;
-    hit.fx = hit.x; hit.fy = hit.y;
-    sim.alphaTarget(0.06).restart();
-  } else {
-    isPanning = true;
-    panStartX = e.clientX; panStartY = e.clientY;
-    panStartTx = tx; panStartTy = ty;
-  }
+canvas.addEventListener("mousedown",e=>{
+  if(e.button!==0) return;
+  mdX=e.clientX;mdY=e.clientY;mdT=Date.now();
+  const g=toGraph(e.clientX,e.clientY),hit=hitTest(g.x,g.y);
+  if(hit){dragNode=hit;dragSX=e.clientX;dragSY=e.clientY;hit.fx=hit.x;hit.fy=hit.y;sim.alphaTarget(0.06).restart();}
+  else{isPanning=true;panSX=e.clientX;panSY=e.clientY;panSTx=tx;panSTy=ty;}
 });
-
-canvas.addEventListener("mousemove", e => {
-  if (dragNode) {
-    const g = toGraph(e.clientX, e.clientY);
-    dragNode.fx = g.x; dragNode.fy = g.y;
-    dragNode.x  = g.x; dragNode.y  = g.y;
-    scheduleRedraw();
-    return;
-  }
-  if (isPanning) {
-    tx = panStartTx + (e.clientX - panStartX);
-    ty = panStartTy + (e.clientY - panStartY);
-    scheduleRedraw();
-    return;
-  }
-  const g = toGraph(e.clientX, e.clientY);
-  const hit = hitTest(g.x, g.y);
-  if (hit !== hoveredNode) {
-    hoveredNode = hit;
+canvas.addEventListener("mousemove",e=>{
+  if(dragNode){const g=toGraph(e.clientX,e.clientY);dragNode.fx=dragNode.x=g.x;dragNode.fy=dragNode.y=g.y;scheduleRedraw();return;}
+  if(isPanning){tx=panSTx+(e.clientX-panSX);ty=panSTy+(e.clientY-panSY);scheduleRedraw();return;}
+  const g=toGraph(e.clientX,e.clientY),hit=hitTest(g.x,g.y);
+  if(hit!==hoveredNode){hoveredNode=hit;scheduleRedraw();}
+  if(hit){showTip(hit,e.clientX,e.clientY);canvas.style.cursor="pointer";}
+  else{tipEl.style.display="none";canvas.style.cursor="default";}
+});
+canvas.addEventListener("mouseup",e=>{
+  if(dragNode){
+    const moved=Math.hypot(e.clientX-dragSX,e.clientY-dragSY),elapsed=Date.now()-mdT;
+    if(moved<5&&elapsed<300) openDossier(dragNode);
+    dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;dragNode.fx=dragNode.x;dragNode.fy=dragNode.y;
+    dragNode=null;sim.alphaTarget(0).alpha(0.0001);
     scheduleRedraw();
   }
-  if (hit) {
-    showTooltip(hit, e.clientX, e.clientY);
-    canvas.style.cursor = "pointer";
-  } else {
-    tipEl.style.display = "none";
-    canvas.style.cursor = "default";
+  if(isPanning){
+    isPanning=false;
+    if(Math.hypot(e.clientX-mdX,e.clientY-mdY)<5) document.getElementById("dos").classList.remove("open");
   }
 });
-
-canvas.addEventListener("mouseup", e => {
-  if (dragNode) {
-    const moved = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
-    const elapsed = Date.now() - mouseDownTime;
-    if (moved < 5 && elapsed < 300) openDossier(dragNode);
-    /* After drag — freeze the node where it landed */
-    dragNode._ox = dragNode.x; dragNode._oy = dragNode.y;
-    dragNode.fx = dragNode.x; dragNode.fy = dragNode.y;
-    dragNode = null;
-    sim.alphaTarget(0).alpha(0.0001);
-    scheduleRedraw();
-  }
-  if (isPanning) {
-    isPanning = false;
-    const moved = Math.hypot(e.clientX - mouseDownX, e.clientY - mouseDownY);
-    if (moved < 5) document.getElementById("dossier").classList.remove("open");
-  }
+canvas.addEventListener("mouseleave",()=>{
+  if(dragNode){dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;dragNode.fx=dragNode.x;dragNode.fy=dragNode.y;dragNode=null;sim.alphaTarget(0).alpha(0.0001);}
+  hoveredNode=null;isPanning=false;tipEl.style.display="none";scheduleRedraw();
 });
-
-canvas.addEventListener("mouseleave", () => {
-  if (dragNode) {
-    dragNode._ox = dragNode.x; dragNode._oy = dragNode.y;
-    dragNode.fx = dragNode.x; dragNode.fy = dragNode.y;
-    dragNode = null;
-    sim.alphaTarget(0).alpha(0.0001);
-  }
-  hoveredNode = null; isPanning = false;
-  tipEl.style.display = "none";
-  scheduleRedraw();
-});
-
-canvas.addEventListener("wheel", e => {
+canvas.addEventListener("wheel",e=>{
   e.preventDefault();
-  const factor = e.deltaY < 0 ? 1.1 : 0.91;
-  const newScale = Math.max(0.1, Math.min(8, scale * factor));
-  tx = e.clientX - (e.clientX - tx) * (newScale / scale);
-  ty = e.clientY - (e.clientY - ty) * (newScale / scale);
-  scale = newScale;
-  scheduleRedraw();
-}, { passive: false });
+  const f=e.deltaY<0?1.1:0.91,ns=Math.max(0.1,Math.min(8,scale*f));
+  tx=e.clientX-(e.clientX-tx)*(ns/scale);ty=e.clientY-(e.clientY-ty)*(ns/scale);scale=ns;scheduleRedraw();
+},{passive:false});
 
-/* Touch support */
-let lastTouchDist = 0, touchPanX = 0, touchPanY = 0;
-canvas.addEventListener("touchstart", e => {
-  if (e.touches.length === 2) {
-    lastTouchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
-  } else if (e.touches.length === 1) {
-    touchPanX = e.touches[0].clientX; touchPanY = e.touches[0].clientY;
-    panStartTx = tx; panStartTy = ty;
-  }
-}, {passive:true});
-canvas.addEventListener("touchmove", e => {
+let ltd=0,tpx=0,tpy=0;
+canvas.addEventListener("touchstart",e=>{
+  if(e.touches.length===2) ltd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  else{tpx=e.touches[0].clientX;tpy=e.touches[0].clientY;panSTx=tx;panSTy=ty;}
+},{passive:true});
+canvas.addEventListener("touchmove",e=>{
   e.preventDefault();
-  if (e.touches.length === 2) {
-    const d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
-    const factor = d / lastTouchDist;
-    const mx = (e.touches[0].clientX+e.touches[1].clientX)/2;
-    const my = (e.touches[0].clientY+e.touches[1].clientY)/2;
-    const ns = Math.max(0.1, Math.min(8, scale*factor));
-    tx = mx - (mx-tx)*(ns/scale); ty = my - (my-ty)*(ns/scale); scale = ns;
-    lastTouchDist = d;
-  } else if (e.touches.length === 1) {
-    tx = panStartTx + (e.touches[0].clientX - touchPanX);
-    ty = panStartTy + (e.touches[0].clientY - touchPanY);
-  }
+  if(e.touches.length===2){
+    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    const f=d/ltd,mx=(e.touches[0].clientX+e.touches[1].clientX)/2,my=(e.touches[0].clientY+e.touches[1].clientY)/2;
+    const ns=Math.max(0.1,Math.min(8,scale*f));
+    tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;ltd=d;
+  } else {tx=panSTx+(e.touches[0].clientX-tpx);ty=panSTy+(e.touches[0].clientY-tpy);}
   scheduleRedraw();
-}, {passive:false});
+},{passive:false});
 
-/* ── SEARCH SPOTLIGHT ── */
-document.getElementById("search").addEventListener("input", e => {
-  searchQuery = e.target.value.toLowerCase();
-  if (searchQuery.length >= 2) {
-    const match = nodes.find(n => visSet.has(n.id) && nodeLabelLC[nodes.indexOf(n)].includes(searchQuery));
-    if (match) {
-      hoveredNode = match;
-    }
-  } else {
-    hoveredNode = null;
-  }
-  invalidateVis();
-  visSet = getVisibleSet();
-  scheduleRedraw();
+document.getElementById("search").addEventListener("input",e=>{
+  searchQuery=e.target.value.toLowerCase();
+  if(searchQuery.length>=2){const m=nodes.find(n=>visSet.has(n.id)&&nodeLabelLC[nodes.indexOf(n)].includes(searchQuery));if(m)hoveredNode=m;}
+  else hoveredNode=null;
+  invalidateVis();visSet=getVisibleSet();scheduleRedraw();
 });
 
-/* ── DOSSIER ── */
-function openDossier(d) {
-  tipEl.style.display = "none";
-  const color = C[d.type]||"#64748b";
-  const light = Clight[d.type]||"rgba(100,116,139,0.1)";
-  const border = Cborder[d.type]||"rgba(100,116,139,0.25)";
-  const isCore = coreSet.has(d.id);
-  document.getElementById("dossier-name").textContent = d.label;
-  const agEl = document.getElementById("dossier-agency");
-  agEl.textContent = d.agency||""; agEl.style.display = d.agency?"block":"none";
-  const roEl = document.getElementById("dossier-role");
-  roEl.textContent = d.role||""; roEl.style.display = d.role?"block":"none";
-  const statusEl = document.getElementById("dossier-status");
-  if (d.status) {
-    statusEl.textContent = d.status; statusEl.style.display = "inline-block";
-    const isDead=/DECEASED|DIED/.test(d.status), isConv=/CONVICTED/.test(d.status);
-    const isFled=/FLED/.test(d.status), isImm=/IMMUNITY/.test(d.status);
-    statusEl.style.background = isDead?"rgba(100,116,139,0.1)":isConv?"rgba(248,113,113,0.1)":isFled?"rgba(251,146,60,0.1)":isImm?"rgba(250,204,21,0.1)":light;
-    statusEl.style.color = isDead?"#64748b":isConv?"#f87171":isFled?"#fb923c":isImm?"#facc15":color;
-    statusEl.style.border = "1px solid "+(isDead?"rgba(100,116,139,0.2)":isConv?"rgba(248,113,113,0.2)":isFled?"rgba(251,146,60,0.2)":isImm?"rgba(250,204,21,0.2)":border);
-  } else { statusEl.style.display = "none"; }
-  const nwEl = document.getElementById("dossier-networth");
-  nwEl.textContent = d.networth||""; nwEl.style.display = d.networth?"inline-block":"none";
-  const stamps={center:"TARGET",convicted:"CONVICTED",suspicious:"SUSPECT",possibly:"MONITOR"};
-  document.getElementById("dossier-stamp").textContent = stamps[d.type]||"FILE";
-  const body = document.getElementById("dossier-body");
-  const parts = [];
-  if (isCore) parts.push(`<div style="margin-bottom:16px"><span class="core-badge">⬤ OPERATIONAL RING</span></div>`);
-  const isUncertain = categories.uncertain.includes(d.id) && !categories.named.includes(d.id);
-  if (isUncertain) parts.push(`<div class="dossier-callout gray" style="margin-bottom:16px">⚠ Documented connection — role uncertain.</div>`);
-  if (d.intelRole)    parts.push(`<div class="dossier-section"><h3>Intelligence Assessment</h3><div class="dossier-callout red">${d.intelRole}</div></div>`);
-  if (d.epsteinLink)  parts.push(`<div class="dossier-section"><h3>Epstein Connection</h3><div class="dossier-callout">${d.epsteinLink}</div></div>`);
-  if (d.significance) parts.push(`<div class="dossier-section"><h3>Why This Matters</h3><div class="dossier-callout blue">${d.significance}</div></div>`);
-  if (d.desc)         parts.push(`<div class="dossier-section"><h3>Summary</h3><p>${d.desc}</p></div>`);
-  if (d.evidence)     parts.push(`<div class="dossier-section"><h3>Evidence</h3><p>${d.evidence}</p></div>`);
-  if (d.link)         parts.push(`<div class="dossier-section"><h3>Analyst Note</h3><p style="color:#64748b;font-style:italic">${d.link}</p></div>`);
-  const nodeCats = Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>k);
-  if (nodeCats.length) parts.push(`<div class="dossier-section"><h3>Network Role</h3><div style="display:flex;gap:4px;flex-wrap:wrap">${nodeCats.map(c=>`<span class="cat-tag" style="background:${catColors[c]}">${catNames[c]}</span>`).join("")}</div></div>`);
-  const yearsHtml = (() => {
-    if (d.yearsActive) return `<div class="dossier-field"><div class="fl">Years Active</div><div class="fv">${d.yearsActive}</div></div>`;
-    if (d.yearsFrom || d.yearsTo) return `<div class="dossier-field"><div class="fl">Years Active</div><div class="fv">${d.yearsFrom||"?"} – ${d.yearsTo||"present"}</div></div>`;
-    const txt = [(d.desc||""),(d.evidence||""),(d.epsteinLink||""),(d.intelRole||"")].join(" ");
-    const m = [...new Set((txt.match(/\b(19[6-9]\d|20[0-3]\d)\b/g)||[]))].map(Number).sort((a,b)=>a-b);
-    if (m.length >= 2) return `<div class="dossier-field"><div class="fl">Years Referenced</div><div class="fv">${m[0]} – ${m[m.length-1]}</div></div>`;
-    if (m.length === 1) return `<div class="dossier-field"><div class="fl">Year Referenced</div><div class="fv">${m[0]}</div></div>`;
-    return "";
-  })();
-  parts.push(`<div class="dossier-section"><h3>Profile</h3>
-    <div class="dossier-field"><div class="fl">Subject ID</div><div class="fv" style="font-family:ui-monospace,monospace;color:${color}">${d.id.toUpperCase()}</div></div>
-    <div class="dossier-field"><div class="fl">Classification</div><div class="fv">${typeLabel[d.type]||d.type}</div></div>
-    ${d.networth?`<div class="dossier-field"><div class="fl">Net Worth</div><div class="fv">${d.networth}</div></div>`:""}
-    ${yearsHtml}</div>`);
-  const conns = [];
-  for (const l of links) {
-    const sid=l.source.id||l.source, tid=l.target.id||l.target;
-    if (sid===d.id) { const t=nodeMap.get(tid); if(t) conns.push({node:t,strength:l.strength||0.5,direction:"→"}); }
-    if (tid===d.id) { const s=nodeMap.get(sid); if(s) conns.push({node:s,strength:l.strength||0.5,direction:"←"}); }
+function openDossier(d){
+  tipEl.style.display="none";
+  const color=C[d.type]||"#64748b",light=Clight[d.type]||"rgba(100,116,139,0.1)",border=Cborder[d.type]||"rgba(100,116,139,0.25)";
+  document.getElementById("dos-name").textContent=d.label;
+  const roEl=document.getElementById("dos-role");roEl.textContent=d.role||"";roEl.style.display=d.role?"block":"none";
+  const stEl=document.getElementById("dos-status");
+  if(d.status){
+    stEl.textContent=d.status;stEl.style.display="inline-block";
+    const dead=/DECEASED|DIED/.test(d.status),conv=/CONVICTED/.test(d.status),fled=/FLED/.test(d.status),imm=/IMMUNITY/.test(d.status);
+    stEl.style.background=dead?"rgba(100,116,139,0.1)":conv?"rgba(248,113,113,0.1)":fled?"rgba(251,146,60,0.1)":imm?"rgba(250,204,21,0.1)":light;
+    stEl.style.color=dead?"#64748b":conv?"#f87171":fled?"#fb923c":imm?"#facc15":color;
+    stEl.style.border="1px solid "+(dead?"rgba(100,116,139,0.2)":conv?"rgba(248,113,113,0.2)":fled?"rgba(251,146,60,0.2)":imm?"rgba(250,204,21,0.2)":border);
+  } else stEl.style.display="none";
+  const nwEl=document.getElementById("dos-nw");nwEl.textContent=d.networth||"";nwEl.style.display=d.networth?"inline-block":"none";
+  const body=document.getElementById("dos-body"),parts=[];
+  if(categories.uncertain.includes(d.id)&&!categories.named.includes(d.id)) parts.push(`<div class="cal gray" style="margin-bottom:14px">⚠ Documented connection — role uncertain.</div>`);
+  if(d.intelRole)   parts.push(`<div class="ds"><h3>Intel Assessment</h3><div class="cal red">${d.intelRole}</div></div>`);
+  if(d.epsteinLink) parts.push(`<div class="ds"><h3>Epstein Connection</h3><div class="cal">${d.epsteinLink}</div></div>`);
+  if(d.significance)parts.push(`<div class="ds"><h3>Why This Matters</h3><div class="cal blue">${d.significance}</div></div>`);
+  if(d.desc)        parts.push(`<div class="ds"><h3>Summary</h3><p>${d.desc}</p></div>`);
+  if(d.evidence)    parts.push(`<div class="ds"><h3>Evidence</h3><p>${d.evidence}</p></div>`);
+  if(d.link)        parts.push(`<div class="ds"><h3>Analyst Note</h3><p style="color:#64748b;font-style:italic">${d.link}</p></div>`);
+  const nodeCats=Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>k);
+  if(nodeCats.length) parts.push(`<div class="ds"><h3>Network Role</h3><div>${nodeCats.map(c=>`<span class="ctag">${catNames[c]}</span>`).join("")}</div></div>`);
+  const txt=[(d.desc||""),(d.evidence||""),(d.epsteinLink||""),(d.intelRole||"")].join(" ");
+  const ym=[...new Set((txt.match(/\b(19[6-9]\d|20[0-3]\d)\b/g)||[]))].map(Number).sort((a,b)=>a-b);
+  parts.push(`<div class="ds"><h3>Profile</h3>
+    <div class="df"><div class="fl">ID</div><div class="fv" style="font-family:monospace;color:${color}">${d.id.toUpperCase()}</div></div>
+    <div class="df"><div class="fl">Classification</div><div class="fv">${typeLabel[d.type]||d.type}</div></div>
+    ${d.networth?`<div class="df"><div class="fl">Net Worth</div><div class="fv">${d.networth}</div></div>`:""}
+    ${ym.length>=2?`<div class="df"><div class="fl">Years</div><div class="fv">${ym[0]}–${ym[ym.length-1]}</div></div>`:""}</div>`);
+  const conns=[];
+  for(const l of links){
+    const sid=l.source.id||l.source,tid=l.target.id||l.target;
+    if(sid===d.id){const t=nodeMap.get(tid);if(t)conns.push({node:t,strength:l.strength||0.5,dir:"→"});}
+    if(tid===d.id){const s=nodeMap.get(sid);if(s)conns.push({node:s,strength:l.strength||0.5,dir:"←"});}
   }
   conns.sort((a,b)=>b.strength-a.strength);
-  parts.push(`<div class="dossier-section"><h3>Connections (${conns.length})</h3><ul class="conn-list">${
-    conns.map(c=>{
-      const sc=c.strength>=0.7?"str-high":c.strength>=0.4?"str-med":"str-low";
-      const opTag=coreSet.has(c.node.id)?` <span style="color:#f87171;font-size:8px">●</span>`:"";
-      return `<li data-id="${c.node.id}"><span class="conn-name"><span style="color:${C[c.node.type]||'#64748b'}">●</span> ${c.direction} ${c.node.label}${opTag}</span><span class="conn-strength ${sc}">${Math.round(c.strength*100)}%</span></li>`;
-    }).join("")
-  }</ul></div>`);
-  const threatLevel=d.type==="center"?"CRITICAL":d.type==="convicted"?"HIGH":isCore?"HIGH":conns.length>10?"ELEVATED":conns.length>5?"MODERATE":"LOW";
+  parts.push(`<div class="ds"><h3>Connections (${conns.length})</h3><ul class="cl">${conns.map(c=>{
+    const sc=c.strength>=0.7?"sh":c.strength>=0.4?"sm":"sl";
+    return `<li data-id="${c.node.id}"><span class="cn"><span style="color:${C[c.node.type]||'#64748b'}">●</span> ${c.dir} ${c.node.label}</span><span class="cs ${sc}">${Math.round(c.strength*100)}%</span></li>`;
+  }).join("")}</ul></div>`);
+  const tl=d.type==="center"?"CRITICAL":d.type==="convicted"?"HIGH":coreSet.has(d.id)?"HIGH":conns.length>10?"ELEVATED":conns.length>5?"MODERATE":"LOW";
   const tC={CRITICAL:"#f87171",HIGH:"#fb923c",ELEVATED:"#fbbf24",MODERATE:"#818cf8",LOW:"#475569"};
   const tB={CRITICAL:"rgba(248,113,113,0.1)",HIGH:"rgba(251,146,60,0.1)",ELEVATED:"rgba(251,191,36,0.1)",MODERATE:"rgba(129,140,248,0.1)",LOW:"rgba(71,85,105,0.1)"};
-  parts.push(`<div class="dossier-section"><h3>Assessment</h3>
-    <span class="threat-badge" style="background:${tB[threatLevel]};color:${tC[threatLevel]};border:1px solid ${tC[threatLevel]}30">${threatLevel}</span>
-    <div style="margin-top:8px;color:#475569;font-size:11px">${conns.length} direct connections · Network weight: ${d.radius}</div></div>`);
-  parts.push(`<div style="margin-top:24px;padding-top:12px;border-top:1px solid #334155;color:#334155;font-size:9px;text-align:center;letter-spacing:0.5px">FILE REF: EP-NET-${d.id.toUpperCase()} · CLASSIFICATION: RESTRICTED</div>`);
-  body.innerHTML = parts.join("");
-  body.querySelector(".conn-list")?.addEventListener("click", e => {
-    const li = e.target.closest("li[data-id]");
-    if (!li) return;
-    const t = nodeMap.get(li.dataset.id);
-    if (t) openDossier(t);
+  parts.push(`<div class="ds"><h3>Assessment</h3><span class="tb" style="background:${tB[tl]};color:${tC[tl]};border:1px solid ${tC[tl]}30">${tl}</span><div style="margin-top:7px;color:#475569;font-size:11px">${conns.length} connections · weight: ${d.radius}</div></div>`);
+  body.innerHTML=parts.join("");
+  body.querySelector(".cl")?.addEventListener("click",e=>{
+    const li=e.target.closest("li[data-id]");if(!li) return;
+    const t=nodeMap.get(li.dataset.id);if(t)openDossier(t);
   });
-  document.getElementById("dossier").classList.add("open");
+  document.getElementById("dos").classList.add("open");
 }
 
-/* ── WRITEUPS ── */
-function openWriteup(key) {
-  if (typeof writeups === 'undefined' || !writeups[key]) return;
-  document.getElementById("writeup-content").innerHTML = writeups[key];
-  document.getElementById("writeup-overlay").classList.add("visible");
-  document.getElementById("writeup-close").style.display = "block";
-  document.querySelectorAll("#writeup-nav .nav-btn").forEach(b => {
-    b.classList.toggle("active", b.dataset.writeup === key);
-  });
-}
-function closeWriteup() {
-  document.getElementById("writeup-overlay").classList.remove("visible");
-  document.getElementById("writeup-close").style.display = "none";
-  document.querySelectorAll("#writeup-nav .nav-btn").forEach(b => b.classList.remove("active"));
-}
-
-/* ── INITIALIZATION ── */
-document.getElementById("dossier-close").addEventListener("click", () => {
-  document.getElementById("dossier").classList.remove("open");
-});
-
-document.getElementById("labels").addEventListener("change", e => {
-  showLabels = e.target.checked;
-  scheduleRedraw();
-});
-
-document.getElementById("orphans").addEventListener("change", e => {
-  showOrphans = e.target.checked;
+document.getElementById("dos-x").addEventListener("click",()=>document.getElementById("dos").classList.remove("open"));
+document.getElementById("labels").addEventListener("change",e=>{showLabels=e.target.checked;scheduleRedraw();});
+document.getElementById("orphans").addEventListener("change",e=>{showOrphans=e.target.checked;applyFilters();});
+document.getElementById("str").addEventListener("input",e=>{minStrength=+e.target.value;document.getElementById("sv").textContent=minStrength.toFixed(1);applyFilters();});
+document.querySelectorAll(".tf").forEach(cb=>cb.addEventListener("change",()=>applyFilters()));
+document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active"); activeCat=btn.dataset.cat;
+  stopSim();
+  /* Always unpin and re-run sim so collisions resolve */
+  for(const d of nodes){d.fx=null;d.fy=null;d.x=d._ox;d.y=d._oy;}
+  /* Pin Epstein to center when viewing All */
+  if(activeCat==="all"){
+    const ep=nodeMap.get("epstein");
+    if(ep){ep.x=W/2;ep.y=H/2;ep.fx=W/2;ep.fy=H/2;ep._ox=W/2;ep._oy=H/2;}
+  }
   applyFilters();
-});
+  refitVis();
+}));
 
-document.getElementById("str").addEventListener("input", e => {
-  minStrength = +e.target.value;
-  document.getElementById("sv").textContent = minStrength.toFixed(1);
-  applyFilters();
-});
-
-document.querySelectorAll(".tf").forEach(cb => {
-  cb.addEventListener("change", () => { applyFilters(); });
-});
-
-document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    activeCat = btn.dataset.cat;
-    if (isFullView()) {
-      if (refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
-      if (simRunning) { sim.stop(); simRunning = false; sim.on("tick.refit",null).on("end.refit",null); }
-      /* Restore all nodes to their frozen positions */
-      for (const d of nodes) { d.x = d._ox; d.y = d._oy; d.fx = d._ox; d.fy = d._oy; }
-      applyFilters();
-      placeLabels(null);
-      scheduleRedraw();
-    } else {
-      freezeSimulation();
-      applyFilters();
-      refitVisibleNodes();
-    }
-  });
-});
-
-document.querySelectorAll("#writeup-nav .nav-btn").forEach(btn => {
-  btn.addEventListener("click", () => openWriteup(btn.dataset.writeup));
-});
-
-/* Force "possibly" unchecked on load */
-document.querySelectorAll(".tf").forEach(el => {
-  if (el.value === "possibly") el.checked = false;
-});
-
-/* Initial filter + layout */
+document.querySelectorAll(".tf").forEach(el=>{if(el.value==="possibly")el.checked=false;});
 applyFilters();
-placeLabels(visSet);
+resolveOverlaps();
 
-/* Freeze all nodes immediately after initial settle — no breathing */
-for (const d of nodes) { d.fx = d._ox; d.fy = d._oy; }
-sim.stop();
-
-/* Fit initial camera without animation */
 {
-  const visNodes = nodes.filter(d => visSet.has(d.id));
-  if (visNodes.length) {
-    let x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
-    for (const d of visNodes) {
-      const r = d.radius * S;
-      if (d.x-r < x0) x0=d.x-r; if (d.y-r < y0) y0=d.y-r;
-      if (d.x+r > x1) x1=d.x+r; if (d.y+r > y1) y1=d.y+r;
-    }
-    const pad = 100;
-    const bw = x1-x0+pad*2, bh = y1-y0+pad*2;
-    scale = Math.min(W/bw, H/bh, 2.0);
-    tx = W/2 - (x0+x1)/2 * scale;
-    ty = H/2 - (y0+y1)/2 * scale;
+  const vn=nodes.filter(d=>visSet.has(d.id));
+  if(vn.length){
+    let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+    for(const d of vn){const r=d.radius*S;if(d.x-r<x0)x0=d.x-r;if(d.y-r<y0)y0=d.y-r;if(d.x+r>x1)x1=d.x+r;if(d.y+r>y1)y1=d.y+r;}
+    const bw=x1-x0+200,bh=y1-y0+200;
+    scale=Math.min(W/bw,H/bh,2);tx=W/2-(x0+x1)/2*scale;ty=H/2-(y0+y1)/2*scale;
   }
 }
-
 draw();
-
-/* Re-place labels after short settle then freeze permanently */
-setTimeout(() => { placeLabels(visSet); scheduleRedraw(); }, 400);
 </script>
 </body>
 </html>
