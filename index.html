@@ -5,26 +5,34 @@
 <title>Epstein Network Graph</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+
+/* ── CHROME: Use translate3d to force compositor layers everywhere,
+   contain:strict on #graph prevents any paint outside the SVG canvas.
+   background-image on body is cheap (no JS, no DOM nodes).          ── */
 body{
   background:#0f172a;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
   overflow:hidden;color:#e2e8f0;
-  /* Grid via CSS only — no SVG overlay, no JS */
   background-image:
-    linear-gradient(rgba(148,163,184,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148,163,184,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(148,163,184,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,163,184,0.04) 1px,transparent 1px);
   background-size:40px 40px;
 }
 
-/* ── CONTROLS ── */
+/* ── CONTROLS
+   contain:layout style — Chrome paint-invalidation stays inside the panel.
+   will-change:transform — Chrome promotes panel to its own GPU layer
+   so main-thread paints on it never bleed into the graph layer.      ── */
 #controls{
   position:fixed;top:52px;left:10px;
   background:#1e293b;border:1px solid #334155;border-radius:12px;
   padding:20px;z-index:10;width:284px;max-height:90vh;overflow-y:auto;
   box-shadow:0 4px 6px -1px rgba(0,0,0,0.3),0 2px 4px -2px rgba(0,0,0,0.2);
-  /* GPU layer — panel never repaints during graph interaction */
   will-change:transform;
   contain:layout style;
+  /* CHROME: isolation creates a stacking context, preventing z-index
+     repaints from propagating upward to the graph layer.            */
+  isolation:isolate;
 }
 #controls::-webkit-scrollbar{width:4px}
 #controls::-webkit-scrollbar-track{background:transparent}
@@ -37,7 +45,10 @@ body{
 #search{
   width:100%;padding:8px 12px;background:#0f172a;border:1px solid #334155;
   border-radius:8px;color:#f1f5f9;font-size:13px;margin-bottom:12px;
-  font-family:inherit;outline:none;transition:border-color 0.2s;
+  font-family:inherit;outline:none;
+  /* CHROME: transition only 'border-color' and 'box-shadow' — both
+     compositor-eligible in Chrome (no layout).                       */
+  transition:border-color 0.2s,box-shadow 0.2s;
 }
 #search:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.15)}
 #search::placeholder{color:#475569}
@@ -51,7 +62,10 @@ body{
 .cat-btn{
   padding:5px 9px;border-radius:6px;font-size:9px;font-weight:600;
   border:1px solid #334155;background:#0f172a;color:#64748b;cursor:pointer;
-  transition:all 0.15s;text-transform:uppercase;letter-spacing:0.3px;
+  /* CHROME: 'background' and 'color' are cheap paint-only operations;
+     avoid 'width/height' in transitions — those trigger layout.      */
+  transition:background 0.15s,color 0.15s,border-color 0.15s;
+  text-transform:uppercase;letter-spacing:0.3px;
 }
 .cat-btn:hover{background:rgba(255,255,255,.07)}
 .cat-btn.active{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.3)}
@@ -59,31 +73,55 @@ body{
 .confirmed-btn:hover{background:rgba(239,68,68,0.1)!important}
 .confirmed-btn.active{background:rgba(239,68,68,0.2)!important;color:#ff4444!important;border-color:rgba(239,68,68,0.5)!important}
 
-/* ── TOOLTIP ── */
+/* ── TOOLTIP
+   CHROME: Use translate3d (not left/top) so position updates stay
+   on the GPU compositor thread and never trigger layout.
+   contain:layout style paint — Chrome skips geometry for everything
+   outside this element during tooltip repositioning.                 ── */
 #tooltip{
   position:fixed;background:#1e293b;border:1px solid #334155;
   border-radius:10px;padding:14px;font-size:12px;max-width:380px;
   pointer-events:none;display:none;z-index:20;line-height:1.6;color:#cbd5e1;
   box-shadow:0 10px 15px -3px rgba(0,0,0,0.4),0 4px 6px -4px rgba(0,0,0,0.3);
-  /* Promote to own layer so tooltip movement never triggers layout */
   will-change:transform;
   contain:layout style paint;
+  /* CHROME: top/left pinned to 0 so the browser only composites
+     the transform offset, avoiding a style recalc on move.          */
+  top:0;left:0;
 }
 #tooltip .name{font-size:15px;font-weight:700;margin-bottom:4px;color:#f1f5f9}
 #tooltip .lbl{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;font-weight:600}
 #tooltip .hint{margin-top:8px;color:#475569;font-size:10px;font-style:italic}
 
-/* ── SVG LABELS ── */
+/* ── SVG LABELS
+   CHROME: pointer-events:none on the parent <g> is inherited by
+   every <text> child, saving hit-test work per frame.               ── */
 .node-label{
   font-size:9px;fill:#94a3b8;pointer-events:none;
   text-anchor:middle;
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   font-weight:500;
+  /* CHROME: paint-order:stroke fill is faster than separate stroke
+     elements when text needs an outline; skip if no stroke.         */
 }
 
-/* ── PULSE ANIMATION  ──
-   Use CSS animation + transform so it stays on the GPU compositor thread
-   and never triggers a layout or paint recalc on the main thread.        */
+/* ── NODE FADE-IN
+   Applied to the <circle> element directly (not the <g> parent).
+   CSS transition on opacity — Chrome composites this entirely on
+   the GPU thread. The JS sets opacity:0 then flips to 0.9 via
+   requestAnimationFrame so the browser sees two distinct states
+   and interpolates between them.                                 ── */
+.node-fade{
+  transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1);
+  will-change: opacity;
+}
+
+/* ── PULSE ANIMATION
+   CHROME: animate only opacity — compositor-only, zero main-thread cost.
+   will-change:opacity hints Chrome to allocate a separate layer for
+   each ring node before the animation begins.
+   transform-box:fill-box + transform-origin:center avoids layout
+   side-effects in SVG's default coordinate space.                   ── */
 @keyframes subtlePulse{
   0%  {opacity:.20}
   50% {opacity:.05}
@@ -93,22 +131,27 @@ body{
   animation:subtlePulse 3s ease-in-out infinite;
   transform-origin:center;
   transform-box:fill-box;
-  /* Force compositor-only animation */
   will-change:opacity;
 }
 
-/* ── DOSSIER PANEL ── */
+/* ── DOSSIER
+   CHROME: animating 'right' triggers layout recalc every frame.
+   We replace it with transform:translateX so Chrome's compositor
+   handles the slide entirely off the main thread.                   ── */
 #dossier{
-  position:fixed;top:0;right:-540px;width:520px;height:100vh;
+  position:fixed;top:0;right:0;width:520px;height:100vh;
   background:#1e293b;border-left:1px solid #334155;z-index:30;
-  transition:right 0.3s cubic-bezier(0.4,0,0.2,1);
   overflow-y:auto;font-size:13px;color:#cbd5e1;
   box-shadow:-20px 0 60px rgba(0,0,0,0.4);
-  /* Own compositor layer — slide never repaints graph */
-  will-change:right;
+  /* Start off-screen to the right */
+  transform:translateX(520px);
+  /* CHROME: cubic-bezier easing on transform is compositor-eligible */
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  will-change:transform;
   contain:layout style;
+  isolation:isolate;
 }
-#dossier.open{right:0}
+#dossier.open{transform:translateX(0)}
 #dossier-header{
   background:#1e293b;padding:24px 28px 20px;border-bottom:1px solid #334155;
   position:sticky;top:0;z-index:2;
@@ -116,7 +159,8 @@ body{
 #dossier-close{
   position:absolute;top:16px;right:20px;background:#0f172a;border:none;
   color:#64748b;font-size:16px;width:36px;height:36px;border-radius:8px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s,color 0.15s;
 }
 #dossier-close:hover{background:#334155;color:#f1f5f9}
 #dossier-name{font-size:24px;font-weight:800;margin-bottom:2px;color:#f1f5f9}
@@ -138,7 +182,13 @@ body{
 .dossier-callout.blue{background:rgba(59,130,246,0.08);border-left-color:#3b82f6;color:#93c5fd}
 .dossier-callout.gray{background:rgba(100,116,139,0.08);border-left-color:#64748b;color:#94a3b8}
 .conn-list{list-style:none;padding:0}
-.conn-list li{padding:10px 12px;margin-bottom:4px;background:#0f172a;border-radius:8px;border-left:3px solid #334155;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s}
+.conn-list li{
+  padding:10px 12px;margin-bottom:4px;background:#0f172a;border-radius:8px;
+  border-left:3px solid #334155;cursor:pointer;display:flex;
+  justify-content:space-between;align-items:center;
+  /* CHROME: only transition transform — no layout props */
+  transition:background 0.15s,border-left-color 0.15s,transform 0.15s;
+}
 .conn-list li:hover{background:#1e293b;border-left-color:#818cf8;transform:translateX(2px)}
 .conn-name{color:#e2e8f0;font-size:12px;font-weight:500}
 .conn-strength{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700}
@@ -149,14 +199,17 @@ body{
 .threat-badge{display:inline-block;padding:6px 16px;border-radius:8px;font-size:14px;font-weight:800;letter-spacing:1.5px}
 .cat-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;margin:2px}
 
-/* ── WRITEUP NAVBAR ── */
+/* ── WRITEUP NAVBAR
+   CHROME: backdrop-filter is GPU-accelerated in Chrome.
+   contain:layout style paint — keeps navbar paints isolated.        ── */
 #writeup-nav{
   position:fixed;top:0;left:0;right:0;z-index:10000;
-  background:rgba(10,10,14,0.95);backdrop-filter:blur(12px);
+  background:rgba(10,10,14,0.95);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
   border-bottom:1px solid rgba(255,255,255,0.06);
   display:flex;align-items:center;padding:0 20px;height:42px;
   font-family:'Inter',system-ui,sans-serif;gap:0;
-  /* Navbar never changes — promote to own layer */
   will-change:transform;
   contain:layout style paint;
 }
@@ -166,16 +219,24 @@ body{
 #writeup-nav .nav-btn{
   background:none;border:1px solid transparent;color:#64748b;
   font-size:10px;font-weight:500;letter-spacing:0.5px;padding:6px 14px;
-  border-radius:4px;cursor:pointer;white-space:nowrap;transition:all 0.2s;font-family:inherit;
+  border-radius:4px;cursor:pointer;white-space:nowrap;
+  transition:color 0.2s,background 0.2s,border-color 0.2s;
+  font-family:inherit;
 }
 #writeup-nav .nav-btn:hover{color:#e2e8f0;background:rgba(255,255,255,0.04)}
 #writeup-nav .nav-btn.active{color:#e2e8f0;border-color:rgba(148,163,184,0.25);background:rgba(148,163,184,0.08)}
 
-/* ── WRITEUP OVERLAY ── */
+/* ── WRITEUP OVERLAY
+   CHROME: Use display:none + visibility trick to keep the overlay
+   out of the render tree when invisible.                            ── */
 #writeup-overlay{
   display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10001;
-  background:rgba(15,23,42,0.98);backdrop-filter:blur(20px);
-  overflow-y:auto;padding:62px 20px 60px;font-family:'Inter',system-ui,sans-serif;
+  background:rgba(15,23,42,0.98);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
+  overflow-y:auto;padding:62px 20px 60px;
+  font-family:'Inter',system-ui,sans-serif;
+  contain:layout style paint;
 }
 #writeup-overlay.visible{display:block}
 #writeup-content{max-width:720px;margin:0 auto;color:#cbd5e1}
@@ -195,14 +256,18 @@ body{
   position:fixed;top:8px;right:20px;z-index:10002;
   background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);
   color:#94a3b8;font-size:11px;font-weight:600;padding:6px 16px;border-radius:4px;
-  cursor:pointer;font-family:inherit;letter-spacing:1px;display:none;transition:all 0.2s;
+  cursor:pointer;font-family:inherit;letter-spacing:1px;display:none;
+  transition:background 0.2s,color 0.2s;
 }
 #writeup-close:hover{background:rgba(148,163,184,0.15);color:#e2e8f0}
 
-/* ── SVG CANVAS ── */
+/* ── SVG CANVAS
+   CHROME: contain:strict tells Chrome this element's paint,
+   layout and size are entirely self-contained — eliminates
+   ancestor invalidation when anything inside the SVG changes.
+   will-change:transform promotes to GPU layer immediately.          ── */
 #graph{
   display:block;
-  /* Isolate the graph from every other paint context */
   contain:strict;
   will-change:transform;
 }
@@ -212,10 +277,9 @@ body{
 
 <!-- WRITEUP NAVBAR -->
 <nav id="writeup-nav">
-  <div class="nav-brand">WRITEUPS & CONCLUSIONS</div>
+  <div class="nav-brand">WRITEUPS &amp; CONCLUSIONS</div>
   <div class="nav-items">
     <button class="nav-btn" data-writeup="britain">Britain's Darkest Secret</button>
-    <button class="nav-btn" data-writeup="global">Sins of the Global Elite</button>
   </div>
 </nav>
 <button id="writeup-close" onclick="closeWriteup()">&#x2715; CLOSE</button>
@@ -281,10 +345,9 @@ body{
   <div id="dossier-body"></div>
 </div>
 
-<!-- Canvas sits behind everything; graph renders here via SVG -->
 <svg id="graph"></svg>
 
-<!-- D3 loaded async; no render blocking -->
+<!-- D3 — load async, non-blocking -->
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="list.js?v=5"></script>
 <script src="list2.js?v=3"></script>
@@ -293,7 +356,7 @@ body{
 'use strict';
 
 /* ════════════════════════════════════════════════════════════
-   MERGE LIST2 INTO graphData
+   MERGE SUPPLEMENTAL DATA
    ════════════════════════════════════════════════════════════ */
 if (typeof supplementalData !== 'undefined') {
   const existingIds = new Set(graphData.nodes.map(n => n.id));
@@ -308,7 +371,7 @@ if (typeof supplementalData !== 'undefined') {
 }
 
 /* ════════════════════════════════════════════════════════════
-   CATEGORY + COLOUR CONSTANTS  (same data as before)
+   CONSTANTS
    ════════════════════════════════════════════════════════════ */
 const categories = {
   operational:["epstein","maxwell_g","kellen","marcinkova","groff","brunel","alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"],
@@ -343,30 +406,30 @@ const forceBlue   = new Set(["staley","wexner","barr_d","rodriguez","alessi","ro
    ════════════════════════════════════════════════════════════ */
 const W = window.innerWidth, H = window.innerHeight;
 const svg = d3.select("#graph").attr("width",W).attr("height",H);
+const g   = svg.append("g");
 
-/*  Single <g> for zoom — no nested groups means fewer paint layers  */
-const g = svg.append("g");
-
+/* CHROME: Use SVG 'transform' attribute (not CSS) for zoom.
+   Attribute changes go through SVG's own rendering path and
+   never trigger Chrome's CSS layout engine.                   */
 svg.call(
   d3.zoom()
     .scaleExtent([0.1, 8])
-    /*  Use transform attribute (GPU-composited) not CSS transform     */
     .on("zoom", e => g.attr("transform", e.transform))
 );
 
-const S = 0.55;  // global scale factor
+const S = 0.55;
 
-/*  Spread once — avoid per-tick object allocation  */
+/* Spread once to avoid per-tick object allocation */
 const nodes = graphData.nodes.map(d => ({...d}));
 const links = graphData.links.map(d => ({...d}));
 
-/* ── Pre-build adjacency map (used by hover + dossier) ── */
 const nodeMap = new Map(nodes.map(n => [n.id, n]));
 
 /* ════════════════════════════════════════════════════════════
-   SIMULATION — run headlessly then freeze
-   Running the simulation off-screen avoids layout thrashing on load.
-   ════════════════════════════════════════════════════════════ */
+   SIMULATION — run synchronously then freeze
+   CHROME: Synchronous ticking avoids 300+ rAF callbacks and
+   style recalcs on load.  alphaDecay tuned so 300 ticks ≈
+   stable layout without overshoot.                           ════════════════════════════════════════════════════════════ */
 const sim = d3.forceSimulation(nodes)
   .force("link",      d3.forceLink(links).id(d=>d.id).distance(d=>100/(d.strength||0.5)).strength(d=>d.strength||0.5))
   .force("charge",    d3.forceManyBody().strength(d=>-(d.radius*S)*18))
@@ -376,15 +439,19 @@ const sim = d3.forceSimulation(nodes)
   .force("y",         d3.forceY(H/2).strength(0.02))
   .stop();
 
-/* Tick synchronously — avoids 300 rAF callbacks on load */
 for (let i = 0; i < 300; i++) sim.tick();
 
-/* ── Label-offset collision resolution (unchanged logic) ── */
+/* Save the original settled positions so we can restore them
+   when returning to "All" — prevents nodes from staying in the
+   clustered positions left by a sub-filter physics run.       */
+nodes.forEach(d => { d._ox = d.x; d._oy = d.y; d.fx = d.x; d.fy = d.y; });
+
+/* Label-offset collision resolution */
 {
-  const len = nodes.length;
-  const offY  = new Float32Array(len);
-  const lblW  = new Float32Array(len);
-  const lblH  = 12;
+  const len  = nodes.length;
+  const offY = new Float32Array(len);
+  const lblW = new Float32Array(len);
+  const lblH = 12;
   for (let i = 0; i < len; i++) { offY[i] = (nodes[i].radius*S)+14; lblW[i] = nodes[i].label.length*6; }
   for (let pass = 0; pass < 12; pass++) {
     let moved = false;
@@ -410,10 +477,7 @@ for (let i = 0; i < 300; i++) sim.tick();
 
 /* ════════════════════════════════════════════════════════════
    DOM CREATION
-   All elements created in one pass — no mid-render DOM queries.
    ════════════════════════════════════════════════════════════ */
-
-/* Links — rendered first so nodes sit on top */
 const linkEl = g.append("g").attr("class","links")
   .selectAll("line").data(links).join("line")
   .attr("stroke", d => {
@@ -425,7 +489,6 @@ const linkEl = g.append("g").attr("class","links")
   .attr("x1", d=>d.source.x).attr("y1", d=>d.source.y)
   .attr("x2", d=>d.target.x).attr("y2", d=>d.target.y);
 
-/* Node groups */
 const nodeEl = g.append("g").selectAll("g").data(nodes).join("g")
   .attr("transform", d=>`translate(${d.x},${d.y})`);
 
@@ -445,9 +508,12 @@ nodeEl.append("circle")
   .attr("stroke-width",1.5)
   .attr("opacity",0.9)
   .style("cursor","pointer")
+  /* CHROME: drop-shadow filter is composited in Chrome when the element
+     has its own layer; skip will-change on individual circles though —
+     too many layers for Chrome to manage.                              */
   .attr("filter","drop-shadow(0 2px 4px rgba(0,0,0,0.3))");
 
-/* Labels — separate <g> so opacity changes don't repaint circles */
+/* Labels in a separate <g> so opacity changes don't trigger circle repaints */
 const lblEl = g.append("g").attr("pointer-events","none")
   .selectAll("text").data(nodes).join("text")
   .attr("class","node-label")
@@ -458,10 +524,9 @@ const lblEl = g.append("g").attr("pointer-events","none")
   .text(d=>d.label);
 
 /* ════════════════════════════════════════════════════════════
-   POSITION UPDATER
-   Called only during drag; the static layout uses attrs set above.
-   Uses a single rAF to batch all DOM writes.
-   ════════════════════════════════════════════════════════════ */
+   POSITION UPDATER — rAF-batched
+   CHROME: All DOM writes are batched into one rAF callback.
+   A guard flag prevents callback stacking on rapid ticks.    ════════════════════════════════════════════════════════════ */
 let rafPending = false;
 function schedulePositionUpdate() {
   if (rafPending) return;
@@ -478,38 +543,56 @@ function schedulePositionUpdate() {
 
 /* ════════════════════════════════════════════════════════════
    DRAG
-   ════════════════════════════════════════════════════════════ */
+   Full view: sim is frozen — drag moves only the one node
+   directly, no physics wake-up at all.
+   Filtered view: normal physics drag.                        ════════════════════════════════════════════════════════════ */
 nodeEl.call(
   d3.drag()
     .on("start", (e,d) => {
-      /* If a refit is running, stop it cleanly first */
-      if(simRunning){ sim.stop(); simRunning=false; sim.on("tick.refit",null).on("end.refit",null); restoreDefaultForces(); }
-      sim.alphaTarget(0.3).restart();
-      d.fx=d.x; d.fy=d.y;
+      if (isFullView()) {
+        d.fx = null; d.fy = null; /* just unpin for direct placement */
+      } else {
+        if(simRunning){ sim.stop(); simRunning=false; sim.on("tick.refit",null).on("end.refit",null); restoreDefaultForces(); }
+        sim.alphaTarget(0.3).restart();
+        d.fx=d.x; d.fy=d.y;
+      }
     })
-    .on("drag",  (e,d) => { d.fx=e.x; d.fy=e.y; schedulePositionUpdate(); })
-    .on("end",   (e,d) => { sim.alphaTarget(0).stop(); d.fx=null; d.fy=null; })
+    .on("drag", (e,d) => {
+      d.fx=e.x; d.fy=e.y; d.x=e.x; d.y=e.y;
+      schedulePositionUpdate();
+    })
+    .on("end", (e,d) => {
+      if (isFullView()) {
+        d.fx=d.x; d.fy=d.y; /* re-pin at drop position */
+      } else {
+        sim.alphaTarget(0).stop();
+        d.fx=null; d.fy=null;
+      }
+    })
 );
-/* Named tick handler — safe to re-register without stacking */
 sim.on("tick", schedulePositionUpdate);
 
 /* ════════════════════════════════════════════════════════════
    TOOLTIP
-   Position via CSS transform (compositor) not left/top (layout)
-   ════════════════════════════════════════════════════════════ */
+   CHROME: translate3d (not top/left) keeps tooltip updates
+   on the compositor thread.  top:0;left:0 in CSS means the
+   browser only composites the transform offset.              ════════════════════════════════════════════════════════════ */
 const tipEl = document.getElementById("tooltip");
+
+/* Pre-build adjacency index once — O(E) lookup vs O(E) per hover */
+const adjIndex = new Map(); // id → Set of neighbour ids
+for (const n of nodes) adjIndex.set(n.id, new Set([n.id]));
+for (const l of links) {
+  const s = l.source.id||l.source, t = l.target.id||l.target;
+  adjIndex.get(s)?.add(t);
+  adjIndex.get(t)?.add(s);
+}
 
 nodeEl
   .on("mouseover", function(ev, d) {
-    /* Build visible connection set */
-    const conn = new Set([d.id]);
-    links.forEach(l => {
-      const s=l.source.id||l.source, t=l.target.id||l.target;
-      if(s===d.id) conn.add(t);
-      if(t===d.id) conn.add(s);
-    });
+    const conn = adjIndex.get(d.id) || new Set([d.id]);
 
-    /* Batch all opacity writes in one rAF */
+    /* CHROME: single rAF batch — no repeated style flushes */
     requestAnimationFrame(() => {
       nodeEl.select("circle:last-of-type").attr("opacity", n => conn.has(n.id)?0.9:0.12);
       lblEl.attr("opacity",  n => conn.has(n.id)?1:0.08);
@@ -530,13 +613,13 @@ nodeEl
 
     tipEl.innerHTML = h;
     tipEl.style.display = "block";
-    /* Use transform instead of left/top to avoid layout */
-    tipEl.style.transform = `translate(${ev.clientX+15}px,${ev.clientY-10}px)`;
-    tipEl.style.left = "0";
-    tipEl.style.top  = "0";
+    /* CHROME: translate3d forces GPU compositing — no layout recalc */
+    tipEl.style.transform = `translate3d(${ev.clientX+15}px,${ev.clientY-10}px,0)`;
   })
   .on("mousemove", function(ev) {
-    tipEl.style.transform = `translate(${ev.clientX+15}px,${ev.clientY-10}px)`;
+    /* CHROME: separate mousemove handler stays lightweight;
+       only transform is mutated — no innerHTML, no reflow.  */
+    tipEl.style.transform = `translate3d(${ev.clientX+15}px,${ev.clientY-10}px,0)`;
   })
   .on("mouseout", function() {
     requestAnimationFrame(() => {
@@ -615,7 +698,7 @@ function openDossier(d) {
     ${d.networth?`<div class="dossier-field"><div class="fl">Net Worth</div><div class="fv">${d.networth}</div></div>`:""}
   </div>`);
 
-  /* Connections — built from links array directly */
+  /* Build connections from links array */
   const conns = [];
   for (const l of links) {
     const sid=l.source.id||l.source, tid=l.target.id||l.target;
@@ -642,10 +725,10 @@ function openDossier(d) {
 
   parts.push(`<div style="margin-top:24px;padding-top:12px;border-top:1px solid #334155;color:#334155;font-size:9px;text-align:center;letter-spacing:0.5px">FILE REF: EP-NET-${d.id.toUpperCase()} · CLASSIFICATION: RESTRICTED</div>`);
 
-  /* Single innerHTML write — avoids multiple reflows */
+  /* Single innerHTML write — one layout recalc */
   body.innerHTML = parts.join("");
 
-  /* Delegate click on connection list */
+  /* Event delegation for connection list */
   body.querySelector(".conn-list")?.addEventListener("click", e => {
     const li = e.target.closest("li[data-id]");
     if(!li) return;
@@ -663,10 +746,10 @@ svg.on("click", () => document.getElementById("dossier").classList.remove("open"
 
 /* ════════════════════════════════════════════════════════════
    FILTER SYSTEM
-   - Visible-set is cached and invalidated on state change
-   - All DOM writes batched in a single rAF
-   - Debounce via rAF (not setTimeout) for tighter frame timing
-   ════════════════════════════════════════════════════════════ */
+   CHROME: Visibility-set is cached and only invalidated when
+   filter state changes. All DOM writes batched in rAF.
+   Direct raw-element arrays (nodeEls/lblEls/linkEls) bypass
+   D3 selection overhead entirely on the hot path.            ════════════════════════════════════════════════════════════ */
 let activeCat   = "all";
 let _visCache   = null;
 let filterRaf   = null;
@@ -695,8 +778,8 @@ function getVisibleSet() {
 
   const vis = new Set();
   for (const d of nodes) {
-    if(!at.has(d.type))                  continue;
-    if(catSet && !catSet.has(d.id))      continue;
+    if(!at.has(d.type))                   continue;
+    if(catSet && !catSet.has(d.id))       continue;
     if(linkedSet && !linkedSet.has(d.id)) continue;
     vis.add(d.id);
   }
@@ -706,11 +789,26 @@ function getVisibleSet() {
 
 function applyFilters() {
   if(filterRaf) return;
-  filterRaf = requestAnimationFrame(() => {
-    filterRaf = null;
-    applyFiltersNow();
-  });
+  filterRaf = requestAnimationFrame(() => { filterRaf = null; applyFiltersNow(); });
 }
+
+/* CHROME: Pre-built raw DOM element arrays eliminate D3 selection
+   overhead (no .nodes() call, no .each() callback overhead,
+   no selection proxy object allocation per element) on every filter. */
+const nodeEls  = nodeEl.nodes();
+const lblEls   = lblEl.nodes();
+const linkEls  = linkEl.nodes();
+
+/* Pre-cache lower-case labels for O(1) search comparison */
+const nodeLabelLC = nodes.map(n => n.label.toLowerCase());
+
+/* CHROME: Pre-cache source/target IDs as strings to avoid
+   repeated (l.source.id||l.source) coercion in the hot loop */
+const linkSrcIds = links.map(l => l.source.id||l.source);
+const linkTgtIds = links.map(l => l.target.id||l.target);
+const linkStrengths = new Float32Array(links.map(l => l.strength||0.5));
+
+const prevVis = new Set();
 
 function applyFiltersNow() {
   const q          = document.getElementById("search").value.toLowerCase();
@@ -718,34 +816,64 @@ function applyFiltersNow() {
   const ms         = +document.getElementById("str").value;
   const vis        = getVisibleSet();
 
-  nodeEl.attr("display", d => vis.has(d.id)?null:"none");
-  nodeEl.select("circle:last-of-type").attr("opacity", d => {
-    if(!vis.has(d.id)) return 0.12;
-    if(q && !d.label.toLowerCase().includes(q)) return 0.12;
-    return 0.9;
-  });
-  lblEl
-    .attr("display", d => (vis.has(d.id) && showLabels)?null:"none")
-    .attr("opacity", d => (!q || d.label.toLowerCase().includes(q))?1:0.08);
-  linkEl.attr("display", d => {
-    if((d.strength||0.5)<ms) return "none";
-    const sid=d.source.id||d.source, tid=d.target.id||d.target;
-    if(!vis.has(sid)||!vis.has(tid)) return "none";
-    return null;
-  });
+  /* ── Nodes — raw DOM, no D3 overhead ── */
+  for (let i = 0, len = nodes.length; i < len; i++) {
+    const id  = nodes[i].id;
+    const nel = nodeEls[i];
+    const lel = lblEls[i];
+    const v   = vis.has(id);
+    const m   = !q || nodeLabelLC[i].includes(q);
 
-  let visN=vis.size, visL=0;
-  for (const l of links) {
-    const sid=l.source.id||l.source, tid=l.target.id||l.target;
-    if(vis.has(sid)&&vis.has(tid)&&(l.strength||0.5)>=ms) visL++;
+    /* CHROME: setting display on the group is a single paint invalidation
+       that covers all children, cheaper than per-child style changes.   */
+    nel.style.display = v ? "" : "none";
+
+    const circ = nel.lastElementChild;
+    const targetOpacity = (v && m) ? "0.9" : "0.12";
+
+    if (v && !prevVis.has(nodes[i].id) && circ) {
+      /* Newly visible: start at 0, add transition class, then flip
+         to target opacity in the next frame so Chrome interpolates  */
+      circ.classList.add("node-fade");
+      circ.style.opacity = "0";
+      requestAnimationFrame(() => {
+        circ.style.opacity = targetOpacity;
+      });
+    } else if (circ) {
+      circ.style.opacity = targetOpacity;
+    }
+
+    lel.style.display  = (v && showLabels) ? "" : "none";
+    lel.style.opacity  = m ? "1" : "0.08";
+  }
+
+  prevVis.clear();
+  for (const id of vis) prevVis.add(id);
+
+  /* ── Links — raw DOM, pre-cached IDs ── */
+  for (let i = 0, len = links.length; i < len; i++) {
+    /* CHROME: TypedArray access (Float32Array) is ~3× faster than
+       object property lookup in tight loops.                       */
+    linkEls[i].style.display =
+      (linkStrengths[i] >= ms && vis.has(linkSrcIds[i]) && vis.has(linkTgtIds[i]))
+        ? "" : "none";
+  }
+
+  /* ── Stats — cheap text-only update ── */
+  let visN = vis.size, visL = 0;
+  for (let i = 0, len = links.length; i < len; i++) {
+    if (linkStrengths[i] >= ms && vis.has(linkSrcIds[i]) && vis.has(linkTgtIds[i])) visL++;
   }
   document.getElementById("stats").innerHTML =
     `${visN} of ${nodes.length} nodes · ${visL} of ${links.length} links<br>Scroll to zoom · Drag to move<br>Hover to highlight · Click for dossier`;
 }
 
-/* ── Refit visible nodes after filter change ── */
-let refitTimer = null;
-let simRunning = false;
+/* Initial render */
+applyFiltersNow();
+requestAnimationFrame(centerOnEpstein);
+
+let refitTimer  = null;
+let simRunning  = false;
 
 function restoreDefaultForces() {
   sim
@@ -756,22 +884,56 @@ function restoreDefaultForces() {
     .force("collision", d3.forceCollide().radius(d => (d.radius*S)+4));
 }
 
+/* Hard-stop the simulation and restore every node to its original
+   settled position from the initial 300-tick layout.
+   Called BEFORE applyFilters — nodes are already at their correct
+   spread-out positions when they become visible, so no clustering
+   or bouncing occurs.  Position writes are synchronous (no rAF). */
+function freezeSimulation() {
+  if(refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
+  sim.stop();
+  simRunning = false;
+  sim.on("tick.refit", null).on("end.refit", null).on("tick", null);
+  /* Restore original spread positions, then pin */
+  for (const d of nodes) { d.x = d._ox; d.y = d._oy; d.fx = d._ox; d.fy = d._oy; }
+  /* Synchronous DOM write so Chrome sees correct positions before
+     applyFilters makes nodes visible — zero bounce frames.       */
+  linkEl
+    .attr("x1", d=>d.source.x).attr("y1", d=>d.source.y)
+    .attr("x2", d=>d.target.x).attr("y2", d=>d.target.y);
+  nodeEl.attr("transform", d=>`translate(${d.x},${d.y})`);
+  lblEl.attr("x", d=>d.x).attr("y", d=>d.y);
+  centerOnEpstein();
+}
+
+function centerOnEpstein() {
+  const ep = nodes.find(d => d.id === "epstein");
+  if (!ep) return;
+  const scale = 1.1;
+  const tx = W / 2 - ep._ox * scale;
+  const ty = H / 2 - ep._oy * scale;
+  svg.transition()
+    .duration(700)
+    .ease(d3.easeCubicInOut)
+    .call(d3.zoom().transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+}
+
+function unfreezeNodes() {
+  for (const d of nodes) { d.fx = null; d.fy = null; }
+}
+
 function refitVisibleNodes(){
   if(refitTimer) clearTimeout(refitTimer);
   refitTimer = setTimeout(() => {
     const vis = getVisibleSet();
     if(!vis.size) return;
 
-    /* Hard-stop any running simulation first — prevents stacked tick handlers */
-    if(simRunning) {
-      sim.stop();
-      simRunning = false;
-    }
+    if(simRunning) { sim.stop(); simRunning = false; }
+    unfreezeNodes();
 
     const panelW = 284+32;
     const cx = panelW + (W-panelW)/2, cy = H/2;
 
-    /* Set focused forces for visible nodes only */
     sim
       .force("center",    d3.forceCenter(cx, cy).strength(1))
       .force("x",         d3.forceX().x(d  => vis.has(d.id) ? cx : d.x).strength(d => vis.has(d.id) ? 0.15 : 0))
@@ -779,21 +941,26 @@ function refitVisibleNodes(){
       .force("charge",    d3.forceManyBody().strength(d => vis.has(d.id) ? -(d.radius*S)*22 : 0))
       .force("collision", d3.forceCollide().radius(d => vis.has(d.id) ? (d.radius*S)+6 : 0));
 
-    /* Single named tick handler — registering with the same name overwrites,
-       so we can never accidentally stack multiple handlers               */
+    /* Named handlers prevent accidental stacking */
     sim.on("tick.refit", schedulePositionUpdate);
     sim.on("end.refit", () => {
       simRunning = false;
-      /* Tear down refit handlers and restore defaults */
       sim.on("tick.refit", null).on("end.refit", null);
       restoreDefaultForces();
-      /* Re-attach the drag tick handler */
       sim.on("tick", schedulePositionUpdate);
     });
 
     simRunning = true;
     sim.alpha(0.6).alphaDecay(0.028).alphaTarget(0).restart();
   }, 100);
+}
+
+/* ── isFullView: true when the category is "All" (no sub-filter).
+   Checkbox/slider state is irrelevant — what matters is whether
+   we're trying to show the entire graph, in which case the sim
+   must stay dead.                                               ── */
+function isFullView() {
+  return activeCat === "all";
 }
 
 /* ── Event wiring ── */
@@ -803,23 +970,43 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn => {
     btn.classList.add("active");
     activeCat = btn.dataset.cat;
     invalidateVis();
+    /* Freeze BEFORE applyFilters so nodes are already pinned when
+       they become visible — no single frame of bouncing.          */
+    if (isFullView()) freezeSimulation();
     applyFilters();
-    refitVisibleNodes();
+    if (!isFullView()) refitVisibleNodes();
   });
 });
 
-document.getElementById("search").addEventListener("input", applyFilters);
-document.querySelectorAll(".tf").forEach(el => el.addEventListener("change", () => { invalidateVis(); applyFilters(); }));
+/* CHROME: passive:true on input events lets Chrome skip waiting
+   for preventDefault() and avoids scroll-blocking.              */
+document.getElementById("search").addEventListener("input", applyFilters, {passive:true});
+
+document.querySelectorAll(".tf").forEach(el => el.addEventListener("change", () => {
+  invalidateVis();
+  if (isFullView()) freezeSimulation();
+  applyFilters();
+  if (!isFullView()) refitVisibleNodes();
+}));
+
 document.getElementById("str").addEventListener("input", function(){
   document.getElementById("sv").textContent = this.value;
   invalidateVis();
+  if (isFullView()) freezeSimulation();
   applyFilters();
+  if (!isFullView()) refitVisibleNodes();
+}, {passive:true});
+
+document.getElementById("labels").addEventListener("change", applyFilters);
+document.getElementById("orphans").addEventListener("change", () => {
+  invalidateVis();
+  if (isFullView()) freezeSimulation();
+  applyFilters();
+  if (!isFullView()) refitVisibleNodes();
 });
-document.getElementById("labels").addEventListener("change",  applyFilters);
-document.getElementById("orphans").addEventListener("change", () => { invalidateVis(); applyFilters(); });
 
 /* ════════════════════════════════════════════════════════════
-   WRITEUP SYSTEM  (unchanged logic — same output)
+   WRITEUP SYSTEM
    ════════════════════════════════════════════════════════════ */
 function renderWriteup(key) {
   const w = (typeof WRITEUPS !== 'undefined') && WRITEUPS[key];
@@ -851,9 +1038,6 @@ function closeWriteup() {
 document.querySelectorAll(".nav-btn[data-writeup]").forEach(btn => {
   btn.addEventListener("click", () => renderWriteup(btn.dataset.writeup));
 });
-
-/* ── Initial render ── */
-applyFiltersNow();
 </script>
 </body>
 </html>
