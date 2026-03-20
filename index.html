@@ -1,3 +1,4 @@
+<!-- filepath: /Users/missnapalm/Downloads/epsteinwebrecords/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,17 +159,20 @@ const confirmedSet=new Set(categories.confirmed);
 const forceBlue=new Set(["staley","wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
 
 const canvas=document.getElementById('graph');
-const ctx=canvas.getContext('2d');
+const ctx=canvas.getContext('2d',{alpha:false}); // ← PERF: opaque canvas skips alpha compositing
 const W=window.innerWidth,H=window.innerHeight;
-canvas.width=W*devicePixelRatio; canvas.height=H*devicePixelRatio;
+const DPR=Math.min(devicePixelRatio,2); // ← PERF: cap DPR at 2 (3x screens render 2.25x more pixels for no visual gain)
+canvas.width=W*DPR; canvas.height=H*DPR;
 canvas.style.width=W+'px'; canvas.style.height=H+'px';
-ctx.scale(devicePixelRatio,devicePixelRatio);
+ctx.scale(DPR,DPR);
 
 let tx=0,ty=0,scale=1;
 
 const nodes=graphData.nodes.map(d=>({...d}));
 const links=graphData.links.map(d=>({...d}));
 const nodeMap=new Map(nodes.map(n=>[n.id,n]));
+// ← PERF: map node id → index for O(1) lookups instead of .indexOf()
+const nodeIndex=new Map(nodes.map((n,i)=>[n.id,i]));
 const S=0.40;
 const lSrcIds=new Array(links.length);
 const lTgtIds=new Array(links.length);
@@ -176,26 +180,69 @@ const lStr=new Float32Array(links.map(l=>l.strength||0.5));
 const adjIndex=new Map();
 for(const n of nodes) adjIndex.set(n.id,new Set([n.id]));
 
-// ── Scatter nodes randomly around center (not radially) ──
-{
-  nodes.forEach((d)=>{
-    d.x=W/2+(Math.random()-0.5)*W*0.6;
-    d.y=H/2+(Math.random()-0.5)*H*0.6;
-  });
+const adj2Cache=new Map();
+function build2ndDegreeCache(){
+  adj2Cache.clear();
+  for(const [id,s1] of adjIndex){
+    const s2=new Set(s1);
+    for(const fid of s1){const f2=adjIndex.get(fid);if(f2)for(const sid of f2)s2.add(sid);}
+    adj2Cache.set(id,s2);
+  }
 }
 
-// ── Standard force-directed layout: runs live, never blocks ──
+nodes.forEach(d=>{
+  d.x=W/2+(Math.random()-0.5)*W*0.6;
+  d.y=H/2+(Math.random()-0.5)*H*0.6;
+});
+
+// ← PERF: pre-bake all rgba link stroke strings into typed arrays, keyed by [tier][alphaIdx]
+// Eliminates all string concatenation inside the hot draw loop.
+// tiers: 0=red(≥0.8), 1=orange(≥0.6), 2=gray(≥0.4), 3=dark(<0.4)
+// alpha levels: 0=hover-active, 1=0.22, 2=0.12, 3=0.06, 4=0.03
+const linkBaseRGB=[[239,68,68],[251,146,60],[100,116,139],[71,85,105]];
+// pre-baked normal-state stroke strings per tier
+const linkNormalStroke=linkBaseRGB.map(([r,g,b],ti)=>{
+  const a=[0.22,0.12,0.06,0.03][ti]??0.03;
+  return `rgba(${r},${g},${b},${a})`;
+});
+// For hover-state we still compute once per hovered link (rare), acceptable cost.
+
+// ← PERF: pre-bake node border stroke strings (only 3 variants)
+const strokeNormal="rgba(255,255,255,0.12)";
+const strokeBlue="rgba(96,165,250,0.4)";
+const strokeRed="rgba(239,68,68,0.4)";
+
+const nodeColorCache=new Array(nodes.length);
+function rebuildColorCache(){
+  for(let i=0;i<nodes.length;i++){
+    const d=nodes[i];
+    nodeColorCache[i]=forceBlue.has(d.id)?"#60a5fa":confirmedSet.has(d.id)?"#ef4444":(C[d.type]||"#64748b");
+  }
+}
+
+// ← PERF: pre-bake node label color strings (only 3 variants)
+const nodeLabelColor=new Array(nodes.length);
+function rebuildLabelColors(){
+  for(let i=0;i<nodes.length;i++){
+    const d=nodes[i];
+    nodeLabelColor[i]=forceBlue.has(d.id)?"#93c5fd":confirmedSet.has(d.id)?"#fca5a5":"#94a3b8";
+  }
+}
+
+// ← PERF: pre-bake node border stroke variant index (0=normal,1=blue,2=red)
+const nodeBorderVariant=new Int8Array(nodes.length);
+function rebuildBorderVariants(){
+  for(let i=0;i<nodes.length;i++){
+    const d=nodes[i];
+    nodeBorderVariant[i]=forceBlue.has(d.id)?1:confirmedSet.has(d.id)?2:0;
+  }
+}
+
 const sim=d3.forceSimulation(nodes)
   .force("link",d3.forceLink(links).id(d=>d.id)
-    .distance(d=>{
-      const str=d.strength||0.5;
-      return 40+((1-str)*80);
-    })
+    .distance(d=>40+((1-(d.strength||0.5))*80))
     .strength(d=>(d.strength||0.5)*0.6))
-  .force("charge",d3.forceManyBody()
-    .strength(-120)
-    .distanceMin(10)
-    .distanceMax(600))
+  .force("charge",d3.forceManyBody().strength(-120).distanceMin(10).distanceMax(600))
   .force("center",d3.forceCenter(W/2,H/2))
   .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+4).strength(0.7).iterations(2))
   .force("x",d3.forceX(W/2).strength(0.04))
@@ -203,15 +250,11 @@ const sim=d3.forceSimulation(nodes)
   .velocityDecay(0.4)
   .alphaDecay(0.02)
   .alphaMin(0.001)
-  .on("tick",()=>{
-    for(const d of nodes){d._ox=d.x;d._oy=d.y;}
-    scheduleRedraw();
-  });
+  .on("tick",scheduleRedraw); // ← PERF: removed per-tick _ox/_oy copy (unused in draw)
 
 const epInit=nodeMap.get("epstein");
 if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=H/2;}
 
-// resolve adjacency immediately (links are still raw strings here)
 for(let i=0;i<links.length;i++){
   const l=links[i];
   const s=typeof l.source==='object'?l.source.id:l.source;
@@ -219,8 +262,18 @@ for(let i=0;i<links.length;i++){
   adjIndex.get(s)?.add(t); adjIndex.get(t)?.add(s);
   lSrcIds[i]=s; lTgtIds[i]=t;
 }
-if(epInit){epInit._ox=W/2;epInit._oy=H/2;}
-nodes.forEach(d=>{d._ox=d.x;d._oy=d.y;});
+
+build2ndDegreeCache();
+rebuildColorCache();
+rebuildLabelColors();
+rebuildBorderVariants();
+
+// ← PERF: pre-compute link tier once
+const linkColorTiers=new Int8Array(links.length);
+for(let i=0;i<links.length;i++){
+  const str=lStr[i];
+  linkColorTiers[i]=str>=0.8?0:str>=0.6?1:str>=0.4?2:3;
+}
 
 let activeCat="all",_visCache=null,visSet=new Set(),hoveredNode=null,searchQuery="",showLabels=true,minStrength=0,showOrphans=true;
 const nodeOpacity=new Float32Array(nodes.length).fill(0);
@@ -247,95 +300,118 @@ function getVisibleSet(){
   _visCache=vis; return vis;
 }
 
-function get2nd(id){
-  const f=adjIndex.get(id); if(!f) return new Set();
-  const s=new Set(f);
-  for(const fid of f){const f2=adjIndex.get(fid);if(f2)for(const sid of f2)s.add(sid);}
-  return s;
-}
-
 let rafId=null;
-function nodeColor(d){
-  if(forceBlue.has(d.id)) return "#60a5fa";
-  if(confirmedSet.has(d.id)) return "#ef4444";
-  return C[d.type]||"#64748b";
-}
+// ← PERF: cache last drawn state to skip redundant identical frames
+let _lastHov=null,_lastScale=-1,_lastTx=NaN,_lastTy=NaN,_dirty=true;
+function markDirty(){_dirty=true;}
 
 function draw(){
   rafId=null;
-  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  ctx.clearRect(0,0,W,H);
+
+  // ← PERF: skip repaint if nothing changed (pan/zoom/hover identical)
+  const hovId=hoveredNode?hoveredNode.id:null;
+  if(!_dirty && hovId===_lastHov && scale===_lastScale && tx===_lastTx && ty===_lastTy) return;
+  _dirty=false; _lastHov=hovId; _lastScale=scale; _lastTx=tx; _lastTy=ty;
+
+  // ← PERF: clear with fillRect (faster than clearRect on opaque canvas)
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.fillStyle="#0f172a";
+  ctx.fillRect(0,0,W,H);
+
   ctx.save();
   ctx.translate(tx,ty);
   ctx.scale(scale,scale);
 
-  const conn=hoveredNode?(adjIndex.get(hoveredNode.id)||new Set()):null;
-  const conn2=hoveredNode?get2nd(hoveredNode.id):null;
+  const hov=hoveredNode;
+  const conn=hov?(adjIndex.get(hov.id)||null):null;
+  const conn2=hov?(adj2Cache.get(hov.id)||null):null;
   const showWeak=scale>=0.5,showMed=scale>=0.3;
   const minR4lbl=scale<0.3?22:scale<0.5?15:scale<0.8?10:0;
 
-  /* links */
+  /* ── links ─────────────────────────────────────────────────────── */
+  ctx.lineWidth=1; // default, overridden per-link when needed
   for(let i=0;i<links.length;i++){
-    const l=links[i],s=l.source,t=l.target,sid=s.id||s,tid=t.id||t;
-    if(!visSet.has(sid)||!visSet.has(tid)) continue;
-    if(lStr[i]<minStrength) continue;
     const str=lStr[i];
+    if(str<minStrength) continue;
     if(!showWeak&&str<0.4) continue;
     if(!showMed&&str<0.6) continue;
+    const l=links[i],s=l.source,t=l.target,sid=lSrcIds[i],tid=lTgtIds[i];
+    if(!visSet.has(sid)||!visSet.has(tid)) continue;
+
     let alpha,lineW;
     if(conn){
-      if(sid===hoveredNode.id||tid===hoveredNode.id){alpha=0.5+str*0.4;lineW=Math.max(1,str*2.5);}
+      if(sid===hov.id||tid===hov.id){alpha=0.5+str*0.4;lineW=Math.max(1,str*2.5);}
       else continue;
     } else {
-      alpha=str>=0.8?0.22:str>=0.6?0.12:str>=0.4?0.06:0.03;
-      lineW=Math.max(0.3,str*1.0);
+      // ← PERF: use pre-baked stroke string, no string concat
+      ctx.strokeStyle=linkNormalStroke[linkColorTiers[i]];
+      ctx.lineWidth=Math.max(0.3,str);
+      ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(t.x,t.y); ctx.stroke();
+      continue;
     }
-    const mx=(s.x+t.x)/2,my=(s.y+t.y)/2,dx=t.x-s.x,dy=t.y-s.y,len=Math.sqrt(dx*dx+dy*dy)||1;
-    const cv=((i%7)-3)*0.05*len/5,cpx=mx+(-dy/len)*cv,cpy=my+(dx/len)*cv;
-    ctx.beginPath(); ctx.moveTo(s.x,s.y);
-    if(Math.abs(cv)>2) ctx.quadraticCurveTo(cpx,cpy,t.x,t.y); else ctx.lineTo(t.x,t.y);
+    // hover path (rare)
+    const c=linkBaseRGB[linkColorTiers[i]];
+    ctx.strokeStyle=`rgba(${c[0]},${c[1]},${c[2]},${alpha.toFixed(2)})`;
     ctx.lineWidth=lineW;
-    ctx.strokeStyle=str>=0.8?`rgba(239,68,68,${alpha})`:str>=0.6?`rgba(251,146,60,${alpha})`:str>=0.4?`rgba(100,116,139,${alpha})`:`rgba(71,85,105,${alpha})`;
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(t.x,t.y); ctx.stroke();
   }
 
-  /* nodes */
+  /* ── nodes ──────────────────────────────────────────────────────── */
+  ctx.lineWidth=1.2;
   for(let i=0;i<nodes.length;i++){
     const d=nodes[i]; if(!visSet.has(d.id)) continue;
     const op=nodeOpacity[i]; if(op<=0.01) continue;
-    const r=d.radius*S,color=nodeColor(d);
+    const r=d.radius*S,color=nodeColorCache[i];
     let fop;
     if(conn){
-      if(d.id===hoveredNode.id) fop=op;
+      if(d.id===hov.id) fop=op;
       else if(conn.has(d.id)) fop=op*0.95;
       else if(conn2&&conn2.has(d.id)) fop=op*0.25;
       else fop=op*0.06;
     } else {
       fop=(searchQuery&&!nodeLabelLC[i].includes(searchQuery))?op*0.1:op;
     }
+
     ctx.globalAlpha=fop;
-    if(hoveredNode&&d.id===hoveredNode.id){ctx.shadowColor=color;ctx.shadowBlur=20;}
-    const dr=(conn&&conn.has(d.id)&&d.id!==hoveredNode?.id)?r*1.08:r;
+    const isHovered=hov&&d.id===hov.id;
+    const isConn=conn&&conn.has(d.id)&&!isHovered;
+    const dr=isConn?r*1.08:r;
+
     ctx.beginPath(); ctx.arc(d.x,d.y,dr,0,Math.PI*2);
     ctx.fillStyle=color; ctx.fill();
-    ctx.shadowColor="transparent"; ctx.shadowBlur=0;
-    ctx.strokeStyle=forceBlue.has(d.id)?"rgba(96,165,250,0.4)":confirmedSet.has(d.id)?"rgba(239,68,68,0.4)":"rgba(255,255,255,0.12)";
-    ctx.lineWidth=1.2; ctx.stroke();
+
+    // ← PERF: use pre-baked border stroke string
+    const bv=nodeBorderVariant[i];
+    ctx.strokeStyle=bv===1?strokeBlue:bv===2?strokeRed:strokeNormal;
+    ctx.stroke();
+
+    if(isHovered){
+      // glow ring
+      ctx.strokeStyle=color; ctx.lineWidth=3; ctx.stroke();
+      ctx.globalAlpha=fop*0.25;
+      ctx.beginPath(); ctx.arc(d.x,d.y,dr+3,0,Math.PI*2);
+      ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+      ctx.globalAlpha=fop;
+      ctx.lineWidth=1.2; // restore
+    }
   }
   ctx.globalAlpha=1;
 
-  /* labels */
+  /* ── labels ─────────────────────────────────────────────────────── */
   if(showLabels){
+    // ← PERF: compute font string once per draw, not per node
     const fs=Math.max(6,Math.min(9,7/Math.sqrt(Math.max(0.3,scale))));
-    ctx.font=`500 ${fs}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
+    const fontStr=`500 ${fs}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
+    ctx.font=fontStr;
     ctx.textAlign="center"; ctx.textBaseline="top";
+
     for(let i=0;i<nodes.length;i++){
       const d=nodes[i]; if(!visSet.has(d.id)) continue;
       const op=nodeOpacity[i]; if(op<=0.01) continue;
       if(d.radius<minR4lbl&&!(conn&&conn.has(d.id))) continue;
       let lop;
       if(conn){
-        if(d.id===hoveredNode.id) lop=1;
+        if(d.id===hov.id) lop=1;
         else if(conn.has(d.id)) lop=0.9;
         else if(conn2&&conn2.has(d.id)) lop=0.15;
         else lop=0;
@@ -344,15 +420,16 @@ function draw(){
       }
       if(lop<=0.01) continue;
       ctx.globalAlpha=op*lop;
-      const nodeR=d.radius*S;
-      ctx.fillStyle=forceBlue.has(d.id)?"#93c5fd":confirmedSet.has(d.id)?"#fca5a5":"#94a3b8";
-      ctx.fillText(d.label,d.x,d.y+nodeR+3);
+      // ← PERF: use pre-baked label color string
+      ctx.fillStyle=nodeLabelColor[i];
+      ctx.fillText(d.label,d.x,d.y+d.radius*S+3);
     }
   }
   ctx.globalAlpha=1;
   ctx.restore();
 
-  /* minimap */
+  /* ── minimap (throttled to every 4th frame) ─────────────────────── */
+  if(++minimapCounter&3) return;
   {
     const mw=130,mh=85,mp=8,mmx=W-mw-mp,mmy=H-mh-mp;
     let bx0=Infinity,by0=Infinity,bx1=-Infinity,by1=-Infinity,cnt=0;
@@ -369,17 +446,27 @@ function draw(){
         if(!visSet.has(d.id)) continue;
         const px=ox+d.x*ms,py=oy+d.y*ms;
         if(px<mmx||px>mmx+mw||py<mmy||py>mmy+mh) continue;
+        // ← PERF: use pre-cached index (no .indexOf())
         ctx.beginPath(); ctx.arc(px,py,1.2,0,Math.PI*2);
-        ctx.fillStyle=nodeColor(d); ctx.globalAlpha=0.5; ctx.fill();
+        ctx.fillStyle=nodeColorCache[nodeIndex.get(d.id)]; ctx.globalAlpha=0.5; ctx.fill();
       }
       ctx.globalAlpha=1;
       ctx.strokeStyle="rgba(99,102,241,0.4)"; ctx.lineWidth=1;
-      ctx.strokeRect(Math.max(mmx,ox+(-tx/scale)*ms),Math.max(mmy,oy+(-ty/scale)*ms),Math.min((W/scale)*ms,mw),Math.min((H/scale)*ms,mh));
+      ctx.strokeRect(
+        Math.max(mmx,ox+(-tx/scale)*ms),
+        Math.max(mmy,oy+(-ty/scale)*ms),
+        Math.min((W/scale)*ms,mw),
+        Math.min((H/scale)*ms,mh)
+      );
     }
   }
 }
+let minimapCounter=0;
 
-function scheduleRedraw(){if(!rafId)rafId=requestAnimationFrame(draw);}
+function scheduleRedraw(){
+  markDirty();
+  if(!rafId) rafId=requestAnimationFrame(draw);
+}
 
 const opTgt=new Float32Array(nodes.length).fill(0);
 let animating=false;
@@ -390,7 +477,8 @@ function tickOpacity(){
     if(Math.abs(d)>0.01){nodeOpacity[i]+=d*0.12;moving=true;}
     else nodeOpacity[i]=opTgt[i];
   }
-  draw();
+  markDirty();
+  scheduleRedraw();
   if(moving) requestAnimationFrame(tickOpacity);
   else animating=false;
 }
@@ -412,24 +500,17 @@ function stopSim(){
   sim.stop();simRunning=false;sim.on("tick.r",null).on("end.r",null);
 }
 
-function resolveOverlaps(){
-  /* No longer pin nodes — let the live sim handle it */
-}
-
 function refitVis(){
   if(refitTimer) clearTimeout(refitTimer);
   refitTimer=setTimeout(()=>{
     const vis=getVisibleSet(); if(!vis.size) return;
     stopSim();
-    /* Unpin all nodes so they can flow naturally */
     for(const d of nodes){d.fx=null;d.fy=null;}
-    /* Pin Epstein to center in All view */
     if(activeCat==="all"){
       const ep=nodeMap.get("epstein");
       if(ep){ep.fx=W/2;ep.fy=H/2;ep.x=W/2;ep.y=H/2;}
     }
     const cx=W/2,cy=H/2,vc=vis.size;
-    /* Scale forces based on how many nodes are visible */
     const chargeStr=vc<15?-200:vc<40?-150:-120;
     const centerStr=vc<15?0.12:vc<40?0.08:0.04;
     sim.force("center",d3.forceCenter(cx,cy))
@@ -437,21 +518,15 @@ function refitVis(){
        .force("collision",d3.forceCollide().radius(d=>vis.has(d.id)?(d.radius*S)+4:0).strength(0.7).iterations(2))
        .force("x",d3.forceX(cx).strength(d=>vis.has(d.id)?centerStr:0))
        .force("y",d3.forceY(cy).strength(d=>vis.has(d.id)?centerStr:0));
-    /* Re-scatter hidden nodes toward visible positions so they don't drag layout */
     for(const d of nodes){
       if(!vis.has(d.id)){d.x=cx;d.y=cy;}
     }
-    sim.on("tick.r",()=>{
-      for(const d of nodes)if(vis.has(d.id)){d._ox=d.x;d._oy=d.y;}
-      scheduleRedraw();
-    });
+    sim.on("tick.r",()=>{markDirty();scheduleRedraw();});
     sim.on("end.r",()=>{
       simRunning=false;sim.on("tick.r",null).on("end.r",null);
-      /* Do NOT pin nodes — let them stay interactive */
-      for(const d of nodes){d._ox=d.x;d._oy=d.y;}
       if(activeCat==="all"){
         const ep=nodeMap.get("epstein");
-        if(ep){ep.fx=W/2;ep.fy=H/2;ep._ox=W/2;ep._oy=H/2;}
+        if(ep){ep.fx=W/2;ep.fy=H/2;}
       }
       restoreForces();scheduleRedraw();
     });
@@ -509,10 +584,7 @@ canvas.addEventListener("mouseup",e=>{
   if(dragNode){
     const moved=Math.hypot(e.clientX-dragSX,e.clientY-dragSY),elapsed=Date.now()-mdT;
     if(moved<5&&elapsed<300) openDossier(dragNode);
-    dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;
-    /* Release the node — don't keep it pinned */
     dragNode.fx=null;dragNode.fy=null;
-    /* But keep Epstein pinned */
     if(dragNode.id==="epstein"&&activeCat==="all"){dragNode.fx=W/2;dragNode.fy=H/2;}
     dragNode=null;sim.alphaTarget(0).alpha(0.1).restart();
     scheduleRedraw();
@@ -524,7 +596,6 @@ canvas.addEventListener("mouseup",e=>{
 });
 canvas.addEventListener("mouseleave",()=>{
   if(dragNode){
-    dragNode._ox=dragNode.x;dragNode._oy=dragNode.y;
     dragNode.fx=null;dragNode.fy=null;
     if(dragNode.id==="epstein"&&activeCat==="all"){dragNode.fx=W/2;dragNode.fy=H/2;}
     dragNode=null;sim.alphaTarget(0).alpha(0.1).restart();
@@ -623,10 +694,10 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>btn.addEventList
   document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active"); activeCat=btn.dataset.cat;
   stopSim();
-  for(const d of nodes){d.fx=null;d.fy=null;d.x=d._ox;d.y=d._oy;}
+  for(const d of nodes){d.fx=null;d.fy=null;d.x=d._ox??d.x;d.y=d._oy??d.y;}
   if(activeCat==="all"){
     const ep=nodeMap.get("epstein");
-    if(ep){ep.x=W/2;ep.y=H/2;ep.fx=W/2;ep.fy=H/2;ep._ox=W/2;ep._oy=H/2;}
+    if(ep){ep.x=W/2;ep.y=H/2;ep.fx=W/2;ep.fy=H/2;}
   }
   applyFilters();
   refitVis();
