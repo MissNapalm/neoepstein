@@ -204,9 +204,9 @@ body{
 <canvas id="graph"></canvas>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="list.js?v=31"></script>
-<script src="list2.js?v=31"></script>
-<script src="dates.js?v=1"></script>
+<script src="list.js?v=33"></script>
+<script src="list2.js?v=33"></script>
+<script src="dates.js?v=3"></script>
 <script src="writeups.js?v=3"></script>
 <script>
 'use strict';
@@ -267,11 +267,11 @@ let tx = 0, ty = 0, scale = 1;
 const nodes = graphData.nodes.map(d => ({...d}));
 const links = graphData.links.map(d => ({...d}));
 const nodeMap = new Map(nodes.map(n => [n.id, n]));
-const S = 0.3;
+const S = 0.40;
 
-/* Pre-cache link src/tgt after forceLink resolves them */
-const linkSrcIds = links.map(l => typeof l.source === 'object' ? l.source.id : l.source);
-const linkTgtIds = links.map(l => typeof l.target === 'object' ? l.target.id : l.target);
+/* Pre-cache link data */
+const linkSrcIds = new Array(links.length);
+const linkTgtIds = new Array(links.length);
 const linkStrengths = new Float32Array(links.map(l => l.strength||0.5));
 
 /* Adjacency index */
@@ -280,39 +280,43 @@ for (const n of nodes) adjIndex.set(n.id, new Set([n.id]));
 
 /* ── SIMULATION ── */
 const sim = d3.forceSimulation(nodes)
-  .force("link",      d3.forceLink(links).id(d=>d.id).distance(d=>70/(d.strength||0.5)).strength(d=>(d.strength||0.5)*0.9))
-  .force("charge",    d3.forceManyBody().strength(d=>-(d.radius*S)*10).distanceMax(400))
+  .force("link",      d3.forceLink(links).id(d=>d.id).distance(d=>55/(d.strength||0.5)).strength(d=>(d.strength||0.5)*0.7))
+  .force("charge",    d3.forceManyBody().strength(d=>-(d.radius*S)*8).distanceMax(350))
   .force("center",    d3.forceCenter(W/2, H/2))
-  .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+4))
-  .force("x",         d3.forceX(W/2).strength(0.07))
-  .force("y",         d3.forceY(H/2).strength(0.07))
+  .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+3))
+  .force("x",         d3.forceX(W/2).strength(0.09))
+  .force("y",         d3.forceY(H/2).strength(0.09))
+  .velocityDecay(0.4)
+  .alphaDecay(0.015)
   .stop();
 
-/* Jitter to break symmetry so clusters don't stack */
+/* Jitter — wide spread to break symmetry evenly */
 for (const d of nodes) {
-  d.x = W/2 + (Math.random()-0.5) * 200;
-  d.y = H/2 + (Math.random()-0.5) * 200;
+  d.x = W/2 + (Math.random()-0.5) * W * 0.6;
+  d.y = H/2 + (Math.random()-0.5) * H * 0.6;
 }
 
-for (let i = 0; i < 400; i++) sim.tick();
+/* Run initial settle synchronously */
+sim.alpha(1);
+for (let i = 0; i < 600; i++) sim.tick();
 
 /* Build adjacency after forceLink resolves objects */
-for (const l of links) {
+for (let i = 0; i < links.length; i++) {
+  const l = links[i];
   const s = l.source.id||l.source, t = l.target.id||l.target;
   adjIndex.get(s)?.add(t);
   adjIndex.get(t)?.add(s);
-  /* Update cached IDs after forceLink resolves */
-  linkSrcIds[links.indexOf(l)] = s;
-  linkTgtIds[links.indexOf(l)] = t;
+  linkSrcIds[i] = s;
+  linkTgtIds[i] = t;
 }
 
-/* Save original positions */
-nodes.forEach(d => { d._ox = d.x; d._oy = d.y; d.fx = d.x; d.fy = d.y; });
+/* Save settled positions — used to restore after filter changes */
+nodes.forEach(d => { d._ox = d.x; d._oy = d.y; });
 
 /* ── FILTER STATE ── */
 let activeCat = "all";
 let _visCache = null;
-let visSet = new Set(); /* current visible set — used by draw loop */
+let visSet = new Set();
 let hoveredNode = null;
 let searchQuery = "";
 let showLabels = true;
@@ -351,9 +355,20 @@ function getVisibleSet() {
   return vis;
 }
 
+/* ── 2ND-DEGREE ADJACENCY ── */
+function get2ndDegree(nodeId) {
+  const first = adjIndex.get(nodeId);
+  if (!first) return new Set();
+  const second = new Set(first);
+  for (const fid of first) {
+    const f2 = adjIndex.get(fid);
+    if (f2) for (const sid of f2) second.add(sid);
+  }
+  return second;
+}
+
 /* ── DRAW LOOP ── */
 let rafId = null;
-let pulseT = 0; /* for pulse ring animation */
 
 function nodeColor(d) {
   if (forceBlue.has(d.id)) return "#60a5fa";
@@ -363,17 +378,54 @@ function nodeColor(d) {
 
 function draw() {
   rafId = null;
-  pulseT += 0.016;
 
   ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   ctx.clearRect(0, 0, W, H);
 
-  /* Apply zoom/pan */
   ctx.save();
   ctx.translate(tx, ty);
   ctx.scale(scale, scale);
 
   const conn = hoveredNode ? (adjIndex.get(hoveredNode.id) || new Set()) : null;
+  const conn2 = hoveredNode ? get2ndDegree(hoveredNode.id) : null;
+
+  /* Zoom-level detail thresholds */
+  const showWeakLinks = scale >= 0.5;
+  const showMedLinks = scale >= 0.3;
+  const minRadiusForLabel = scale < 0.3 ? 22 :
+                             scale < 0.5 ? 15 :
+                             scale < 0.8 ? 10 : 0;
+
+  /* ── CLUSTER HULLS ── */
+  if (activeCat === "all" && scale > 0.25) {
+    const clusterDefs = [
+      { ids: categories.intel_il, color: "59,130,246" },
+      { ids: categories.intel_uk, color: "168,85,247" },
+      { ids: categories.intel_us, color: "239,68,68" },
+      { ids: categories.intel_ru, color: "251,113,133" },
+      { ids: categories.intel_ae, color: "234,179,8" },
+    ];
+    for (const cl of clusterDefs) {
+      const pts = cl.ids.map(id => nodeMap.get(id)).filter(n => n && visSet.has(n.id));
+      if (pts.length < 3) continue;
+      let cx=0, cy=0;
+      for (const p of pts) { cx += p.x; cy += p.y; }
+      cx /= pts.length; cy /= pts.length;
+      let rx = 0, ry = 0;
+      for (const p of pts) {
+        rx = Math.max(rx, Math.abs(p.x - cx));
+        ry = Math.max(ry, Math.abs(p.y - cy));
+      }
+      rx += 50; ry += 50;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${cl.color},0.02)`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(${cl.color},0.06)`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
 
   /* ── LINKS ── */
   for (let i = 0; i < links.length; i++) {
@@ -385,32 +437,31 @@ function draw() {
 
     const str = linkStrengths[i];
 
-    /* At low zoom, hide weak links to reduce clutter */
-    if (scale < 0.6 && str < 0.4) continue;
-    if (scale < 0.35 && str < 0.6) continue;
+    /* Zoom-level culling */
+    if (!showWeakLinks && str < 0.4) continue;
+    if (!showMedLinks && str < 0.6) continue;
 
-    let alpha;
+    let alpha, lineW;
     if (conn) {
-      /* When hovering: only show connections to hovered node */
       if (sid === hoveredNode.id || tid === hoveredNode.id) {
-        alpha = 0.6 + str * 0.35;
+        alpha = 0.5 + str * 0.4;
+        lineW = Math.max(1.0, str * 2.5);
       } else {
-        continue; /* skip non-connected links entirely instead of drawing at 0.04 */
+        continue;
       }
     } else {
-      /* Default: scale alpha by strength, much softer */
-      alpha = str >= 0.8 ? 0.25 :
-              str >= 0.6 ? 0.15 :
-              str >= 0.4 ? 0.08 : 0.04;
+      alpha = str >= 0.8 ? 0.22 :
+              str >= 0.6 ? 0.12 :
+              str >= 0.4 ? 0.06 : 0.03;
+      lineW = Math.max(0.3, str * 1.0);
     }
 
-    /* Curve offset — prevents lines from stacking */
+    /* Curve offset */
     const mx = (s.x + t.x) / 2;
     const my = (s.y + t.y) / 2;
     const dx = t.x - s.x, dy = t.y - s.y;
     const len = Math.sqrt(dx*dx + dy*dy) || 1;
-    /* Perpendicular offset based on link index — each link curves differently */
-    const curvature = ((i % 7) - 3) * 0.06 * len / 4;
+    const curvature = ((i % 7) - 3) * 0.05 * len / 5;
     const cpx = mx + (-dy / len) * curvature;
     const cpy = my + (dx / len) * curvature;
 
@@ -422,8 +473,7 @@ function draw() {
       ctx.lineTo(t.x, t.y);
     }
 
-    ctx.lineWidth = conn ? Math.max(0.8, str * 2) : Math.max(0.3, str * 1.2);
-
+    ctx.lineWidth = lineW;
     if (str >= 0.8)      ctx.strokeStyle = `rgba(239,68,68,${alpha})`;
     else if (str >= 0.6) ctx.strokeStyle = `rgba(251,146,60,${alpha})`;
     else if (str >= 0.4) ctx.strokeStyle = `rgba(100,116,139,${alpha})`;
@@ -441,32 +491,42 @@ function draw() {
 
     const r = d.radius * S;
     const color = nodeColor(d);
-    const dimmed = conn && !conn.has(d.id);
-    const finalOp = dimmed ? op * 0.12 : op;
+
+    let finalOp;
+    if (conn) {
+      if (d.id === hoveredNode.id) finalOp = op;
+      else if (conn.has(d.id)) finalOp = op * 0.95;
+      else if (conn2 && conn2.has(d.id)) finalOp = op * 0.25;
+      else finalOp = op * 0.06;
+    } else {
+      const searchDim = searchQuery && !nodeLabelLC[i].includes(searchQuery);
+      finalOp = searchDim ? op * 0.1 : op;
+    }
 
     ctx.globalAlpha = finalOp;
 
-    /* Pulse ring for center nodes */
-    if (d.type === "center") {
-      const pulse = 0.1 + 0.1 * Math.sin(pulseT * 2 + i);
-      ctx.beginPath();
-      ctx.arc(d.x, d.y, r + 6, 0, Math.PI * 2);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.5;
-      ctx.globalAlpha = finalOp * pulse;
-      ctx.stroke();
-      ctx.globalAlpha = finalOp;
+    /* Glow for hovered node */
+    if (hoveredNode && d.id === hoveredNode.id) {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 20;
     }
+
+    /* Scale up connected nodes on hover */
+    const drawR = (conn && conn.has(d.id) && d.id !== hoveredNode?.id) ? r * 1.08 : r;
 
     /* Node circle */
     ctx.beginPath();
-    ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+    ctx.arc(d.x, d.y, drawR, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
+
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+
     ctx.strokeStyle = forceBlue.has(d.id) ? "rgba(96,165,250,0.4)"
                     : confirmedSet.has(d.id) ? "rgba(239,68,68,0.4)"
-                    : "rgba(255,255,255,0.15)";
-    ctx.lineWidth = 1.5;
+                    : "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 1.2;
     ctx.stroke();
   }
 
@@ -474,9 +534,10 @@ function draw() {
 
   /* ── LABELS ── */
   if (showLabels) {
-    ctx.font = `500 8px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
+    const fontSize = Math.max(6, Math.min(9, 7 / Math.sqrt(Math.max(0.3, scale))));
+    ctx.font = `500 ${fontSize}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textBaseline = "top";
 
     for (let i = 0; i < nodes.length; i++) {
       const d = nodes[i];
@@ -484,13 +545,27 @@ function draw() {
       const op = nodeOpacity[i];
       if (op <= 0.01) continue;
 
-      const dimmed = conn && !conn.has(d.id);
-      const searchDimmed = searchQuery && !nodeLabelLC[i].includes(searchQuery);
-      let labelOp = dimmed ? 0.08 : (searchDimmed ? 0.08 : 1.0);
+      /* Skip small labels at low zoom unless hovered */
+      if (d.radius < minRadiusForLabel && !(conn && conn.has(d.id))) continue;
+
+      let labelOp;
+      if (conn) {
+        if (d.id === hoveredNode.id) labelOp = 1.0;
+        else if (conn.has(d.id)) labelOp = 0.9;
+        else if (conn2 && conn2.has(d.id)) labelOp = 0.15;
+        else labelOp = 0.0;
+      } else {
+        const searchDim = searchQuery && !nodeLabelLC[i].includes(searchQuery);
+        labelOp = searchDim ? 0.05 : 0.85;
+      }
+
+      if (labelOp <= 0.01) continue;
       ctx.globalAlpha = op * labelOp;
 
-      const lx = d.x + (d._lx || 0);
-      const ly = d.y + (d._ly || d.radius * S + 4);
+      const lx = d.x;
+      const nodeR = d.radius * S;
+      const labelDrawR = (conn && conn.has(d.id) && d.id !== hoveredNode?.id) ? nodeR * 1.08 : nodeR;
+      const ly = d.y + labelDrawR + 1.2 + 4;
 
       ctx.fillStyle = forceBlue.has(d.id) ? "#93c5fd"
                     : confirmedSet.has(d.id) ? "#fca5a5"
@@ -501,6 +576,56 @@ function draw() {
 
   ctx.globalAlpha = 1;
   ctx.restore();
+
+  /* ── MINIMAP ── */
+  {
+    const mmW = 140, mmH = 90, mmPad = 10;
+    const mmX = W - mmW - mmPad, mmY = H - mmH - mmPad;
+    let bx0=Infinity, by0=Infinity, bx1=-Infinity, by1=-Infinity, cnt=0;
+    for (const d of nodes) {
+      if (!visSet.has(d.id)) continue;
+      if (d.x < bx0) bx0=d.x; if (d.y < by0) by0=d.y;
+      if (d.x > bx1) bx1=d.x; if (d.y > by1) by1=d.y;
+      cnt++;
+    }
+    if (cnt > 2 && bx1 > bx0) {
+      const mPad = 10;
+      const mScale = Math.min((mmW - mPad*2) / (bx1-bx0||1), (mmH - mPad*2) / (by1-by0||1));
+      const mOx = mmX + mmW/2 - (bx0+bx1)/2 * mScale;
+      const mOy = mmY + mmH/2 - (by0+by1)/2 * mScale;
+
+      ctx.fillStyle = "rgba(15,23,42,0.8)";
+      ctx.fillRect(mmX, mmY, mmW, mmH);
+      ctx.strokeStyle = "rgba(51,65,85,0.4)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(mmX, mmY, mmW, mmH);
+
+      for (const d of nodes) {
+        if (!visSet.has(d.id)) continue;
+        const mx = mOx + d.x * mScale;
+        const my = mOy + d.y * mScale;
+        if (mx < mmX || mx > mmX+mmW || my < mmY || my > mmY+mmH) continue;
+        ctx.beginPath();
+        ctx.arc(mx, my, 1.2, 0, Math.PI*2);
+        ctx.fillStyle = nodeColor(d);
+        ctx.globalAlpha = 0.5;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      /* Viewport rectangle */
+      const vx0 = mOx + (-tx/scale) * mScale;
+      const vy0 = mOy + (-ty/scale) * mScale;
+      const vw = (W/scale) * mScale;
+      const vh = (H/scale) * mScale;
+      ctx.strokeStyle = "rgba(99,102,241,0.4)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+        Math.max(mmX, vx0), Math.max(mmY, vy0),
+        Math.min(vw, mmW), Math.min(vh, mmH)
+      );
+    }
+  }
 }
 
 function scheduleRedraw() {
@@ -508,9 +633,7 @@ function scheduleRedraw() {
 }
 
 /* ── OPACITY ANIMATION ── */
-/* Instead of CSS transitions, we animate opacity values in JS
-   and redraw every frame until all targets are reached. */
-const opacityTargets = new Float32Array(nodes.length);
+const opacityTargets = new Float32Array(nodes.length).fill(0);
 let animating = false;
 let animRafId = null;
 
@@ -520,7 +643,7 @@ function tickOpacity() {
   for (let i = 0; i < nodes.length; i++) {
     const diff = opacityTargets[i] - nodeOpacity[i];
     if (Math.abs(diff) > 0.01) {
-      nodeOpacity[i] += diff * 0.12; /* ease factor */
+      nodeOpacity[i] += diff * 0.12;
       stillMoving = true;
     } else {
       nodeOpacity[i] = opacityTargets[i];
@@ -543,21 +666,18 @@ function setOpacityTargets() {
 
 /* ── LABEL PLACEMENT ── */
 function placeLabels(vis) {
-  const LH = 10, PAD = 2, charW = 5.2;
-  const placed = [];
+  const LH = 10, PAD = 1, charW = 5.2;
   const active = vis || visSet;
 
-  /* 16 angles × 3 distance tiers = 48 candidates — tighter distances */
+  /* 12 angles — but weighted toward below-center */
   const angles = [];
-  for (let i = 0; i < 16; i++) angles.push((i / 16) * Math.PI * 2);
-  const dists = [1.0, 1.25, 1.55];
+  for (let i = 0; i < 12; i++) angles.push((i / 12) * Math.PI * 2);
+  const dists = [1.0, 1.2, 1.45];
 
-  /* Sort by radius desc — important nodes get first pick */
   const sorted = nodes.slice()
     .filter(d => active.has(d.id))
     .sort((a, b) => b.radius - a.radius);
 
-  /* Spatial grid for fast overlap checks */
   const CELL = 50;
   const grid = new Map();
   function addToGrid(rect) {
@@ -587,17 +707,18 @@ function placeLabels(vis) {
     return result;
   }
 
-  /* Pre-build node positions for overlap check */
   const activeNodes = sorted.map(d => ({ x: d.x, y: d.y, r: d.radius * S + 2 }));
 
   for (const d of sorted) {
     const r = d.radius * S + PAD;
     const lw = d.label.length * charW + 4;
-    let bestScore = Infinity, bestDx = 0, bestDy = r + LH * 0.5;
+    /* Default: directly below, snug against the node */
+    let bestScore = Infinity, bestDx = 0, bestDy = r + LH * 0.6;
 
     for (const distMul of dists) {
       if (bestScore <= 0) break;
       for (const ang of angles) {
+        /* Place label center along the angle, just outside the node */
         const dist = (r + LH * 0.5) * distMul;
         const cx = d.x + Math.cos(ang) * dist;
         const cy = d.y + Math.sin(ang) * dist;
@@ -624,11 +745,15 @@ function placeLabels(vis) {
           }
         }
 
-        /* Strong penalty for distance — keeps labels close to their node */
-        score += (distMul - 1.0) * 40;
+        /* Heavy penalty for distance — labels must stay close */
+        score += (distMul - 1.0) * 60;
 
-        /* Slight preference for below */
-        if (ang > Math.PI * 0.2 && ang < Math.PI * 0.8) score -= 1;
+        /* Strong preference for directly below (ang ≈ π/2) */
+        const belowness = Math.cos(ang - Math.PI * 0.5); /* 1.0 when pointing straight down */
+        score -= belowness * 8;
+
+        /* Slight preference for below-right over below-left */
+        if (ang > Math.PI * 0.25 && ang < Math.PI * 0.75) score -= 2;
 
         if (score < bestScore) {
           bestScore = score;
@@ -647,7 +772,6 @@ function placeLabels(vis) {
       ar: d.x + bestDx + lw / 2,
       ab: d.y + bestDy + LH / 2
     };
-    placed.push(rect);
     addToGrid(rect);
   }
 }
@@ -668,46 +792,21 @@ function panTo(targetTx, targetTy, targetScale, duration) {
   requestAnimationFrame(step);
 }
 
-function centerOnEpstein() {
-  const ep = nodes.find(d => d.id === "epstein");
-  if (!ep) return;
-  const s = 1.1;
-  panTo(W/2 - ep._ox * s, H/2 - ep._oy * s, s, 700);
-}
-
-function fitVisible(vis) {
-  const active = vis || visSet;
-  const visNodes = nodes.filter(d => active.has(d.id));
-  if (!visNodes.length) return;
-  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
-  for (const d of visNodes) {
-    const r = d.radius * S;
-    if (d.x-r < x0) x0=d.x-r; if (d.y-r < y0) y0=d.y-r;
-    if (d.x+r > x1) x1=d.x+r; if (d.y+r > y1) y1=d.y+r;
-  }
-  const pad = 80;
-  const bw = x1-x0+pad*2, bh = y1-y0+pad*2;
-  /* Scale to fit full canvas — panel is an overlay, not a viewport crop */
-  const s = Math.min(W/bw, H/bh, 3.0);
-  /* Pan so bounding box centre lands at canvas centre */
-  panTo(W/2 - (x0+x1)/2*s, H/2 - (y0+y1)/2*s, s, 650);
-}
-
 /* ── SIMULATION CONTROL ── */
 let simRunning = false, refitTimer = null;
 
 function restoreDefaultForces() {
   sim.force("center", d3.forceCenter(W/2,H/2))
-     .force("x", d3.forceX(W/2).strength(0.07))
-     .force("y", d3.forceY(H/2).strength(0.07))
-     .force("charge", d3.forceManyBody().strength(d=>-(d.radius*S)*10).distanceMax(400))
-     .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+4));
+     .force("x", d3.forceX(W/2).strength(0.09))
+     .force("y", d3.forceY(H/2).strength(0.09))
+     .force("charge", d3.forceManyBody().strength(d=>-(d.radius*S)*8).distanceMax(350))
+     .force("collision", d3.forceCollide().radius(d=>(d.radius*S)+3));
 }
 
 function freezeSimulation() {
   if (refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
   sim.stop(); simRunning = false;
-  sim.on("tick.refit", null).on("end.refit", null).on("tick", null);
+  sim.on("tick.refit", null).on("end.refit", null);
   for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
   placeLabels(null);
 }
@@ -724,24 +823,37 @@ function refitVisibleNodes() {
     if (simRunning) { sim.stop(); simRunning = false; }
     unfreezeNodes();
 
-    /* Physics targets true canvas centre — camera zoom handles the offset */
     const cx = W/2, cy = H/2;
+    const visCount = vis.size;
+    const chargeMul = visCount < 15 ? 18 : visCount < 40 ? 14 : 10;
+    const centerStr = visCount < 15 ? 0.3 : visCount < 40 ? 0.2 : 0.12;
+
     sim.force("center", d3.forceCenter(cx,cy).strength(1))
-       .force("x", d3.forceX(cx).strength(d => vis.has(d.id)?0.15:0))
-       .force("y", d3.forceY(cy).strength(d => vis.has(d.id)?0.15:0))
-       .force("charge", d3.forceManyBody().strength(d => vis.has(d.id)?-(d.radius*S)*22:0))
+       .force("x", d3.forceX(cx).strength(d => vis.has(d.id)?centerStr:0))
+       .force("y", d3.forceY(cy).strength(d => vis.has(d.id)?centerStr:0))
+       .force("charge", d3.forceManyBody().strength(d => vis.has(d.id)?-(d.radius*S)*chargeMul:0).distanceMax(500))
        .force("collision", d3.forceCollide().radius(d => vis.has(d.id)?(d.radius*S)+6:0));
 
-    sim.on("tick.refit", scheduleRedraw);
+    sim.on("tick.refit", () => {
+      /* Snapshot settled positions each tick so labels track correctly */
+      for (const d of nodes) { if (vis.has(d.id)) { d._ox = d.x; d._oy = d.y; } }
+      scheduleRedraw();
+    });
     sim.on("end.refit", () => {
       simRunning = false;
       sim.on("tick.refit",null).on("end.refit",null);
+      sim.stop();
+      /* Freeze all nodes in place — no further movement */
+      for (const d of nodes) {
+        d.fx = d.x; d.fy = d.y;
+        d._ox = d.x; d._oy = d.y;
+      }
       restoreDefaultForces();
       placeLabels(vis);
-      fitVisible(vis);
+      scheduleRedraw();
     });
     simRunning = true;
-    sim.alpha(0.6).alphaDecay(0.028).alphaTarget(0).restart();
+    sim.alpha(0.7).alphaDecay(0.025).alphaTarget(0).restart();
   }, 100);
 }
 
@@ -765,17 +877,15 @@ function updateStats() {
 /* ── MOUSE / TOUCH INTERACTION ── */
 const tipEl = document.getElementById("tooltip");
 
-/* Convert screen coords to graph coords */
 function toGraph(cx, cy) {
   return { x: (cx - tx) / scale, y: (cy - ty) / scale };
 }
 
 function hitTest(gx, gy) {
-  /* Test nodes in reverse order (last drawn = on top) */
   for (let i = nodes.length - 1; i >= 0; i--) {
     const d = nodes[i];
     if (!visSet.has(d.id)) continue;
-    const r = d.radius * S;
+    const r = d.radius * S + 2;
     const dx = gx - d.x, dy = gy - d.y;
     if (dx*dx + dy*dy <= r*r) return d;
   }
@@ -787,8 +897,8 @@ function showTooltip(d, clientX, clientY) {
   let h = `<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
   if (d.agency) h += `<div style="font-size:10px;color:#64748b;margin-bottom:4px">${d.agency}</div>`;
   if (d.role)   h += `<div><span class="lbl">Role: </span>${d.role}</div>`;
-  if (d.yearsActive) h+=`<div><span class="lbl">Active: </span>${d.yearsActive}</div>`;
-  if (d.status) h+=`<div><span class="lbl">Status: </span>${d.status}</div>`;
+  if (d.yearsActive) h += `<div><span class="lbl">Active: </span>${d.yearsActive}</div>`;
+  if (d.status) h += `<div><span class="lbl">Status: </span>${d.status}</div>`;
   if (nodeCats.length) h += `<div style="margin-top:5px;color:#64748b;font-size:10px">${nodeCats.join(' · ')}</div>`;
   h += `<div class="hint">Click to open dossier →</div>`;
   tipEl.innerHTML = h;
@@ -809,8 +919,8 @@ canvas.addEventListener("mousedown", e => {
   if (hit) {
     dragNode = hit;
     dragStartX = e.clientX; dragStartY = e.clientY;
-    /* Never restart physics on node drag — just move it directly */
     hit.fx = hit.x; hit.fy = hit.y;
+    sim.alphaTarget(0.06).restart();
   } else {
     isPanning = true;
     panStartX = e.clientX; panStartY = e.clientY;
@@ -832,7 +942,6 @@ canvas.addEventListener("mousemove", e => {
     scheduleRedraw();
     return;
   }
-  /* Hover hit-test */
   const g = toGraph(e.clientX, e.clientY);
   const hit = hitTest(g.x, g.y);
   if (hit !== hoveredNode) {
@@ -853,21 +962,28 @@ canvas.addEventListener("mouseup", e => {
     const moved = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
     const elapsed = Date.now() - mouseDownTime;
     if (moved < 5 && elapsed < 300) openDossier(dragNode);
-    /* Re-pin at dropped position — no physics */
+    /* After drag — freeze the node where it landed */
+    dragNode._ox = dragNode.x; dragNode._oy = dragNode.y;
     dragNode.fx = dragNode.x; dragNode.fy = dragNode.y;
     dragNode = null;
+    sim.alphaTarget(0).alpha(0.0001);
     scheduleRedraw();
   }
   if (isPanning) {
     isPanning = false;
-    /* Click on background closes dossier */
     const moved = Math.hypot(e.clientX - mouseDownX, e.clientY - mouseDownY);
     if (moved < 5) document.getElementById("dossier").classList.remove("open");
   }
 });
 
 canvas.addEventListener("mouseleave", () => {
-  hoveredNode = null; isPanning = false; dragNode = null;
+  if (dragNode) {
+    dragNode._ox = dragNode.x; dragNode._oy = dragNode.y;
+    dragNode.fx = dragNode.x; dragNode.fy = dragNode.y;
+    dragNode = null;
+    sim.alphaTarget(0).alpha(0.0001);
+  }
+  hoveredNode = null; isPanning = false;
   tipEl.style.display = "none";
   scheduleRedraw();
 });
@@ -876,7 +992,6 @@ canvas.addEventListener("wheel", e => {
   e.preventDefault();
   const factor = e.deltaY < 0 ? 1.1 : 0.91;
   const newScale = Math.max(0.1, Math.min(8, scale * factor));
-  /* Zoom toward cursor */
   tx = e.clientX - (e.clientX - tx) * (newScale / scale);
   ty = e.clientY - (e.clientY - ty) * (newScale / scale);
   scale = newScale;
@@ -909,6 +1024,22 @@ canvas.addEventListener("touchmove", e => {
   }
   scheduleRedraw();
 }, {passive:false});
+
+/* ── SEARCH SPOTLIGHT ── */
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value.toLowerCase();
+  if (searchQuery.length >= 2) {
+    const match = nodes.find(n => visSet.has(n.id) && nodeLabelLC[nodes.indexOf(n)].includes(searchQuery));
+    if (match) {
+      hoveredNode = match;
+    }
+  } else {
+    hoveredNode = null;
+  }
+  invalidateVis();
+  visSet = getVisibleSet();
+  scheduleRedraw();
+});
 
 /* ── DOSSIER ── */
 function openDossier(d) {
@@ -948,7 +1079,6 @@ function openDossier(d) {
   if (d.link)         parts.push(`<div class="dossier-section"><h3>Analyst Note</h3><p style="color:#64748b;font-style:italic">${d.link}</p></div>`);
   const nodeCats = Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>k);
   if (nodeCats.length) parts.push(`<div class="dossier-section"><h3>Network Role</h3><div style="display:flex;gap:4px;flex-wrap:wrap">${nodeCats.map(c=>`<span class="cat-tag" style="background:${catColors[c]}">${catNames[c]}</span>`).join("")}</div></div>`);
-  /* Derive years active from node data or text */
   const yearsHtml = (() => {
     if (d.yearsActive) return `<div class="dossier-field"><div class="fl">Years Active</div><div class="fv">${d.yearsActive}</div></div>`;
     if (d.yearsFrom || d.yearsTo) return `<div class="dossier-field"><div class="fl">Years Active</div><div class="fv">${d.yearsFrom||"?"} – ${d.yearsTo||"present"}</div></div>`;
@@ -979,7 +1109,7 @@ function openDossier(d) {
   }</ul></div>`);
   const threatLevel=d.type==="center"?"CRITICAL":d.type==="convicted"?"HIGH":isCore?"HIGH":conns.length>10?"ELEVATED":conns.length>5?"MODERATE":"LOW";
   const tC={CRITICAL:"#f87171",HIGH:"#fb923c",ELEVATED:"#fbbf24",MODERATE:"#818cf8",LOW:"#475569"};
-  const tB={CRITICAL:"rgba(248,113,113,0.1)",HIGH:"rgba(251,146,0.1)",ELEVATED:"rgba(251,191,36,0.1)",MODERATE:"rgba(129,140,248,0.1)",LOW:"rgba(71,85,105,0.1)"};
+  const tB={CRITICAL:"rgba(248,113,113,0.1)",HIGH:"rgba(251,146,60,0.1)",ELEVATED:"rgba(251,191,36,0.1)",MODERATE:"rgba(129,140,248,0.1)",LOW:"rgba(71,85,105,0.1)"};
   parts.push(`<div class="dossier-section"><h3>Assessment</h3>
     <span class="threat-badge" style="background:${tB[threatLevel]};color:${tC[threatLevel]};border:1px solid ${tC[threatLevel]}30">${threatLevel}</span>
     <div style="margin-top:8px;color:#475569;font-size:11px">${conns.length} direct connections · Network weight: ${d.radius}</div></div>`);
@@ -989,15 +1119,52 @@ function openDossier(d) {
     const li = e.target.closest("li[data-id]");
     if (!li) return;
     const t = nodeMap.get(li.dataset.id);
-    if (t) { body.scrollTop=0; openDossier(t); }
+    if (t) openDossier(t);
   });
   document.getElementById("dossier").classList.add("open");
-  document.getElementById("dossier").scrollTop = 0;
 }
 
-document.getElementById("dossier-close").addEventListener("click", () => document.getElementById("dossier").classList.remove("open"));
+/* ── WRITEUPS ── */
+function openWriteup(key) {
+  if (typeof writeups === 'undefined' || !writeups[key]) return;
+  document.getElementById("writeup-content").innerHTML = writeups[key];
+  document.getElementById("writeup-overlay").classList.add("visible");
+  document.getElementById("writeup-close").style.display = "block";
+  document.querySelectorAll("#writeup-nav .nav-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.writeup === key);
+  });
+}
+function closeWriteup() {
+  document.getElementById("writeup-overlay").classList.remove("visible");
+  document.getElementById("writeup-close").style.display = "none";
+  document.querySelectorAll("#writeup-nav .nav-btn").forEach(b => b.classList.remove("active"));
+}
 
-/* ── EVENT WIRING ── */
+/* ── INITIALIZATION ── */
+document.getElementById("dossier-close").addEventListener("click", () => {
+  document.getElementById("dossier").classList.remove("open");
+});
+
+document.getElementById("labels").addEventListener("change", e => {
+  showLabels = e.target.checked;
+  scheduleRedraw();
+});
+
+document.getElementById("orphans").addEventListener("change", e => {
+  showOrphans = e.target.checked;
+  applyFilters();
+});
+
+document.getElementById("str").addEventListener("input", e => {
+  minStrength = +e.target.value;
+  document.getElementById("sv").textContent = minStrength.toFixed(1);
+  applyFilters();
+});
+
+document.querySelectorAll(".tf").forEach(cb => {
+  cb.addEventListener("change", () => { applyFilters(); });
+});
+
 document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
@@ -1006,10 +1173,11 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn => {
     if (isFullView()) {
       if (refitTimer) { clearTimeout(refitTimer); refitTimer = null; }
       if (simRunning) { sim.stop(); simRunning = false; sim.on("tick.refit",null).on("end.refit",null); }
-      for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
+      /* Restore all nodes to their frozen positions */
+      for (const d of nodes) { d.x = d._ox; d.y = d._oy; d.fx = d._ox; d.fy = d._oy; }
       applyFilters();
       placeLabels(null);
-      centerOnEpstein();
+      scheduleRedraw();
     } else {
       freezeSimulation();
       applyFilters();
@@ -1018,77 +1186,45 @@ document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn => {
   });
 });
 
-document.getElementById("search").addEventListener("input", function() {
-  searchQuery = this.value.toLowerCase();
-  scheduleRedraw();
-}, {passive:true});
-
-document.querySelectorAll(".tf").forEach(el => el.addEventListener("change", () => {
-  if (isFullView()) {
-    for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
-    applyFilters();
-  } else {
-    applyFilters();
-    refitVisibleNodes();
-  }
-}));
-
-document.getElementById("str").addEventListener("input", function() {
-  document.getElementById("sv").textContent = this.value;
-  minStrength = +this.value;
-  if (isFullView()) {
-    for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
-    applyFilters();
-  } else {
-    applyFilters();
-    refitVisibleNodes();
-  }
-}, {passive:true});
-
-document.getElementById("labels").addEventListener("change", function() {
-  showLabels = this.checked; scheduleRedraw();
+document.querySelectorAll("#writeup-nav .nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => openWriteup(btn.dataset.writeup));
 });
 
-document.getElementById("orphans").addEventListener("change", function() {
-  showOrphans = this.checked;
-  if (isFullView()) {
-    for (const d of nodes) { d.x=d._ox; d.y=d._oy; d.fx=d._ox; d.fy=d._oy; }
-    applyFilters();
-  } else {
-    applyFilters();
-    refitVisibleNodes();
-  }
+/* Force "possibly" unchecked on load */
+document.querySelectorAll(".tf").forEach(el => {
+  if (el.value === "possibly") el.checked = false;
 });
 
-/* ── WRITEUP SYSTEM ── */
-function renderWriteup(key) {
-  const w = (typeof WRITEUPS !== 'undefined') && WRITEUPS[key];
-  if (!w) return;
-  const parts = [`<div class="writeup-header"><div class="writeup-title">${w.title}</div><div class="writeup-subtitle">${w.subtitle}</div></div>`];
-  w.sections.forEach(s => {
-    parts.push(`<div class="writeup-section${s.closing?' writeup-closing':''}">`);
-    if (s.title) parts.push(`<div class="writeup-section-title">${s.title}</div>`);
-    s.content.forEach(c => { parts.push(c.type==="pullquote"?`<div class="writeup-pullquote"><p>${c.text}</p></div>`:`<p>${c.text}</p>`); });
-    parts.push(`</div>`);
-  });
-  document.getElementById("writeup-content").innerHTML = parts.join("");
-  document.getElementById("writeup-overlay").classList.add("visible");
-  document.getElementById("writeup-close").style.display = "block";
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  document.querySelector(`.nav-btn[data-writeup="${key}"]`)?.classList.add("active");
-}
-function closeWriteup() {
-  document.getElementById("writeup-overlay").classList.remove("visible");
-  document.getElementById("writeup-close").style.display = "none";
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-}
-document.querySelectorAll(".nav-btn[data-writeup]").forEach(btn => {
-  btn.addEventListener("click", () => renderWriteup(btn.dataset.writeup));
-});
-
-/* ── INIT ── */
+/* Initial filter + layout */
 applyFilters();
-requestAnimationFrame(() => { placeLabels(null); fitVisible(visSet); });
+placeLabels(visSet);
+
+/* Freeze all nodes immediately after initial settle — no breathing */
+for (const d of nodes) { d.fx = d._ox; d.fy = d._oy; }
+sim.stop();
+
+/* Fit initial camera without animation */
+{
+  const visNodes = nodes.filter(d => visSet.has(d.id));
+  if (visNodes.length) {
+    let x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
+    for (const d of visNodes) {
+      const r = d.radius * S;
+      if (d.x-r < x0) x0=d.x-r; if (d.y-r < y0) y0=d.y-r;
+      if (d.x+r > x1) x1=d.x+r; if (d.y+r > y1) y1=d.y+r;
+    }
+    const pad = 100;
+    const bw = x1-x0+pad*2, bh = y1-y0+pad*2;
+    scale = Math.min(W/bw, H/bh, 2.0);
+    tx = W/2 - (x0+x1)/2 * scale;
+    ty = H/2 - (y0+y1)/2 * scale;
+  }
+}
+
+draw();
+
+/* Re-place labels after short settle then freeze permanently */
+setTimeout(() => { placeLabels(visSet); scheduleRedraw(); }, 400);
 </script>
 </body>
 </html>
