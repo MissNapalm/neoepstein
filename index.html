@@ -1,4 +1,3 @@
-<!-- filepath: /Users/missnapalm/Downloads/epsteinwebrecords/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -120,8 +119,8 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 <canvas id="graph"></canvas>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="list.js?v=33"></script>
-<script src="list2.js?v=33"></script>
+<script src="list.js?v=34"></script>
+<script src="list2.js?v=34"></script>
 <script src="dates.js?v=3"></script>
 <script src="writeups.js?v=3"></script>
 <script>
@@ -134,17 +133,25 @@ if(typeof supplementalData!=='undefined'){
   for(const l of supplementalData.links){const k=l.source+'→'+l.target;if(!el.has(k)){graphData.links.push(l);el.add(k);}}
 }
 
+const removedNodes=new Set(["king_charles","osborne","leon_brittan","cyril_smith","edward_heath","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","john_stingemore"]);
+graphData.nodes=graphData.nodes.filter(n=>!removedNodes.has(n.id));
+graphData.links=graphData.links.filter(l=>{
+  const s=typeof l.source==='object'?l.source.id:l.source;
+  const t=typeof l.target==='object'?l.target.id:l.target;
+  return !removedNodes.has(s)&&!removedNodes.has(t);
+});
+
 const categories={
   operational:["epstein","maxwell_g","kellen","marcinkova","groff","brunel","alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"],
   financial:["epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle","pritzker","lutnick","bloomberg","mort_z","diller","barrack","dubin","eva_dubin","nat_rothschild","lynn_rothschild"],
   legal:["dershowitz","acosta","starr","boies","barr_d","barr_w","rosenstein","berman","strauss","freeh","mueller","comey","judge_marra"],
-  intel:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","nahum_admoni","wexner","dershowitz","junkermann","kroll","peres","chaim_herzog","yitzhak_shamir","olmert","shabtai_shavit","barr_d","barr_w","brennan","petraeus","burns","freeh","mueller","comey","acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan","andrew","king_charles","ferguson","blair","boris_johnson","osborne","leon_brittan","cyril_smith","edward_heath","murdoch","mandelson","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","putin","deripaska","manafort","rybolovlev","nat_rothschild","khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"],
+  intel:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","nahum_admoni","wexner","dershowitz","junkermann","kroll","peres","chaim_herzog","yitzhak_shamir","olmert","shabtai_shavit","barr_d","barr_w","brennan","petraeus","burns","freeh","mueller","comey","acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan","andrew","ferguson","blair","boris_johnson","murdoch","mandelson","putin","deripaska","manafort","rybolovlev","nat_rothschild","khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"],
   intel_il:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard","chaim_herzog","yitzhak_shamir","olmert","shabtai_shavit","wexner","dershowitz","thiel","junkermann","peres","milchan"],
   intel_us:["epstein","barr_d","barr_w","brennan","petraeus","burns","freeh","mueller","comey","acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan"],
-  intel_uk:["robert_maxwell","maxwell_g","andrew","king_charles","ferguson","blair","boris_johnson","evgeny_lebedev","lebedev","osborne","leon_brittan","cyril_smith","edward_heath","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","john_stingemore","murdoch","mandelson"],
+  intel_uk:["robert_maxwell","maxwell_g","andrew","ferguson","blair","evgeny_lebedev","lebedev","mandelson"],
   intel_ru:["robert_maxwell","deripaska","putin","robert_hanssen","manafort","rybolovlev","nat_rothschild","dougan"],
   intel_ae:["khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"],
-  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dennis_hastert","savile","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","hawking","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","chopra","cyril_smith","leon_brittan","edward_heath","john_stingemore","peter_hayman","maurice_oldfield","michael_hanley","peter_morrison","anthony_blunt","marcinkova","copperfield","jack_lang","giuffre"],
+  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dennis_hastert","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","hawking","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","chopra","marcinkova","copperfield","jack_lang","giuffre","staley"],
   named:["andrew","mitchell","richardson","dubin","minsky","dershowitz","barak","clinton","trump","nader","giuffre"],
   cover:["epstein","maxwell_g","wexner","black","bronfman_c","bronfman_s","hawking","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","ito","gates","summers","bob_wright","gutfreund","woody","charlie_rose","lauer","spacey","copperfield","chopra","naomi","handler","branson","jack_lang","juan_carlos","king_carl_xvi","john_podesta","lindsey_graham"],
   uncertain:["thiel","bezos","sergey_brin","larry_page","bloomberg","murdoch","pritzker","burkle","diller","mort_z","hawking","chopra","chaim_herzog","yitzhak_shamir","shabtai_shavit"]
@@ -156,12 +163,12 @@ const Cborder={center:"rgba(239,68,68,0.25)",convicted:"rgba(45,212,191,0.25)",s
 const typeLabel={center:"PRINCIPAL TARGET",convicted:"CONVICTED",suspicious:"SUSPICIOUS",possibly:"POSSIBLY INVOLVED"};
 const coreSet=new Set(categories.operational);
 const confirmedSet=new Set(categories.confirmed);
-const forceBlue=new Set(["staley","wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
+const forceBlue=new Set(["wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
 
 const canvas=document.getElementById('graph');
-const ctx=canvas.getContext('2d',{alpha:false}); // ← PERF: opaque canvas skips alpha compositing
+const ctx=canvas.getContext('2d',{alpha:false});
 const W=window.innerWidth,H=window.innerHeight;
-const DPR=Math.min(devicePixelRatio,2); // ← PERF: cap DPR at 2 (3x screens render 2.25x more pixels for no visual gain)
+const DPR=Math.min(devicePixelRatio,2);
 canvas.width=W*DPR; canvas.height=H*DPR;
 canvas.style.width=W+'px'; canvas.style.height=H+'px';
 ctx.scale(DPR,DPR);
@@ -171,7 +178,6 @@ let tx=0,ty=0,scale=1;
 const nodes=graphData.nodes.map(d=>({...d}));
 const links=graphData.links.map(d=>({...d}));
 const nodeMap=new Map(nodes.map(n=>[n.id,n]));
-// ← PERF: map node id → index for O(1) lookups instead of .indexOf()
 const nodeIndex=new Map(nodes.map((n,i)=>[n.id,i]));
 const S=0.40;
 const lSrcIds=new Array(links.length);
@@ -195,19 +201,12 @@ nodes.forEach(d=>{
   d.y=H/2+(Math.random()-0.5)*H*0.6;
 });
 
-// ← PERF: pre-bake all rgba link stroke strings into typed arrays, keyed by [tier][alphaIdx]
-// Eliminates all string concatenation inside the hot draw loop.
-// tiers: 0=red(≥0.8), 1=orange(≥0.6), 2=gray(≥0.4), 3=dark(<0.4)
-// alpha levels: 0=hover-active, 1=0.22, 2=0.12, 3=0.06, 4=0.03
 const linkBaseRGB=[[239,68,68],[251,146,60],[100,116,139],[71,85,105]];
-// pre-baked normal-state stroke strings per tier
 const linkNormalStroke=linkBaseRGB.map(([r,g,b],ti)=>{
   const a=[0.22,0.12,0.06,0.03][ti]??0.03;
   return `rgba(${r},${g},${b},${a})`;
 });
-// For hover-state we still compute once per hovered link (rare), acceptable cost.
 
-// ← PERF: pre-bake node border stroke strings (only 3 variants)
 const strokeNormal="rgba(255,255,255,0.12)";
 const strokeBlue="rgba(96,165,250,0.4)";
 const strokeRed="rgba(239,68,68,0.4)";
@@ -220,7 +219,6 @@ function rebuildColorCache(){
   }
 }
 
-// ← PERF: pre-bake node label color strings (only 3 variants)
 const nodeLabelColor=new Array(nodes.length);
 function rebuildLabelColors(){
   for(let i=0;i<nodes.length;i++){
@@ -229,7 +227,6 @@ function rebuildLabelColors(){
   }
 }
 
-// ← PERF: pre-bake node border stroke variant index (0=normal,1=blue,2=red)
 const nodeBorderVariant=new Int8Array(nodes.length);
 function rebuildBorderVariants(){
   for(let i=0;i<nodes.length;i++){
@@ -250,7 +247,7 @@ const sim=d3.forceSimulation(nodes)
   .velocityDecay(0.4)
   .alphaDecay(0.02)
   .alphaMin(0.001)
-  .on("tick",scheduleRedraw); // ← PERF: removed per-tick _ox/_oy copy (unused in draw)
+  .on("tick",scheduleRedraw);
 
 const epInit=nodeMap.get("epstein");
 if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=H/2;}
@@ -268,7 +265,6 @@ rebuildColorCache();
 rebuildLabelColors();
 rebuildBorderVariants();
 
-// ← PERF: pre-compute link tier once
 const linkColorTiers=new Int8Array(links.length);
 for(let i=0;i<links.length;i++){
   const str=lStr[i];
@@ -301,19 +297,16 @@ function getVisibleSet(){
 }
 
 let rafId=null;
-// ← PERF: cache last drawn state to skip redundant identical frames
 let _lastHov=null,_lastScale=-1,_lastTx=NaN,_lastTy=NaN,_dirty=true;
 function markDirty(){_dirty=true;}
 
 function draw(){
   rafId=null;
 
-  // ← PERF: skip repaint if nothing changed (pan/zoom/hover identical)
   const hovId=hoveredNode?hoveredNode.id:null;
   if(!_dirty && hovId===_lastHov && scale===_lastScale && tx===_lastTx && ty===_lastTy) return;
   _dirty=false; _lastHov=hovId; _lastScale=scale; _lastTx=tx; _lastTy=ty;
 
-  // ← PERF: clear with fillRect (faster than clearRect on opaque canvas)
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle="#0f172a";
   ctx.fillRect(0,0,W,H);
@@ -329,7 +322,7 @@ function draw(){
   const minR4lbl=scale<0.3?22:scale<0.5?15:scale<0.8?10:0;
 
   /* ── links ─────────────────────────────────────────────────────── */
-  ctx.lineWidth=1; // default, overridden per-link when needed
+  ctx.lineWidth=1;
   for(let i=0;i<links.length;i++){
     const str=lStr[i];
     if(str<minStrength) continue;
@@ -343,13 +336,11 @@ function draw(){
       if(sid===hov.id||tid===hov.id){alpha=0.5+str*0.4;lineW=Math.max(1,str*2.5);}
       else continue;
     } else {
-      // ← PERF: use pre-baked stroke string, no string concat
       ctx.strokeStyle=linkNormalStroke[linkColorTiers[i]];
       ctx.lineWidth=Math.max(0.3,str);
       ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(t.x,t.y); ctx.stroke();
       continue;
     }
-    // hover path (rare)
     const c=linkBaseRGB[linkColorTiers[i]];
     ctx.strokeStyle=`rgba(${c[0]},${c[1]},${c[2]},${alpha.toFixed(2)})`;
     ctx.lineWidth=lineW;
@@ -380,26 +371,23 @@ function draw(){
     ctx.beginPath(); ctx.arc(d.x,d.y,dr,0,Math.PI*2);
     ctx.fillStyle=color; ctx.fill();
 
-    // ← PERF: use pre-baked border stroke string
     const bv=nodeBorderVariant[i];
     ctx.strokeStyle=bv===1?strokeBlue:bv===2?strokeRed:strokeNormal;
     ctx.stroke();
 
     if(isHovered){
-      // glow ring
       ctx.strokeStyle=color; ctx.lineWidth=3; ctx.stroke();
       ctx.globalAlpha=fop*0.25;
       ctx.beginPath(); ctx.arc(d.x,d.y,dr+3,0,Math.PI*2);
       ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
       ctx.globalAlpha=fop;
-      ctx.lineWidth=1.2; // restore
+      ctx.lineWidth=1.2;
     }
   }
   ctx.globalAlpha=1;
 
   /* ── labels ─────────────────────────────────────────────────────── */
   if(showLabels){
-    // ← PERF: compute font string once per draw, not per node
     const fs=Math.max(6,Math.min(9,7/Math.sqrt(Math.max(0.3,scale))));
     const fontStr=`500 ${fs}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
     ctx.font=fontStr;
@@ -420,7 +408,6 @@ function draw(){
       }
       if(lop<=0.01) continue;
       ctx.globalAlpha=op*lop;
-      // ← PERF: use pre-baked label color string
       ctx.fillStyle=nodeLabelColor[i];
       ctx.fillText(d.label,d.x,d.y+d.radius*S+3);
     }
@@ -428,7 +415,7 @@ function draw(){
   ctx.globalAlpha=1;
   ctx.restore();
 
-  /* ── minimap (throttled to every 4th frame) ─────────────────────── */
+  /* ── minimap ─────────────────────── */
   if(++minimapCounter&3) return;
   {
     const mw=130,mh=85,mp=8,mmx=W-mw-mp,mmy=H-mh-mp;
@@ -446,7 +433,6 @@ function draw(){
         if(!visSet.has(d.id)) continue;
         const px=ox+d.x*ms,py=oy+d.y*ms;
         if(px<mmx||px>mmx+mw||py<mmy||py>mmy+mh) continue;
-        // ← PERF: use pre-cached index (no .indexOf())
         ctx.beginPath(); ctx.arc(px,py,1.2,0,Math.PI*2);
         ctx.fillStyle=nodeColorCache[nodeIndex.get(d.id)]; ctx.globalAlpha=0.5; ctx.fill();
       }
