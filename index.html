@@ -151,7 +151,7 @@ const categories={
   intel_uk:["robert_maxwell","maxwell_g","andrew","ferguson","blair","evgeny_lebedev","lebedev","mandelson"],
   intel_ru:["robert_maxwell","deripaska","putin","robert_hanssen","manafort","rybolovlev","nat_rothschild","dougan"],
   intel_ae:["khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"],
-  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dennis_hastert","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","hawking","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","chopra","marcinkova","copperfield","jack_lang","giuffre","staley"],
+  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dennis_hastert","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","chopra","marcinkova","copperfield","jack_lang","giuffre","staley"],
   named:["andrew","mitchell","richardson","dubin","minsky","dershowitz","barak","clinton","trump","nader","giuffre"],
   cover:["epstein","maxwell_g","wexner","black","bronfman_c","bronfman_s","hawking","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","ito","gates","summers","bob_wright","gutfreund","woody","charlie_rose","lauer","spacey","copperfield","chopra","naomi","handler","branson","jack_lang","juan_carlos","king_carl_xvi","john_podesta","lindsey_graham"],
   uncertain:["thiel","bezos","sergey_brin","larry_page","bloomberg","murdoch","pritzker","burkle","diller","mort_z","hawking","chopra","chaim_herzog","yitzhak_shamir","shabtai_shavit"]
@@ -414,40 +414,7 @@ function draw(){
   }
   ctx.globalAlpha=1;
   ctx.restore();
-
-  /* ── minimap ─────────────────────── */
-  if(++minimapCounter&3) return;
-  {
-    const mw=130,mh=85,mp=8,mmx=W-mw-mp,mmy=H-mh-mp;
-    let bx0=Infinity,by0=Infinity,bx1=-Infinity,by1=-Infinity,cnt=0;
-    for(const d of nodes){
-      if(!visSet.has(d.id)) continue;
-      if(d.x<bx0)bx0=d.x;if(d.y<by0)by0=d.y;if(d.x>bx1)bx1=d.x;if(d.y>by1)by1=d.y;cnt++;
-    }
-    if(cnt>2&&bx1>bx0){
-      const p=10,ms=Math.min((mw-p*2)/(bx1-bx0||1),(mh-p*2)/(by1-by0||1));
-      const ox=mmx+mw/2-(bx0+bx1)/2*ms,oy=mmy+mh/2-(by0+by1)/2*ms;
-      ctx.fillStyle="rgba(15,23,42,0.8)"; ctx.fillRect(mmx,mmy,mw,mh);
-      ctx.strokeStyle="rgba(51,65,85,0.4)"; ctx.lineWidth=1; ctx.strokeRect(mmx,mmy,mw,mh);
-      for(const d of nodes){
-        if(!visSet.has(d.id)) continue;
-        const px=ox+d.x*ms,py=oy+d.y*ms;
-        if(px<mmx||px>mmx+mw||py<mmy||py>mmy+mh) continue;
-        ctx.beginPath(); ctx.arc(px,py,1.2,0,Math.PI*2);
-        ctx.fillStyle=nodeColorCache[nodeIndex.get(d.id)]; ctx.globalAlpha=0.5; ctx.fill();
-      }
-      ctx.globalAlpha=1;
-      ctx.strokeStyle="rgba(99,102,241,0.4)"; ctx.lineWidth=1;
-      ctx.strokeRect(
-        Math.max(mmx,ox+(-tx/scale)*ms),
-        Math.max(mmy,oy+(-ty/scale)*ms),
-        Math.min((W/scale)*ms,mw),
-        Math.min((H/scale)*ms,mh)
-      );
-    }
-  }
 }
-let minimapCounter=0;
 
 function scheduleRedraw(){
   markDirty();
