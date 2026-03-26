@@ -413,10 +413,6 @@ const graphData = {
             agency:"CIA / US ARMY",role:"Former CIA Director",status:"NAMED IN FILES",
             desc:"Former CIA Director named in contact files.",evidence:"Named in contact files."},
 
-        {id:"comey",label:"James Comey",type:"possibly",radius:22,
-            agency:"FEDERAL BUREAU OF INVESTIGATION",role:"Former FBI Director",status:"NAMED IN FILES",
-            desc:"FBI had oversight of Epstein investigation.",evidence:"FBI investigation oversight."},
-
         // ═══════════════════════════════════════════════════════
         // FINANCE
         // ═══════════════════════════════════════════════════════
@@ -733,27 +729,7 @@ const graphData = {
             evidence:"Named in contact files. Own misconduct allegations.",
             link:"Another anchor in the files with his own misconduct history."},
 
-        {id:"jagger",label:"Mick Jagger",type:"suspicious",radius:20,
-            agency:"ENTERTAINMENT",role:"Musician",status:"NAMED IN FILES",
-            desc:"Signed Epstein birthday book.",evidence:"Signed birthday book."},
-
-        {id:"willis",label:"Bruce Willis",type:"suspicious",radius:18,
-            agency:"ENTERTAINMENT",role:"Actor",status:"NAMED IN FILES",
-            desc:"Signed Epstein birthday book.",evidence:"Signed birthday book."},
-
-        {id:"fiennes",label:"Ralph Fiennes",type:"suspicious",radius:15,
-            agency:"ENTERTAINMENT",role:"Actor",status:"NAMED IN FILES",
-            desc:"Maxwell social circle.",evidence:"Maxwell social overlap."},
-
-        {id:"baldwin",label:"Alec Baldwin",type:"suspicious",radius:18,
-            agency:"ENTERTAINMENT",role:"Actor",status:"NAMED IN FILES",
-            desc:"Named in Epstein contact files.",evidence:"Named in contact files."},
-
-        {id:"wyclef",label:"Wyclef Jean",type:"suspicious",radius:14,
-            agency:"ENTERTAINMENT",role:"Musician",status:"NAMED IN FILES",
-            desc:"Named in Epstein contact files.",evidence:"Named in contact files."},
-
-        // ═══════════════════════════════════════════════════════
+            // ═══════════════════════════════════════════════════════
         // ADDITIONAL TECH / ACADEMIA
         // ═══════════════════════════════════════════════════════
 
@@ -973,10 +949,6 @@ const graphData = {
         {source:"epstein", target:"diller", strength:0.4},
         {source:"epstein", target:"lauer", strength:0.3},
         {source:"epstein", target:"charlie_rose", strength:0.3},
-        {source:"epstein", target:"jagger", strength:0.3},
-        {source:"epstein", target:"willis", strength:0.3},
-        {source:"epstein", target:"baldwin", strength:0.3},
-        {source:"epstein", target:"wyclef", strength:0.3},
 
         // Epstein → Intelligence
         {source:"epstein", target:"ben_menashe", strength:0.3},
@@ -1014,7 +986,6 @@ const graphData = {
         {source:"maxwell_g", target:"groff", strength:0.6},
         {source:"maxwell_g", target:"albert_monaco", strength:0.4},
         {source:"maxwell_g", target:"diller", strength:0.4},
-        {source:"maxwell_g", target:"fiennes", strength:0.3},
         {source:"maxwell_g", target:"weinstein", strength:0.4},
         {source:"maxwell_g", target:"lebedev", strength:0.3},
         {source:"maxwell_g", target:"alessi", strength:0.5},
@@ -1091,7 +1062,6 @@ const graphData = {
         {source:"mbs", target:"trump", strength:0.6},
         {source:"kissinger", target:"robert_maxwell", strength:0.4},
         {source:"kissinger", target:"khashoggi", strength:0.5},
-        {source:"comey", target:"barr_w", strength:0.5},
         {source:"comey", target:"mueller", strength:0.5},
         {source:"mueller", target:"freeh", strength:0.5},
         {source:"netanyahu", target:"barak", strength:0.7},

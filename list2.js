@@ -386,24 +386,6 @@ const supplementalData = {
       link: "He admitted on television that he was an Israeli spy who stole nuclear technology from America for decades. The DOJ never charged him. The same DOJ gave Epstein the deal. The pattern is not subtle."
     },
 
-    // ─── STEPHEN HAWKING ─────────────────────────────────
-    {
-      id: "hawking",
-      label: "Stephen Hawking",
-      type: "suspicious",
-      radius: 18,
-      agency: "CAMBRIDGE UNIVERSITY / THEORETICAL PHYSICS",
-      role: "Physicist · Visited Epstein's Island · Named in Files",
-      status: "DECEASED (2018)",
-      networth: "~$20M",
-      desc: "Stephen William Hawking (1942–2018) was the most famous scientist in the world. He visited Jeffrey Epstein's private island in the US Virgin Islands in March 2006 — during a physics conference Epstein hosted there. He is photographed on the island. Epstein's emails reference Hawking's visit and discuss arranging entertainment. The visit occurred during a period when Epstein was under active FBI investigation.",
-      intelRole:"Hawking's presence on Epstein's island provides intellectual legitimacy. Epstein cultivated relationships with elite scientists — Hawking, Minsky, Krauss, Nowak, Pinker, Church, Seth Lloyd — to construct a persona as a science philanthropist. This cover story gave powerful men a socially acceptable reason to associate with Epstein. 'I went for the science' is the alibi the island visits were designed to produce.",
-      epsteinLink:"Visited Epstein's private island March 2006. Photographed there. Epstein emails discuss Hawking's visit and arranging activities during his stay. Visit occurred while Epstein was under active Palm Beach police investigation.",
-      significance:"The most recognisable scientist in history visited the island of a man under investigation for child sex trafficking. The emails discuss his visit. He is in the photographs. His presence gave Epstein something no amount of money could buy: the appearance of intellectual legitimacy.",
-      evidence:"Island visit March 2006 documented in unsealed court filings. Photographs on the island confirmed. Epstein emails referencing visit released in court documents. Deceased March 2018.",
-      link:"The most famous scientist in the world went to the island. The emails discuss what was arranged for his visit. He died before anyone had to ask him about it under oath."
-    },
-
     // ─── JIMMY SAVILE ────────────────────────────────────
     {id:"savile", label:"Jimmy Savile", type:"suspicious", radius:20,
       agency:"BBC / NHS / UK GOVERNMENT",
