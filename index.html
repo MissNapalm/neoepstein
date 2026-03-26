@@ -63,6 +63,12 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .tb{display:inline-block;padding:5px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:1.5px}
 .ctag{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:#0f172a;color:#94a3b8;border:1px solid #334155;margin:2px}
 #graph{display:block;position:fixed;top:0;left:0}
+#vortex-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+#vortex-row label{margin:0;flex:1}
+#vortex-toggle{appearance:none;width:32px;height:18px;background:#334155;border-radius:9px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
+#vortex-toggle:checked{background:#6366f1}
+#vortex-toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left 0.2s}
+#vortex-toggle:checked::after{left:16px}
 </style>
 </head>
 <body>
@@ -91,12 +97,25 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
   <label><input type="checkbox" class="tf" value="center" checked><span class="dot" style="background:#ff2a2a"></span>Principal Targets</label>
   <label><input type="checkbox" class="tf" value="convicted" checked><span class="dot" style="background:#ff2a2a"></span>Convicted</label>
   <label><input type="checkbox" class="tf" value="suspicious" checked><span class="dot" style="background:#ff6b1a"></span>Suspicious</label>
-  <label><input type="checkbox" class="tf" value="possibly"><span class="dot" style="background:#3b82f6"></span>Possibly Involved</label>
+  <label><input type="checkbox" class="tf" value="possibly"><span class="dot" style="background:#e8e0f0"></span>Possibly Involved</label>
   <h2>Min link strength: <span id="sv">0</span></h2>
   <input type="range" id="str" min="0" max="1" step="0.1" value="0">
   <h2>Display</h2>
   <label><input type="checkbox" id="labels" checked> Show labels</label>
   <label><input type="checkbox" id="orphans" checked> Show unlinked nodes</label>
+  <h2>Vortex</h2>
+  <div id="vortex-row">
+    <label style="color:#94a3b8;font-size:12px">Swirl</label>
+    <input type="checkbox" id="vortex-toggle" checked>
+  </div>
+  <label style="margin-top:6px">
+    <span style="color:#64748b;font-size:11px">Strength: <span id="vv">0.04</span></span>
+    <input type="range" id="vortex-str" min="0" max="0.3" step="0.01" value="0.04">
+  </label>
+  <label style="margin-top:4px">
+    <span style="color:#64748b;font-size:11px">Speed: <span id="vs">0.003</span></span>
+    <input type="range" id="vortex-speed" min="0.001" max="0.05" step="0.001" value="0.003">
+  </label>
   <div id="stats"></div>
 </div>
 
@@ -158,13 +177,12 @@ const categories={
 };
 const catNames={operational:"Operational",financial:"Financial",legal:"Legal Shield",intel:"Intelligence",intel_il:"🇮🇱 Mossad/IL",intel_us:"🇺🇸 CIA/FBI",intel_uk:"🇬🇧 MI5/MI6",intel_ru:"🇷🇺 KGB/FSB",intel_ae:"🇦🇪 Gulf",named:"Named by Victims",cover:"Social Cover",uncertain:"Uncertain",confirmed:"⚠ Confirmed"};
 
-/* ── 3-TIER COLOR SYSTEM ── */
 const BRIGHT_RED='#ff2a2a';
 const BRIGHT_ORANGE='#ff8c00';
 const BRIGHT_BLUE='#3b82f6';
+const NODE_WHITE='#e8e0f0';
 const DARK_BLUE='#1e40af';
 
-// RED: confirmed predators — convicted, named under oath, settled, direct participants
 const RED_SET=new Set([
   "epstein","maxwell_g","brunel","nader","dershowitz",
   "andrew","dubin","minsky","richardson","mitchell",
@@ -175,15 +193,15 @@ const RED_SET=new Set([
   "staley","eva_dubin"
 ]);
 
-// ORANGE: almost certainly pedophiles — strong evidence of sexual abuse of minors, no conviction yet
 const ORANGE_SET=new Set([
   "trump","clinton","musk","branson","barak",
-  "wexner","mbs","joi_ito","barr_w"
+  "wexner","mbs","joi_ito","barr_w","gates"
 ]);
 
 function nColor(d){
   if(RED_SET.has(d.id)) return BRIGHT_RED;
   if(ORANGE_SET.has(d.id)) return BRIGHT_ORANGE;
+  if(d.type==="possibly") return NODE_WHITE;
   return BRIGHT_BLUE;
 }
 
@@ -224,9 +242,14 @@ function build2ndDegreeCache(){
   }
 }
 
-nodes.forEach(d=>{
-  d.x=W/2+(Math.random()-0.5)*W*0.6;
-  d.y=H/2+(Math.random()-0.5)*H*0.6;
+/* ── CHANGE 1: golden-angle spiral pre-positioning instead of random ── */
+nodes.forEach((d,i)=>{
+  if(i===0){d.x=W/2;d.y=H/2;return;}
+  const angle=i*2.399963; /* golden angle in radians */
+  const ring=Math.sqrt(i/nodes.length);
+  const dist=80+ring*Math.min(W,H)*0.32;
+  d.x=W/2+Math.cos(angle)*dist;
+  d.y=H/2+Math.sin(angle)*dist;
 });
 
 const linkBaseRGB=[[239,68,68],[251,146,60],[100,116,139],[71,85,105]];
@@ -251,7 +274,7 @@ const nodeLabelColor=new Array(nodes.length);
 function rebuildLabelColors(){
   for(let i=0;i<nodes.length;i++){
     const c=nColor(nodes[i]);
-    nodeLabelColor[i]=c===BRIGHT_RED?'#fca5a5':c===BRIGHT_ORANGE?'#fdba74':'#93c5fd';
+    nodeLabelColor[i]=c===BRIGHT_RED?'#fca5a5':c===BRIGHT_ORANGE?'#fdba74':c===NODE_WHITE?'#d4c8e8':'#93c5fd';
   }
 }
 
@@ -259,10 +282,56 @@ const nodeBorderVariant=new Int8Array(nodes.length);
 function rebuildBorderVariants(){
   for(let i=0;i<nodes.length;i++){
     const c=nColor(nodes[i]);
-    nodeBorderVariant[i]=c===BRIGHT_RED?2:c===BRIGHT_ORANGE?3:1;
+    nodeBorderVariant[i]=c===BRIGHT_RED?2:c===BRIGHT_ORANGE?3:nodes[i].type==="possibly"?4:1;
   }
 }
 
+/* ═══════════════════════════════════════════════════════
+   VORTEX FORCE — ultra-slow galactic swirl
+   ═══════════════════════════════════════════════════════ */
+let vortexEnabled=true;
+let vortexStrength=0.04;
+let vortexSpeed=0.003;
+let _vortexAngle=0;
+let _lastVortexTime=performance.now();
+
+function forceVortex(){
+  let nodes_ref,cx=W/2,cy=H/2;
+
+  function force(alpha){
+    if(!vortexEnabled) return;
+    const now=performance.now();
+    const dt=Math.min((now-_lastVortexTime)/1000,0.05);
+    _lastVortexTime=now;
+    _vortexAngle+=vortexSpeed*dt;
+
+    /* ── CHANGE 2: floor alpha so swirl never dies even when sim is "settled" ── */
+    const baseStrength=vortexStrength*Math.max(alpha,0.15);
+
+    for(const d of nodes_ref){
+      if(d.fx!=null) continue;
+      const dx=d.x-cx, dy=d.y-cy;
+      const dist=Math.sqrt(dx*dx+dy*dy)||1;
+
+      const ttx= dy/dist;
+      const tty=-dx/dist;
+
+      const falloff=Math.min(dist/120,1)*Math.max(1-(dist/1200),0.02);
+      const swirl=baseStrength*falloff*6;
+
+      d.vx+=ttx*swirl;
+      d.vy+=tty*swirl;
+    }
+  }
+
+  force.initialize=function(n){ nodes_ref=n; };
+  return force;
+}
+
+/* ── CHANGE 3: alphaDecay(0) + alphaMin(0) so sim never idles;
+      alphaTarget(0.18) keeps it permanently active;
+      velocityDecay starts at 0.95 (heavy damping, no bounce on load),
+      then eases to 0.75 after 1.5 s ── */
 const sim=d3.forceSimulation(nodes)
   .force("link",d3.forceLink(links).id(d=>d.id)
     .distance(d=>40+((1-(d.strength||0.5))*80))
@@ -272,13 +341,21 @@ const sim=d3.forceSimulation(nodes)
   .force("collision",d3.forceCollide().radius(d=>(d.radius*S)+4).strength(0.7).iterations(2))
   .force("x",d3.forceX(W/2).strength(0.04))
   .force("y",d3.forceY(H/2).strength(0.04))
-  .velocityDecay(0.4)
-  .alphaDecay(0.02)
-  .alphaMin(0.001)
+  .force("vortex",forceVortex())
+  .velocityDecay(0.95)   /* heavy damping on load — no explosion */
+  .alphaDecay(0)          /* never decay to zero */
+  .alphaMin(0)            /* no minimum floor to stop at */
+  .alphaTarget(0.18)      /* permanently active target */
+  .alpha(0.10)            /* start LOW so nodes ease in gently */
   .on("tick",scheduleRedraw);
 
+/* ease damping to normal after nodes have settled */
+setTimeout(()=>{ sim.velocityDecay(0.75).alpha(0.18); }, 1500);
+
+sim.restart();
+
 const epInit=nodeMap.get("epstein");
-if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=W/2;}
+if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=H/2;}
 
 for(let i=0;i<links.length;i++){
   const l=links[i];
@@ -331,10 +408,6 @@ function markDirty(){_dirty=true;}
 function draw(){
   rafId=null;
 
-  const hovId=hoveredNode?hoveredNode.id:null;
-  if(!_dirty && hovId===_lastHov && scale===_lastScale && tx===_lastTx && ty===_lastTy) return;
-  _dirty=false; _lastHov=hovId; _lastScale=scale; _lastTx=tx; _lastTy=ty;
-
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle="#0f172a";
   ctx.fillRect(0,0,W,H);
@@ -377,6 +450,7 @@ function draw(){
 
   /* ── nodes ──────────────────────────────────────────────────────── */
   ctx.lineWidth=1.2;
+  const pulseT=performance.now()*0.001;
   for(let i=0;i<nodes.length;i++){
     const d=nodes[i]; if(!visSet.has(d.id)) continue;
     const op=nodeOpacity[i]; if(op<=0.01) continue;
@@ -394,13 +468,24 @@ function draw(){
     ctx.globalAlpha=fop;
     const isHovered=hov&&d.id===hov.id;
     const isConn=conn&&conn.has(d.id)&&!isHovered;
-    const dr=isConn?r*1.08:r;
+    const bv=nodeBorderVariant[i];
+    const dr=isConn?r*1.08:bv===4?r*0.7:r;
+
+    if(bv===4){
+      const pulse=0.5+0.5*Math.sin(pulseT*1.8+i*1.7);
+      ctx.globalAlpha=fop*(0.06+pulse*0.12);
+      ctx.beginPath(); ctx.arc(d.x,d.y,dr+6+pulse*8,0,Math.PI*2);
+      ctx.fillStyle=`rgba(168,130,220,${(0.15+pulse*0.2).toFixed(3)})`; ctx.fill();
+      ctx.globalAlpha=fop*(0.08+pulse*0.07);
+      ctx.beginPath(); ctx.arc(d.x,d.y,dr+3,0,Math.PI*2);
+      ctx.fillStyle='rgba(192,160,240,0.3)'; ctx.fill();
+      ctx.globalAlpha=fop;
+    }
 
     ctx.beginPath(); ctx.arc(d.x,d.y,dr,0,Math.PI*2);
     ctx.fillStyle=color; ctx.fill();
 
-    const bv=nodeBorderVariant[i];
-    ctx.strokeStyle=bv===2?strokeRed:bv===3?strokeOrange:bv===1?strokeBlue:strokeNormal;
+    ctx.strokeStyle=bv===2?strokeRed:bv===3?strokeOrange:bv===4?'rgba(192,168,224,0.4)':bv===1?strokeBlue:strokeNormal;
     ctx.stroke();
 
     if(isHovered){
@@ -442,6 +527,8 @@ function draw(){
   }
   ctx.globalAlpha=1;
   ctx.restore();
+
+  _lastHov=hoveredNode?hoveredNode.id:null; _lastScale=scale; _lastTx=tx; _lastTy=ty;
 }
 
 function scheduleRedraw(){
@@ -478,7 +565,7 @@ function restoreForces(){
 }
 function stopSim(){
   if(refitTimer){clearTimeout(refitTimer);refitTimer=null;}
-  sim.stop();simRunning=false;sim.on("tick.r",null).on("end.r",null);
+  simRunning=false;sim.on("tick.r",null).on("end.r",null);
 }
 
 function refitVis(){
@@ -503,15 +590,16 @@ function refitVis(){
       if(!vis.has(d.id)){d.x=cx;d.y=cy;}
     }
     sim.on("tick.r",()=>{markDirty();scheduleRedraw();});
-    sim.on("end.r",()=>{
-      simRunning=false;sim.on("tick.r",null).on("end.r",null);
+    simRunning=true;
+    sim.alpha(0.10).alphaTarget(0.18).restart();
+    setTimeout(()=>{
+      sim.on("tick.r",null).on("end.r",null);
       if(activeCat==="all"){
         const ep=nodeMap.get("epstein");
         if(ep){ep.fx=W/2;ep.fy=H/2;}
       }
       restoreForces();scheduleRedraw();
-    });
-    simRunning=true;sim.alpha(1).alphaDecay(0.02).alphaTarget(0).restart();
+    },4000);
   },80);
 }
 
@@ -551,7 +639,7 @@ canvas.addEventListener("mousedown",e=>{
   if(e.button!==0) return;
   mdX=e.clientX;mdY=e.clientY;mdT=Date.now();
   const g=toGraph(e.clientX,e.clientY),hit=hitTest(g.x,g.y);
-  if(hit){dragNode=hit;dragSX=e.clientX;dragSY=e.clientY;hit.fx=hit.x;hit.fy=hit.y;sim.alphaTarget(0.06).restart();}
+  if(hit){dragNode=hit;dragSX=e.clientX;dragSY=e.clientY;hit.fx=hit.x;hit.fy=hit.y;sim.alphaTarget(0.18).restart();}
   else{isPanning=true;panSX=e.clientX;panSY=e.clientY;panSTx=tx;panSTy=ty;}
 });
 canvas.addEventListener("mousemove",e=>{
@@ -568,7 +656,7 @@ canvas.addEventListener("mouseup",e=>{
     if(moved<5&&elapsed<300) openDossier(dragNode);
     dragNode.fx=null;dragNode.fy=null;
     if(dragNode.id==="epstein"&&activeCat==="all"){dragNode.fx=W/2;dragNode.fy=H/2;}
-    dragNode=null;sim.alphaTarget(0).alpha(0.1).restart();
+    dragNode=null;sim.alphaTarget(0.18).restart();
     scheduleRedraw();
   }
   if(isPanning){
@@ -580,7 +668,7 @@ canvas.addEventListener("mouseleave",()=>{
   if(dragNode){
     dragNode.fx=null;dragNode.fy=null;
     if(dragNode.id==="epstein"&&activeCat==="all"){dragNode.fx=W/2;dragNode.fy=H/2;}
-    dragNode=null;sim.alphaTarget(0).alpha(0.1).restart();
+    dragNode=null;sim.alphaTarget(0.18).restart();
   }
   hoveredNode=null;isPanning=false;tipEl.style.display="none";scheduleRedraw();
 });
@@ -673,6 +761,22 @@ document.getElementById("labels").addEventListener("change",e=>{showLabels=e.tar
 document.getElementById("orphans").addEventListener("change",e=>{showOrphans=e.target.checked;applyFilters();});
 document.getElementById("str").addEventListener("input",e=>{minStrength=+e.target.value;document.getElementById("sv").textContent=minStrength.toFixed(1);applyFilters();});
 document.querySelectorAll(".tf").forEach(cb=>cb.addEventListener("change",()=>applyFilters()));
+
+/* ── vortex controls ── */
+document.getElementById("vortex-toggle").addEventListener("change",e=>{
+  vortexEnabled=e.target.checked;
+  if(vortexEnabled) sim.alphaTarget(0.18).restart();
+});
+document.getElementById("vortex-str").addEventListener("input",e=>{
+  vortexStrength=+e.target.value;
+  document.getElementById("vv").textContent=(+e.target.value).toFixed(2);
+  if(vortexEnabled) sim.alphaTarget(0.18).restart();
+});
+document.getElementById("vortex-speed").addEventListener("input",e=>{
+  vortexSpeed=+e.target.value;
+  document.getElementById("vs").textContent=(+e.target.value).toFixed(3);
+});
+
 document.querySelectorAll("#cat-buttons .cat-btn").forEach(btn=>btn.addEventListener("click",()=>{
   document.querySelectorAll("#cat-buttons .cat-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active"); activeCat=btn.dataset.cat;
