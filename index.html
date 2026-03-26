@@ -143,18 +143,18 @@ graphData.links=graphData.links.filter(l=>{
 
 const categories={
   operational:["epstein","maxwell_g","kellen","marcinkova","groff","brunel","alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"],
-  financial:["epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle","pritzker","lutnick","bloomberg","mort_z","diller","barrack","dubin","eva_dubin","nat_rothschild","lynn_rothschild"],
-  legal:["dershowitz","acosta","starr","boies","barr_d","barr_w","rosenstein","berman","strauss","freeh","mueller","comey","judge_marra"],
-  intel:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","nahum_admoni","wexner","dershowitz","junkermann","kroll","peres","chaim_herzog","yitzhak_shamir","olmert","shabtai_shavit","barr_d","barr_w","brennan","petraeus","burns","freeh","mueller","comey","acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan","andrew","ferguson","blair","boris_johnson","murdoch","mandelson","putin","deripaska","manafort","rybolovlev","nat_rothschild","khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"],
-  intel_il:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","nahum_admoni","rafi_eitan","jonathan_pollard","chaim_herzog","yitzhak_shamir","olmert","shabtai_shavit","wexner","dershowitz","thiel","junkermann","peres","milchan"],
-  intel_us:["epstein","barr_d","barr_w","brennan","petraeus","burns","freeh","mueller","comey","acosta","rosenstein","berman","sandy_berger","robert_hanssen","dennis_hastert","dougan"],
-  intel_uk:["robert_maxwell","maxwell_g","andrew","ferguson","blair","evgeny_lebedev","lebedev","mandelson"],
-  intel_ru:["robert_maxwell","deripaska","putin","robert_hanssen","manafort","rybolovlev","nat_rothschild","dougan"],
-  intel_ae:["khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","kushner","trump","juan_carlos"],
-  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dennis_hastert","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","chopra","marcinkova","copperfield","jack_lang","giuffre","staley"],
-  named:["andrew","mitchell","richardson","dubin","minsky","dershowitz","barak","clinton","trump","nader","giuffre"],
-  cover:["epstein","maxwell_g","wexner","black","bronfman_c","bronfman_s","hawking","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","ito","gates","summers","bob_wright","gutfreund","woody","charlie_rose","lauer","spacey","copperfield","chopra","naomi","handler","branson","jack_lang","juan_carlos","king_carl_xvi","john_podesta","lindsey_graham"],
-  uncertain:["thiel","bezos","sergey_brin","larry_page","bloomberg","murdoch","pritzker","burkle","diller","mort_z","hawking","chopra","chaim_herzog","yitzhak_shamir","shabtai_shavit"]
+  financial:["epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle","pritzker","lutnick","bloomberg","mort_z","diller","barrack","dubin","eva_dubin"],
+  legal:["dershowitz","acosta","starr","boies","barr_d","barr_w","rosenstein","berman","strauss","freeh","mueller","comey"],
+  intel:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","wexner","dershowitz","kroll","peres","olmert","barr_d","barr_w","brennan","petraeus","freeh","mueller","comey","acosta","rosenstein","berman","dougan","andrew","ferguson","blair","murdoch","mandelson","putin","deripaska","khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","trump"],
+  intel_il:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","wexner","dershowitz","thiel","peres","olmert"],
+  intel_us:["epstein","barr_d","barr_w","brennan","petraeus","freeh","mueller","comey","acosta","rosenstein","berman","dougan"],
+  intel_uk:["robert_maxwell","maxwell_g","andrew","ferguson","blair","lebedev","mandelson"],
+  intel_ru:["robert_maxwell","deripaska","putin","dougan"],
+  intel_ae:["khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","trump"],
+  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","marcinkova","copperfield","staley"],
+  named:["andrew","mitchell","richardson","dubin","minsky","dershowitz","barak","clinton","trump","nader"],
+  cover:["epstein","maxwell_g","wexner","black","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","joi_ito","gates","summers","woody","charlie_rose","lauer","spacey","copperfield","deepak","naomi","branson"],
+  uncertain:["thiel","brin","bloomberg","murdoch","pritzker","burkle","diller","mort_z","deepak"]
 };
 const catNames={operational:"Operational",financial:"Financial",legal:"Legal Shield",intel:"Intelligence",intel_il:"🇮🇱 Mossad/IL",intel_us:"🇺🇸 CIA/FBI",intel_uk:"🇬🇧 MI5/MI6",intel_ru:"🇷🇺 KGB/FSB",intel_ae:"🇦🇪 Gulf",named:"Named by Victims",cover:"Social Cover",uncertain:"Uncertain",confirmed:"⚠ Confirmed"};
 const C={center:"#ef4444",convicted:"#2dd4bf",suspicious:"#60a5fa",possibly:"#a78bfa"};
@@ -250,7 +250,7 @@ const sim=d3.forceSimulation(nodes)
   .on("tick",scheduleRedraw);
 
 const epInit=nodeMap.get("epstein");
-if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=H/2;}
+if(epInit){epInit.x=W/2;epInit.y=H/2;epInit.fx=W/2;epInit.fy=W/2;}
 
 for(let i=0;i<links.length;i++){
   const l=links[i];
