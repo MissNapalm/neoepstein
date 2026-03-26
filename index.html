@@ -88,10 +88,10 @@ body{background:#0f172a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
     <button class="cat-btn conf-btn" data-cat="confirmed">⚠ Confirmed</button>
   </div>
   <h2>Classification</h2>
-  <label><input type="checkbox" class="tf" value="center" checked><span class="dot" style="background:#ef4444"></span>Principal Targets</label>
-  <label><input type="checkbox" class="tf" value="convicted" checked><span class="dot" style="background:#2dd4bf"></span>Convicted</label>
-  <label><input type="checkbox" class="tf" value="suspicious" checked><span class="dot" style="background:#60a5fa"></span>Suspicious</label>
-  <label><input type="checkbox" class="tf" value="possibly"><span class="dot" style="background:#a78bfa"></span>Possibly Involved</label>
+  <label><input type="checkbox" class="tf" value="center" checked><span class="dot" style="background:#ff2a2a"></span>Principal Targets</label>
+  <label><input type="checkbox" class="tf" value="convicted" checked><span class="dot" style="background:#ff2a2a"></span>Convicted</label>
+  <label><input type="checkbox" class="tf" value="suspicious" checked><span class="dot" style="background:#ff6b1a"></span>Suspicious</label>
+  <label><input type="checkbox" class="tf" value="possibly"><span class="dot" style="background:#3b82f6"></span>Possibly Involved</label>
   <h2>Min link strength: <span id="sv">0</span></h2>
   <input type="range" id="str" min="0" max="1" step="0.1" value="0">
   <h2>Display</h2>
@@ -133,7 +133,7 @@ if(typeof supplementalData!=='undefined'){
   for(const l of supplementalData.links){const k=l.source+'→'+l.target;if(!el.has(k)){graphData.links.push(l);el.add(k);}}
 }
 
-const removedNodes=new Set(["king_charles","osborne","leon_brittan","cyril_smith","edward_heath","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","john_stingemore"]);
+const removedNodes=new Set(["king_charles","osborne","leon_brittan","cyril_smith","edward_heath","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","john_stingemore","weinstein","boies"]);
 graphData.nodes=graphData.nodes.filter(n=>!removedNodes.has(n.id));
 graphData.links=graphData.links.filter(l=>{
   const s=typeof l.source==='object'?l.source.id:l.source;
@@ -144,26 +144,54 @@ graphData.links=graphData.links.filter(l=>{
 const categories={
   operational:["epstein","maxwell_g","kellen","marcinkova","groff","brunel","alessi","rodriguez","casablancas","gerald_marie","zampolli","wexner"],
   financial:["epstein","wexner","black","staley","dimon","hoffenberg","kravis","david_koch","burkle","pritzker","lutnick","bloomberg","mort_z","diller","barrack","dubin","eva_dubin"],
-  legal:["dershowitz","acosta","starr","boies","barr_d","barr_w","rosenstein","berman","strauss","freeh","mueller","comey"],
+  legal:["dershowitz","acosta","starr","barr_d","barr_w","rosenstein","berman","strauss","freeh","mueller","comey"],
   intel:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","wexner","dershowitz","kroll","peres","olmert","barr_d","barr_w","brennan","petraeus","freeh","mueller","comey","acosta","rosenstein","berman","dougan","andrew","ferguson","blair","murdoch","mandelson","putin","deripaska","khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","trump"],
   intel_il:["epstein","maxwell_g","robert_maxwell","ben_menashe","ostrovsky","barak","netanyahu","black_cube","wexner","dershowitz","thiel","peres","olmert"],
   intel_us:["epstein","barr_d","barr_w","brennan","petraeus","freeh","mueller","comey","acosta","rosenstein","berman","dougan"],
   intel_uk:["robert_maxwell","maxwell_g","andrew","ferguson","blair","lebedev","mandelson"],
   intel_ru:["robert_maxwell","deripaska","putin","dougan"],
   intel_ae:["khashoggi","nader","mbs","sultan_ahmed","sultan_brunei","barrack","trump"],
-  confirmed:["epstein","maxwell_g","brunel","weinstein","nader","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","marcinkova","copperfield","staley"],
+  confirmed:["epstein","maxwell_g","brunel","nader","dershowitz","andrew","dubin","minsky","richardson","mitchell","clinton","barak","trump","branson","sultan_brunei","sultan_ahmed","nowak","musk","gerald_marie","casablancas","krauss","spacey","woody","lauer","charlie_rose","marcinkova","copperfield","staley"],
   named:["andrew","mitchell","richardson","dubin","minsky","dershowitz","barak","clinton","trump","nader"],
   cover:["epstein","maxwell_g","wexner","black","minsky","krauss","nowak","pinker","church","seth_lloyd","chomsky","joi_ito","gates","summers","woody","charlie_rose","lauer","spacey","copperfield","deepak","naomi","branson"],
   uncertain:["thiel","brin","bloomberg","murdoch","pritzker","burkle","diller","mort_z","deepak"]
 };
 const catNames={operational:"Operational",financial:"Financial",legal:"Legal Shield",intel:"Intelligence",intel_il:"🇮🇱 Mossad/IL",intel_us:"🇺🇸 CIA/FBI",intel_uk:"🇬🇧 MI5/MI6",intel_ru:"🇷🇺 KGB/FSB",intel_ae:"🇦🇪 Gulf",named:"Named by Victims",cover:"Social Cover",uncertain:"Uncertain",confirmed:"⚠ Confirmed"};
-const C={center:"#ef4444",convicted:"#2dd4bf",suspicious:"#60a5fa",possibly:"#a78bfa"};
-const Clight={center:"rgba(239,68,68,0.1)",convicted:"rgba(45,212,191,0.1)",suspicious:"rgba(96,165,250,0.1)",possibly:"rgba(167,139,250,0.1)"};
-const Cborder={center:"rgba(239,68,68,0.25)",convicted:"rgba(45,212,191,0.25)",suspicious:"rgba(96,165,250,0.25)",possibly:"rgba(167,139,250,0.25)"};
+
+/* ── 3-TIER COLOR SYSTEM ── */
+const BRIGHT_RED='#ff2a2a';
+const BRIGHT_ORANGE='#ff8c00';
+const BRIGHT_BLUE='#3b82f6';
+const DARK_BLUE='#1e40af';
+
+// RED: confirmed predators — convicted, named under oath, settled, direct participants
+const RED_SET=new Set([
+  "epstein","maxwell_g","brunel","nader","dershowitz",
+  "andrew","dubin","minsky","richardson","mitchell",
+  "marcinkova","kellen","groff","alessi","rodriguez",
+  "copperfield","gerald_marie","casablancas",
+  "spacey","woody","lauer","charlie_rose",
+  "sultan_brunei","sultan_ahmed","krauss","nowak",
+  "staley","eva_dubin"
+]);
+
+// ORANGE: almost certainly pedophiles — strong evidence of sexual abuse of minors, no conviction yet
+const ORANGE_SET=new Set([
+  "trump","clinton","musk","branson","barak",
+  "wexner","mbs","joi_ito","barr_w"
+]);
+
+function nColor(d){
+  if(RED_SET.has(d.id)) return BRIGHT_RED;
+  if(ORANGE_SET.has(d.id)) return BRIGHT_ORANGE;
+  return BRIGHT_BLUE;
+}
+
+const C={center:BRIGHT_RED,convicted:BRIGHT_RED,suspicious:BRIGHT_ORANGE,possibly:BRIGHT_BLUE};
+const Clight={center:"rgba(255,42,42,0.1)",convicted:"rgba(255,42,42,0.1)",suspicious:"rgba(255,140,0,0.1)",possibly:"rgba(59,130,246,0.1)"};
+const Cborder={center:"rgba(255,42,42,0.25)",convicted:"rgba(255,42,42,0.25)",suspicious:"rgba(255,140,0,0.25)",possibly:"rgba(59,130,246,0.25)"};
 const typeLabel={center:"PRINCIPAL TARGET",convicted:"CONVICTED",suspicious:"SUSPICIOUS",possibly:"POSSIBLY INVOLVED"};
 const coreSet=new Set(categories.operational);
-const confirmedSet=new Set(categories.confirmed);
-const forceBlue=new Set(["wexner","barr_d","rodriguez","alessi","robert_maxwell"]);
 
 const canvas=document.getElementById('graph');
 const ctx=canvas.getContext('2d',{alpha:false});
@@ -208,30 +236,30 @@ const linkNormalStroke=linkBaseRGB.map(([r,g,b],ti)=>{
 });
 
 const strokeNormal="rgba(255,255,255,0.12)";
-const strokeBlue="rgba(96,165,250,0.4)";
-const strokeRed="rgba(239,68,68,0.4)";
+const strokeBlue="rgba(59,130,246,0.4)";
+const strokeRed="rgba(255,42,42,0.4)";
+const strokeOrange="rgba(255,140,0,0.4)";
 
 const nodeColorCache=new Array(nodes.length);
 function rebuildColorCache(){
   for(let i=0;i<nodes.length;i++){
-    const d=nodes[i];
-    nodeColorCache[i]=forceBlue.has(d.id)?"#60a5fa":confirmedSet.has(d.id)?"#ef4444":(C[d.type]||"#64748b");
+    nodeColorCache[i]=nColor(nodes[i]);
   }
 }
 
 const nodeLabelColor=new Array(nodes.length);
 function rebuildLabelColors(){
   for(let i=0;i<nodes.length;i++){
-    const d=nodes[i];
-    nodeLabelColor[i]=forceBlue.has(d.id)?"#93c5fd":confirmedSet.has(d.id)?"#fca5a5":"#94a3b8";
+    const c=nColor(nodes[i]);
+    nodeLabelColor[i]=c===BRIGHT_RED?'#fca5a5':c===BRIGHT_ORANGE?'#fdba74':'#93c5fd';
   }
 }
 
 const nodeBorderVariant=new Int8Array(nodes.length);
 function rebuildBorderVariants(){
   for(let i=0;i<nodes.length;i++){
-    const d=nodes[i];
-    nodeBorderVariant[i]=forceBlue.has(d.id)?1:confirmedSet.has(d.id)?2:0;
+    const c=nColor(nodes[i]);
+    nodeBorderVariant[i]=c===BRIGHT_RED?2:c===BRIGHT_ORANGE?3:1;
   }
 }
 
@@ -372,7 +400,7 @@ function draw(){
     ctx.fillStyle=color; ctx.fill();
 
     const bv=nodeBorderVariant[i];
-    ctx.strokeStyle=bv===1?strokeBlue:bv===2?strokeRed:strokeNormal;
+    ctx.strokeStyle=bv===2?strokeRed:bv===3?strokeOrange:bv===1?strokeBlue:strokeNormal;
     ctx.stroke();
 
     if(isHovered){
@@ -506,7 +534,8 @@ function hitTest(gx,gy){
 }
 function showTip(d,cx,cy){
   const cats=Object.entries(categories).filter(([,v])=>v.includes(d.id)).map(([k])=>catNames[k]);
-  let h=`<div class="name" style="color:${C[d.type]||'#64748b'}">${d.label}</div>`;
+  const tipColor=nColor(d);
+  let h=`<div class="name" style="color:${tipColor}">${d.label}</div>`;
   if(d.role) h+=`<div><span class="lbl">Role: </span>${d.role}</div>`;
   if(d.status) h+=`<div><span class="lbl">Status: </span>${d.status}</div>`;
   if(cats.length) h+=`<div style="margin-top:4px;color:#64748b;font-size:10px">${cats.join(' · ')}</div>`;
@@ -586,8 +615,9 @@ document.getElementById("search").addEventListener("input",e=>{
 
 function openDossier(d){
   tipEl.style.display="none";
-  const color=C[d.type]||"#64748b",light=Clight[d.type]||"rgba(100,116,139,0.1)",border=Cborder[d.type]||"rgba(100,116,139,0.25)";
+  const color=nColor(d),light=Clight[d.type]||"rgba(59,130,246,0.1)",border=Cborder[d.type]||"rgba(59,130,246,0.25)";
   document.getElementById("dos-name").textContent=d.label;
+  document.getElementById("dos-name").style.color=color;
   const roEl=document.getElementById("dos-role");roEl.textContent=d.role||"";roEl.style.display=d.role?"block":"none";
   const stEl=document.getElementById("dos-status");
   if(d.status){
@@ -624,7 +654,7 @@ function openDossier(d){
   conns.sort((a,b)=>b.strength-a.strength);
   parts.push(`<div class="ds"><h3>Connections (${conns.length})</h3><ul class="cl">${conns.map(c=>{
     const sc=c.strength>=0.7?"sh":c.strength>=0.4?"sm":"sl";
-    return `<li data-id="${c.node.id}"><span class="cn"><span style="color:${C[c.node.type]||'#64748b'}">●</span> ${c.dir} ${c.node.label}</span><span class="cs ${sc}">${Math.round(c.strength*100)}%</span></li>`;
+    return `<li data-id="${c.node.id}"><span class="cn"><span style="color:${nColor(c.node)}">●</span> ${c.dir} ${c.node.label}</span><span class="cs ${sc}">${Math.round(c.strength*100)}%</span></li>`;
   }).join("")}</ul></div>`);
   const tl=d.type==="center"?"CRITICAL":d.type==="convicted"?"HIGH":coreSet.has(d.id)?"HIGH":conns.length>10?"ELEVATED":conns.length>5?"MODERATE":"LOW";
   const tC={CRITICAL:"#f87171",HIGH:"#fb923c",ELEVATED:"#fbbf24",MODERATE:"#818cf8",LOW:"#475569"};
