@@ -208,7 +208,7 @@ if(typeof supplementalData!=='undefined'){
   for(const l of supplementalData.links){const k=l.source+'→'+l.target;if(!el.has(k)){graphData.links.push(l);el.add(k);}}
 }
 
-const removedNodes=new Set(["king_charles","osborne","leon_brittan","cyril_smith","edward_heath","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","john_stingemore","weinstein","boies","cate_blanchett","blanchett","cate"]);
+const removedNodes=new Set(["king_charles","osborne","leon_brittan","cyril_smith","edward_heath","savile","maurice_oldfield","michael_hanley","anthony_blunt","peter_morrison","peter_hayman","rolf_harris","gary_glitter","max_clifford","chris_denning","peter_righton","sidney_cooke","tony_mcsweeney","john_stingemore","weinstein","boies"]);
 graphData.nodes=graphData.nodes.filter(n=>!removedNodes.has(n.id));
 graphData.links=graphData.links.filter(l=>{
   const s=typeof l.source==='object'?l.source.id:l.source;
@@ -703,14 +703,6 @@ function draw(){
     const isConn=conn&&conn.has(d.id)&&!isHovered;
     const bv=nodeBorderVariant[i];
     const dr=isConn?r*1.08:bv===4?r*0.7:r;
-
-    /* ── drop shadow for light mode ── */
-    if(t.isLight){
-      ctx.globalAlpha=fop*0.35;
-      ctx.beginPath(); ctx.arc(d.x+2,d.y+3,dr,0,Math.PI*2);
-      ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
-      ctx.globalAlpha=fop;
-    }
 
     if(bv===4){
       ctx.globalAlpha=fop*0.12;
